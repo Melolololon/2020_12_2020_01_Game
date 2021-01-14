@@ -16,6 +16,7 @@ public:
 		bool sphere;
 		bool lay;
 		bool lineSegment;
+		bool plane;
 		bool board;
 	};
 
@@ -41,6 +42,7 @@ protected:
 	std::vector<SphereData> sphereData;
 	std::vector<LineSegmentData> lineSegmentData;
 	std::vector<LayData> layData;
+	std::vector<PlaneData>planeData;
 	std::vector<BoardData>boardData;
 #pragma endregion
 
@@ -61,6 +63,9 @@ public:
 	bool getIsDead();
 	CollisionFlag getCollisionFlag();
 	std::vector<SphereData> getSphereData();
+	std::vector<LineSegmentData> getLineSegmentData();
+	std::vector<PlaneData> getPlaneData();
+	std::vector<BoardData> getBoardData();
 
 	virtual void* getPtr();
 

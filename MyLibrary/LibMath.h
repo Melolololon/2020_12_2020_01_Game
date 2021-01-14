@@ -51,16 +51,18 @@ public:
 	/// <param name="v1"></param>
 	/// <param name="v2"></param>
 	/// <returns></returns>
-	static float twoVectorAngle(Vector2 v1, Vector2 v2);
+	static float twoVector2Angle(Vector2 v1, Vector2 v2);
 
 	/// <summary>
 	/// ベクトルを角度に変換します
 	/// </summary>
 	/// <param name="v"></param>
 	/// <returns></returns>
-	static float vectorToAngle(Vector2 v);
+	static float vecto2rToAngle(Vector2 v);
 
-	static Vector2 angleToVector(float angle);
+	static Vector2 angleToVector2(float angle);
+
+	static Vector2 rotateVector2(Vector2 v, float angle);
 #pragma endregion
 
 
@@ -102,19 +104,19 @@ public:
 	/// <returns>当たったかどうか</returns>
 	static bool sphereCollision(Vector3 centerPosition1, float r1, Vector3 centerPosition2, float r2);
 
-/// <summary>
-/// 球と平面の座標
-/// </summary>
-/// <param name="spherePos"></param>
-/// <param name="r"></param>
-/// <param name="normal">平面の法線ベクトル</param>
-/// <param name="planeDist">平面の原点から平面の距離(マイナス可能)</param>
-/// <param name="hitPos"></param>
-/// <returns></returns>
+	/// <summary>
+	/// 球と平面の座標
+	/// </summary>
+	/// <param name="spherePos"></param>
+	/// <param name="r"></param>
+	/// <param name="normal">平面の法線ベクトル</param>
+	/// <param name="planeDist">平面の原点から平面の距離(マイナス可能)</param>
+	/// <param name="hitPos"></param>
+	/// <returns></returns>
 	static bool sphereAndPlaneCollision
-	( 
-		Vector3 spherePos,  
-		float r,   
+	(
+		Vector3 spherePos,
+		float r,
 		Vector3 normal,
 		float planeDist,
 		Vector3* hitPos
@@ -134,14 +136,14 @@ public:
 	static bool sphereAndTryangleCorrision
 	(
 		Vector3 spherePos,
-		float r, 
-		Vector3 triPos1, 
-		Vector3 triPos2, 
+		float r,
+		Vector3 triPos1,
+		Vector3 triPos2,
 		Vector3 triPos3,
 		Vector3 normal,
 		Vector3* hitPos
 	);
-	
+
 	/// <summary>
 	/// 線分と板の当たり判定
 	/// </summary>
@@ -154,10 +156,10 @@ public:
 	/// /// <returns></returns>
 	static bool lineSegmentAndBoardCollision
 	(
-		Vector3 linePos1, 
-		Vector3 linePos2, 
+		Vector3 linePos1,
+		Vector3 linePos2,
 		Vector3 normal,
-		Vector3 pointPos, 
+		Vector3 pointPos,
 		std::vector<Vector3>vertexPoint,
 		Vector3* crossPosition
 	);

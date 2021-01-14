@@ -10,6 +10,8 @@ private:
 
 	std::unordered_map<std::string, vertex> verts;
 	std::unordered_map<std::string, heap> heaps;
+	std::unordered_map<std::string, texture> textures;
+	std::unordered_map<std::string, point>points;
 
 public:
 	PolygonManager(const PolygonManager& p) = delete;
@@ -28,6 +30,18 @@ public:
 	void deletePolygonHeap(std::string keyName);
 	int* getPolygonHeap(std::string keyName);
 	void clearPolygonHeap();
+
+
+	void addTexture(std::string keyName, texture texture);
+	void deleteTexture(std::string keyName);
+	texture getTexture(std::string keyName);
+	void clearTexture();
+
+
+	void addPolygonPoint(std::string keyName, point point);
+	void deletePolygonPoint(std::string keyName);
+	point getPolygonPoint(std::string keyName);
+	void clearPolygonPoint();
 
 	void clear();
 };

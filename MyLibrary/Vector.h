@@ -1,7 +1,6 @@
 #pragma once
 #include<DirectXMath.h>
-
-struct Vector2
+struct Vector2  
 {
 	float x, y;
 
@@ -43,7 +42,7 @@ struct Vector2
 };
 
 
-struct Vector3 
+struct Vector3
 {
 	float x, y, z;
 

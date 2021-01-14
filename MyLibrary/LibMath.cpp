@@ -82,8 +82,9 @@ Vector3 LibMath::otherVector(Vector3 myPos, Vector3 otherPos)
 }
 
 
- float LibMath::twoVectorAngle(Vector2 v1, Vector2 v2)
+float LibMath::twoVector2Angle(Vector2 v1, Vector2 v2)
 {
+
 	float f = Vector2::dot(v1, v2);
 	f = std::acos(f);
 	f = angleConversion(1, f);
@@ -94,25 +95,31 @@ Vector3 LibMath::otherVector(Vector3 myPos, Vector3 otherPos)
 	return f;
 }
 
- float LibMath::vectorToAngle(Vector2 v)
+float LibMath::vecto2rToAngle(Vector2 v)
 {
-	 float f = Vector2::dot(v, { 1,0 });
-	 f = std::acos(f);
-	 f = angleConversion(1, f);
-	 return f;
+
+	float f = twoVector2Angle({ 1,0 }, v);
+	return f;
 }
 
 
- Vector2 LibMath::angleToVector(float angle)
- {
-	 DirectX::XMMATRIX vMat = DirectX::XMMatrixIdentity();
-	 vMat.r[3].m128_f32[0] = 1.0f;
+Vector2 LibMath::angleToVector2(float angle)
+{
+	DirectX::XMMATRIX vMat = DirectX::XMMatrixIdentity();
+	vMat.r[3].m128_f32[0] = 1.0f;
 
-	 DirectX::XMMATRIX aMat = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(angle));
-	 vMat *= aMat;
-	 return { vMat.r[3].m128_f32[1] , vMat.r[3].m128_f32[2] };
+	DirectX::XMMATRIX aMat = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(angle));
+	vMat *= aMat;
+	return { vMat.r[3].m128_f32[0] , vMat.r[3].m128_f32[1] };
 
- }
+}
+
+
+Vector2 LibMath::rotateVector2(Vector2 v, float angle)
+{
+	float vAngle = vecto2rToAngle(v);
+	return angleToVector2(vAngle + angle);
+}
 
 #pragma endregion
 
@@ -377,24 +384,6 @@ bool LibMath::lineSegmentAndBoardCollision
 	Vector3* crossPosition
 )
 {
-#ifdef _DEBUG
-
-	if (DirectInput::keyTrigger(DIK_SPACE))
-	{
-		Vector3 n = { 0,0,0 };
-		Vector3 cP = { vertexPoint[0] };
-		Library::calculationNormal(vertexPoint[2], vertexPoint[1], cP, n, n, n);
-
-		cP = { vertexPoint[0] };
-		cP.x += 0.9f;
-		cP.z += 0.9f;
-		Library::calculationNormal(vertexPoint[2], vertexPoint[1], cP, n, n, n);
-
-		int s = 0;
-	}
-#endif // _DEBUG
-
-
 
 	Vector3 v1;
 	Vector3 v2;
@@ -525,7 +514,7 @@ bool LibMath::lineSegmentAndBoardCollision
 		if (crossPosition) *crossPosition = crossPos;
 #endif // _DEBUG
 
-		
+
 		return false;
 	}
 	return false;
@@ -540,7 +529,7 @@ bool LibMath::layAndPlaneCollision
 	float planeDistance,
 	float* distance,
 	Vector3* crossPos
-) 
+)
 {
 	const float epsilon = 1.0e-5f;
 
@@ -558,7 +547,7 @@ bool LibMath::layAndPlaneCollision
 
 	if (distance)*distance = t;
 	if (crossPos)*crossPos = layStartPos + layDirection * t;
-	
+
 	return true;
 }
 
@@ -572,7 +561,7 @@ bool LibMath::layAndTryangleCollision
 	Vector3 normal,
 	float* distance,
 	Vector3* crossPos
-) 
+)
 {
 	Vector3 planeNormal;
 	float planeDistance;
@@ -581,7 +570,7 @@ bool LibMath::layAndTryangleCollision
 	planeNormal = normal;
 	planeDistance = Vector3::dot(normal, triPos1);
 
-	if (!layAndPlaneCollision(layStartPos, layDirection, planeNormal, planeDistance,distance , &interPlane))return false;
+	if (!layAndPlaneCollision(layStartPos, layDirection, planeNormal, planeDistance, distance, &interPlane))return false;
 
 
 
@@ -619,7 +608,7 @@ bool LibMath::layAndSphereCollision
 	float r,
 	float* distance,
 	Vector3* crossPos
-) 
+)
 {
 	Vector3 m = layStartPos - spherePos;
 	float b = Vector3::dot(m, layDirection);

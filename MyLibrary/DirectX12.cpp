@@ -5,7 +5,6 @@
 
 DirectX12::DirectX12(HWND hwnd, int windouWidth, int windowHeight)
 {
-	screenColor = { 0,0,0,0 };
 
 #pragma region Windows
 
@@ -94,6 +93,7 @@ DirectX12::DirectX12(HWND hwnd, int windouWidth, int windowHeight)
 
 	pipelineNum = 0;
 	spritePipelineNum = 0;
+	currentPostEffectPipeline = 0;
 	spriteFontDrawCounter = 0;
 
 	constData3D = nullptr;
@@ -101,6 +101,8 @@ DirectX12::DirectX12(HWND hwnd, int windouWidth, int windowHeight)
 	userConstDataSize3D = 0;
 
 	materialData = {};
+
+	postEffectCametaFlag = false;
 }
 
 
@@ -569,6 +571,8 @@ void DirectX12::initialize()
 	spriteGpipeline.DepthStencilState.DepthEnable = false;
 	spriteGpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
+	spriteGpipeline.BlendState.AlphaToCoverageEnable = true;
+
 	CD3DX12_DESCRIPTOR_RANGE spriteDescRangeSRV;
 	spriteDescRangeSRV.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
@@ -608,6 +612,8 @@ void DirectX12::initialize()
 	createPipeline->setInputLayout("POSITION", 3);
 	createPipeline->setInputLayout("TEXCOORD", 2);
 	createPipeline->setInputLayout("COLOR", 4);
+	pointGpipeline.BlendState.AlphaToCoverageEnable = true; 
+	pointGpipeline.DepthStencilState.DepthEnable = true;
 	createPipeline->createUserPipeline
 	(
 		1,
@@ -678,6 +684,297 @@ void DirectX12::initialize()
 
 
 #pragma endregion
+
+#pragma region ポストエフェクト
+
+
+
+#pragma region 描画先板ポリのリソース作成
+	postEfectConstBuffers.resize(1);
+	postEfectConstBuffers.reserve(20);
+
+	//D3D12_CLEAR_VALUE リソースをレンダーターゲットとして使う場合にどう初期化するかをまとめたもの
+	D3D12_CLEAR_VALUE peClesrValue;
+
+
+	/*peClesrValue.Color[0] = clearColor[0];
+	peClesrValue.Color[1] = clearColor[1];
+	peClesrValue.Color[2] = clearColor[2];
+	peClesrValue.Color[3] = clearColor[3];
+	peClesrValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	D3D12_DEPTH_STENCIL_VALUE peSepthStencilValue;
+	peSepthStencilValue.Depth = 1.0f;
+	peSepthStencilValue.Stencil = 0.0f;
+	peClesrValue.DepthStencil = peSepthStencilValue;*/
+	peClesrValue = CD3DX12_CLEAR_VALUE(DXGI_FORMAT_R8G8B8A8_UNORM, clearColor);
+	//リソース作成
+	postEffectResources.resize(1);
+
+	dev->CreateCommittedResource
+	(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&backBuffer[0].Get()->GetDesc(),
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		&peClesrValue,
+		IID_PPV_ARGS(&postEffectResources[0])
+	);
+
+#pragma region ヒープとビュー作成
+	//テクスチャ
+
+	//ヒープ作成
+	D3D12_DESCRIPTOR_HEAP_DESC peHeapDesc{};
+	peHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	peHeapDesc.NumDescriptors = 2;
+	peHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	peHeapDesc.NodeMask = 0;
+	dev->CreateDescriptorHeap(&peHeapDesc, IID_PPV_ARGS(&postEffectHeap));
+
+	//ビュー作成
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	dev->CreateShaderResourceView
+	(
+		postEffectResources[0].Get(),
+		&srvDesc,
+		postEffectHeap.Get()->GetCPUDescriptorHandleForHeapStart()
+	);
+
+	//定数バッファ作成
+	postEffectWorldMatData.resize(1);
+	postEffectWorldMatData[0].scale = { 1,1,1 };
+
+	postEfectConstBuffers[0].constBuffer.resize(1);
+	createBuffer->createConstBufferSet(
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		CD3DX12_RESOURCE_DESC::Buffer((sizeof(PostEffectConstData) + 0xff)&~0xff),
+		CD3DX12_CPU_DESCRIPTOR_HANDLE
+		(
+			postEffectHeap.Get()->GetCPUDescriptorHandleForHeapStart(),
+			1,
+			dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+		),
+		(void**)&postEffectConstDataP,
+		postEfectConstBuffers[0],
+		0);
+	postEffectConstDataP->worldMat = DirectX::XMMatrixIdentity();
+	//postEfectConstBuffers[0].constBuffer[0].Get()->Unmap(0, nullptr);
+
+	//レンダーターゲット
+
+	//ヒープ作成
+	peHeapDesc = {};
+	peHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	peHeapDesc.NumDescriptors = 10;
+	dev->CreateDescriptorHeap(&peHeapDesc, IID_PPV_ARGS(&postEffectRTVHeap));
+
+	//ビュー作成
+	D3D12_RENDER_TARGET_VIEW_DESC peRTVDesc = {};
+	peRTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	peRTVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	dev.Get()->CreateRenderTargetView
+	(
+		postEffectResources[0].Get(),
+		&peRTVDesc,
+		postEffectRTVHeap.Get()->GetCPUDescriptorHandleForHeapStart()
+	);
+#pragma endregion
+
+#pragma endregion
+
+#pragma region 描画先板ポリの頂点情報作成
+
+	postEffectVertex.resize(4);
+
+	postEffectVertex[0] = { {-1,-1,0},{0,1},{0,0,0} };
+	postEffectVertex[1] = { {-1,1,0},{0,0},{0,0,0} };
+	postEffectVertex[2] = { {1,-1,0},{1,1},{0,0,0} };
+	postEffectVertex[3] = { {1,1,0},{1,0},{0,0,0} };
+
+	createBuffer->createVertexBufferSet
+	(
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		CD3DX12_RESOURCE_DESC::Buffer(sizeof(Vertex) * 4),
+		postEffectVertex,
+		postEffectVertexBufferSet
+	);
+#pragma endregion
+
+#pragma region ルートシグネチャとパイプラインを生成
+	postEffectPipeline.resize(1);
+	postEffectPipeline.reserve(20);
+
+	//レンジ
+	D3D12_DESCRIPTOR_RANGE peRangeSRV{};
+	peRangeSRV.NumDescriptors = 1;
+	peRangeSRV.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	peRangeSRV.BaseShaderRegister = 0;
+	peRangeSRV.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_DESCRIPTOR_RANGE peRangeCBV{};
+	peRangeCBV.NumDescriptors = 1;
+	peRangeCBV.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	peRangeCBV.BaseShaderRegister = 0;
+	peRangeCBV.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	//ルートパラメータ
+	D3D12_ROOT_PARAMETER peRootparam[2]{};
+
+	//テクスチャ
+	peRootparam[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	peRootparam[0].DescriptorTable.pDescriptorRanges = &peRangeSRV;
+	peRootparam[0].DescriptorTable.NumDescriptorRanges = 1;
+	peRootparam[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	peRootparam[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	peRootparam[1].DescriptorTable.pDescriptorRanges = &peRangeCBV;
+	peRootparam[1].DescriptorTable.NumDescriptorRanges = 1;
+	peRootparam[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	rootSignatureDesc.pParameters = peRootparam;
+	rootSignatureDesc.NumParameters = _countof(peRootparam);
+
+	/*D3D12_ROOT_SIGNATURE_DESC d = {};
+	d.NumParameters = 0;
+	d.NumStaticSamplers = 0;
+	d.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;*/
+
+	//ルートシグネチャ
+	createPipeline->createRootSigneture(rootSignatureDesc, &postEffectRootSigneture);
+
+	////パイプライン
+	createPipeline->setInputLayout("POSITION", 3);
+	createPipeline->setInputLayout("TEXCOORD", 2);
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC pePLDesc = spriteGpipeline;
+	pePLDesc.pRootSignature = postEffectRootSigneture.Get();
+	//pePLDesc.pRootSignature = spriteRootsignature.Get();
+	/*PipelineData pePlData;
+	pePlData.blendMode = BLEND_NONE;
+	pePlData.cullMode = CULL_NONE;
+	pePlData.depthMode = DEPTH_NONE;
+	pePlData.drawMode = DRAW_SOLID;*/
+
+	createPipeline->createUserPipeline
+	(
+		1,
+		{ L"../MyLibrary/PostEffectVertexShader.hlsl","VSmain","vs_5_0" },
+		{ L"NULL","","" },
+		{ L"../MyLibrary/PostEffectPixelShader.hlsl","PSmain","ps_5_0" },
+		pePLDesc,
+		&postEffectPipeline[0],
+		true
+	);
+
+	createPipeline->deleteInputLayout();
+
+#pragma endregion
+
+
+#pragma endregion
+
+
+
+#pragma region トゥーンレンダリング用レンダーターゲット(仮)
+	toonShaderPipeline.resize(1);
+	toonShaderPipeline.reserve(20);
+
+	D3D12_CLEAR_VALUE tsClesrValue;
+
+
+	tsClesrValue = CD3DX12_CLEAR_VALUE(DXGI_FORMAT_R8G8B8A8_UNORM, clearColor);
+	//リソース作成
+	toonShaderResources.resize(1);
+
+	dev->CreateCommittedResource
+	(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&backBuffer[0].Get()->GetDesc(),
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		&peClesrValue,
+		IID_PPV_ARGS(&toonShaderResources[0])
+	);
+
+
+#pragma region ヒープとビュー作成
+	//テクスチャ
+
+	//ヒープ作成
+	D3D12_DESCRIPTOR_HEAP_DESC tsHeapDesc{};
+	tsHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	tsHeapDesc.NumDescriptors = 10;
+	tsHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	tsHeapDesc.NodeMask = 0;
+	dev->CreateDescriptorHeap(&tsHeapDesc, IID_PPV_ARGS(&toonShaderHeap));
+
+	//ビュー作成
+	D3D12_SHADER_RESOURCE_VIEW_DESC tsSrvDesc{};
+
+	tsSrvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	tsSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	tsSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	tsSrvDesc.Texture2D.MipLevels = 1;
+
+	dev->CreateShaderResourceView
+	(
+		toonShaderResources[0].Get(),
+		&tsSrvDesc,
+		toonShaderHeap.Get()->GetCPUDescriptorHandleForHeapStart()
+	);
+
+
+	//レンダーターゲット
+
+	//ヒープ作成
+	tsHeapDesc = {};
+	tsHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	tsHeapDesc.NumDescriptors = 10;
+	dev->CreateDescriptorHeap(&tsHeapDesc, IID_PPV_ARGS(&toonShaderRTVHeap));
+
+	//ビュー作成
+	D3D12_RENDER_TARGET_VIEW_DESC tsRTVDesc = {};
+	tsRTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	tsRTVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	dev.Get()->CreateRenderTargetView
+	(
+		toonShaderResources[0].Get(),
+		&tsRTVDesc,
+		toonShaderRTVHeap.Get()->GetCPUDescriptorHandleForHeapStart()
+	);
+#pragma endregion
+
+	////パイプライン
+	createPipeline->setInputLayout("POSITION", 3);
+	createPipeline->setInputLayout("TEXCOORD", 2);
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC tsPLDesc = spriteGpipeline;
+	tsPLDesc.pRootSignature = postEffectRootSigneture.Get();
+
+	//ここ変更する
+	createPipeline->createUserPipeline
+	(
+		1,
+		{ L"../MyLibrary/PostEffectVertexShader.hlsl","VSmain","vs_5_0" },
+		{ L"NULL","","" },
+		{ L"../MyLibrary/PostEffectPixelShader.hlsl","PSmain","ps_5_0" },
+		tsPLDesc,
+		&toonShaderPipeline[0],
+		true
+	);
+
+	createPipeline->deleteInputLayout();
+
+#pragma endregion
+
 }
 
 void DirectX12::preparationToDraw()
@@ -690,32 +987,28 @@ void DirectX12::preparationToDraw()
 
 	UINT bbIndex = swapchain->GetCurrentBackBufferIndex();
 
-	barrierDesc.Transition.pResource = backBuffer[bbIndex].Get();
+	/*barrierDesc.Transition.pResource = backBuffer[bbIndex].Get();
 	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	cmdList->ResourceBarrier(1, &barrierDesc);
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;*/
 
+	barrierDesc.Transition.pResource = postEffectResources[0].Get();
+	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+	cmdList->ResourceBarrier(1, &barrierDesc);
 #pragma endregion
 
 #pragma region 画面クリア
 
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
-	rtvH.ptr += bbIndex * dev->GetDescriptorHandleIncrementSize(heapDesc.Type);
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvH = depthHeap->GetCPUDescriptorHandleForHeapStart();
+	//D3D12_CPU_DESCRIPTOR_HANDLE rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
+	//rtvH.ptr += bbIndex * dev->GetDescriptorHandleIncrementSize(heapDesc.Type);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH = postEffectRTVHeap.Get()->GetCPUDescriptorHandleForHeapStart();
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvH = depthHeap.Get()->GetCPUDescriptorHandleForHeapStart();
 	cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvH);
 
 	//画面のクリア
-	//255で割ってMAX255からMAX1に変更
-	float clearColor[] =
-	{
-		(float)screenColor.r / 255,
-		(float)screenColor.g / 255,
-		(float)screenColor.b / 255,
-		(float)screenColor.a / 255
-	};
 	cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
 	cmdList->ClearDepthStencilView(dsvH, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
 
 
 
@@ -746,11 +1039,94 @@ void DirectX12::preparationToDraw()
 
 void DirectX12::draw()
 {
+	//ポストエフェクトレンダーターゲットのMap
+	DirectX::XMMATRIX peWorldMat = DirectX::XMMatrixIdentity();
+	peWorldMat *= DirectX::XMMatrixScaling
+	(
+		postEffectWorldMatData[0].scale.x, 
+		postEffectWorldMatData[0].scale.y, 
+		postEffectWorldMatData[0].scale.z
+	);
+	peWorldMat *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(postEffectWorldMatData[0].angle.z));
+	peWorldMat *= DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(postEffectWorldMatData[0].angle.x));
+	peWorldMat *= DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(postEffectWorldMatData[0].angle.y));
+
+	peWorldMat *= DirectX::XMMatrixTranslation
+	(
+		postEffectWorldMatData[0].pos.x,
+		postEffectWorldMatData[0].pos.y,
+		postEffectWorldMatData[0].pos.z
+	);
+	if (postEffectCametaFlag)peWorldMat *= mainCamera->get3DCameraMatrix(mainCameraData);
+
+	postEffectConstDataP->worldMat = peWorldMat;
+
+
+	//Mapここまで
+
+	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	cmdList->ResourceBarrier(1, &barrierDesc);
+
+	UINT bbIndex = swapchain->GetCurrentBackBufferIndex();
+	barrierDesc.Transition.pResource = backBuffer[bbIndex].Get();
+	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	cmdList->ResourceBarrier(1, &barrierDesc);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
+	rtvH.ptr += bbIndex * dev->GetDescriptorHandleIncrementSize(heapDesc.Type);
+	//D3D12_CPU_DESCRIPTOR_HANDLE rtvH = postEffectResourcesRTVHeap.Get()->GetCPUDescriptorHandleForHeapStart();
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvH = depthHeap.Get()->GetCPUDescriptorHandleForHeapStart();
+	cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvH);
+
+	//画面のクリア
+	cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
+	cmdList->ClearDepthStencilView(dsvH, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+#pragma region ポストエフェクト用板ポリの描画コマンドセット
+
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	std::vector<ID3D12DescriptorHeap*> ppHeaps;
+
+	////ハンドルvectorやめてfor内に毎回宣言したほうがいい?そうすればずらしたやつを勝手に直してくれる
+	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuDescHandle;
+
+	////cmdList->SetGraphicsRootSignature(postEffectRootSigneture.Get());
+	cmdList->SetGraphicsRootSignature(postEffectRootSigneture.Get());
+	cmdList->SetPipelineState(postEffectPipeline[currentPostEffectPipeline].Get());
+	//cmdList->SetPipelineState(spritePipelineStates[0].Get());
+
+	cmdList->IASetVertexBuffers(0, 1, &postEffectVertexBufferSet.vertexBufferView);
+	//cmdList->IASetIndexBuffer(&spriteIndexBufferSet[0].indexBufferView);
+
+	ppHeaps.push_back(postEffectHeap.Get());
+	cmdList->SetDescriptorHeaps(1, &ppHeaps[0]);
+
+	gpuDescHandle = postEffectHeap->GetGPUDescriptorHandleForHeapStart();
+	gpuDescHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuDescHandle, 0, dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+	//////テクスチャ
+	cmdList->SetGraphicsRootDescriptorTable(0, gpuDescHandle);
+
+	//定数
+	gpuDescHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuDescHandle, 1, dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+	cmdList->SetGraphicsRootDescriptorTable(1, gpuDescHandle);
+
+	cmdList->DrawInstanced(4, 1, 0, 0);
+	//cmdList->DrawIndexedInstanced(spriteIndices[0].size(), 1, 0, 0, 0);
+
+
+#pragma endregion
+
 
 #pragma region RTVからPRESENTへ
 	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	cmdList->ResourceBarrier(1, &barrierDesc);
+
+	//barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	//barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	//cmdList->ResourceBarrier(1, &barrierDesc);
 #pragma endregion
 
 #pragma region 実行
@@ -787,8 +1163,10 @@ CreateNumberSet DirectX12::getCreateNumber()
 
 void DirectX12::setScreenColor(Color screenColor)
 {
-	this->screenColor = screenColor;
-
+	clearColor[0] = (float)screenColor.r / 255;
+	clearColor[1] = (float)screenColor.g / 255;
+	clearColor[2] = (float)screenColor.b / 255;
+	clearColor[3] = (float)screenColor.a / 255;
 }
 
 DirectX::XMFLOAT2 DirectX12::getTextureSize(int textureHandle)
@@ -806,7 +1184,7 @@ void DirectX12::setDespTestFlag(bool flag)
 #pragma endregion
 
 #pragma region パイプライン作成
-const int DirectX12::getStartPipelineCreateNum()
+int DirectX12::getStartPipelineCreateNum()
 {
 	return startPipelineCreateNum;
 }
@@ -868,6 +1246,18 @@ bool DirectX12::createUserPipelineState
 
 	case DEPTH_TRUE:
 		gpipeline.DepthStencilState.DepthEnable = true;
+		break;
+	}
+
+	switch (pipelineData.alphaWrite)
+	{
+	case ALPHA_WIGHT_NONE:
+		gpipeline.BlendState.AlphaToCoverageEnable = true;
+		break;
+
+	case ALPHA_WIGHT_TRUE:
+		gpipeline.BlendState.AlphaToCoverageEnable = false;
+
 		break;
 	}
 
@@ -950,6 +1340,43 @@ void DirectX12::deleteInputLayout()
 {
 	createPipeline->deleteInputLayout();
 }
+
+
+#pragma region ポストエフェクト
+void DirectX12::setPostEffectPipeline(const int& num)
+{
+	currentPostEffectPipeline = num;
+}
+
+bool DirectX12::createUserPostEffectPipelineState(const ShaderData& pShaderData)
+{
+	postEffectPipeline.resize(postEffectPipeline.size() + 1);
+
+	////パイプライン
+	createPipeline->setInputLayout("POSITION", 3);
+	createPipeline->setInputLayout("TEXCOORD", 2);
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC pePLDesc = spriteGpipeline;
+	pePLDesc.pRootSignature = postEffectRootSigneture.Get();
+
+	bool result = createPipeline->createUserPipeline
+	(
+		1,
+		{ L"../MyLibrary/PostEffectVertexShader.hlsl","VSmain","vs_5_0" },
+		{ L"NULL","","" },
+		pShaderData,
+		pePLDesc,
+		&postEffectPipeline[postEffectPipeline.size() - 1],
+		true
+	);
+
+	createPipeline->deleteInputLayout();
+
+	postEfectConstBuffers.resize(postEfectConstBuffers.size() + 1);
+
+	return result;
+}
+#pragma endregion
 
 #pragma endregion
 
@@ -2284,7 +2711,7 @@ void DirectX12::createCommonBuffer(const int& texNum)
 	commonBuffer.resize(commonBuffer.size() + 1);
 	auto result = dev->CreateCommittedResource(
 
-	    &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(CommonConstData) + 0xff)&~0xff),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
@@ -2293,10 +2720,10 @@ void DirectX12::createCommonBuffer(const int& texNum)
 
 	result = commonBuffer[commonBuffer.size() - 1]->Map(0, nullptr, (void**)&commonConstData3D);
 
-	commonConstData3D->lightColor = { 1,1,1 ,1};
-	commonConstData3D->light = {1,1,1,1};
+	commonConstData3D->lightColor = { 1,1,1 ,1 };
+	commonConstData3D->light = { 1,1,1,1 };
 	commonConstData3D->lightMat = DirectX::XMMatrixIdentity();
-	commonConstData3D->cameraPos = { mainCameraData.nowEye.x,mainCameraData.nowEye.y,mainCameraData.nowEye.z,1};
+	commonConstData3D->cameraPos = { mainCameraData.nowEye.x,mainCameraData.nowEye.y,mainCameraData.nowEye.z,1 };
 	commonBuffer[commonBuffer.size() - 1]->Unmap(0, nullptr);
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
@@ -2304,7 +2731,7 @@ void DirectX12::createCommonBuffer(const int& texNum)
 	cbvDesc.BufferLocation = commonBuffer[commonBuffer.size() - 1]->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = (UINT)commonBuffer[commonBuffer.size() - 1]->GetDesc().Width;
 	dev->CreateConstantBufferView(&cbvDesc, basicHeapHandle);
-	
+
 	heapTags[heapTags.size() - 1].push_back(COMMON_BUFFER);
 }
 
@@ -2971,7 +3398,7 @@ void DirectX12::map(int polyNum, int despNumber, int number)
 
 		if (this->polyDatas[polyNum].dimention == Dimension::dimention3D)
 		{
-			
+
 
 
 			constData3D->addColor = addColor[despNumber][number];
@@ -2997,6 +3424,7 @@ void DirectX12::map(int polyNum, int despNumber, int number)
 			DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
 
 			//ビルボード行列作成
+		//通常の板ポリのスケールを変えた時にビルボードするとおかしくなる
 			if (isBillBoardX || isBillBoardY || isBillBoardZ)
 			{
 				//回転させた座標の取得
@@ -3143,7 +3571,7 @@ void DirectX12::map(int polyNum, int despNumber, int number)
 
 
 			commonBuffer[despNumber]->Map(0, nullptr, (void**)&commonConstData3D);
-			commonConstData3D->lightColor = { lightColor .x,lightColor .y,lightColor .z,1};
+			commonConstData3D->lightColor = { lightColor.x,lightColor.y,lightColor.z,1 };
 			commonConstData3D->light = { lightVector.x,lightVector.y,lightVector.z,1 };
 			commonConstData3D->lightMat = DirectX::XMMatrixIdentity();
 			commonConstData3D->cameraPos = { mainCameraData.nowEye.x,mainCameraData.nowEye.y,mainCameraData.nowEye.z,1 };
@@ -3272,20 +3700,15 @@ void DirectX12::pointSetCmdList(DirectX::XMFLOAT3 pos, int pointNum, int texture
 {
 	pointVertices[pointNum][num].pos = pos;
 	pointVertexBuffSet[pointNum][num].vertexBuffer->Map(0, nullptr, (void**)&pointVertexMapData);
-	pointVertexMapData->pos = pointVertices[pointNum][num].pos;
-	pointVertexMapData->color = pointVertices[pointNum][num].color;
-	//pointVertexMapData->color = {0,1,0,1};
-	pointVertexMapData->scale = pointVertices[pointNum][num].scale;
-
+	
+	pointVertexMapData[0] = pointVertices[pointNum][num];
 
 	pointVertexBuffSet[pointNum][num].vertexBuffer->Unmap(0, nullptr);
 
 	DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
 
 	pointConstBufferSet[pointNum].constBuffer[0]->Map(0, nullptr, (void**)&constDataPoint);
-	matWorld *= mainCamera->get3DCameraMatrix(mainCameraData);
-
-
+	matWorld = mainCamera->get3DCameraMatrix(mainCameraData);
 	constDataPoint->mat = matWorld;
 	constDataPoint->billboardMat = DirectX::XMMatrixIdentity();
 	//ビルボード行列作成
@@ -3335,13 +3758,11 @@ void DirectX12::pointSetCmdList(DirectX::XMFLOAT3 pos, int pointNum, int texture
 
 		constDataPoint->billboardMat = billboardMatrix;
 	}
-
 	pointConstBufferSet[pointNum].constBuffer[0]->Unmap(0, nullptr);
 
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	std::vector<ID3D12DescriptorHeap*> ppHeaps;
 
-	//ハンドルvectorやめてfor内に毎回宣言したほうがいい?そうすればずらしたやつを勝手に直してくれる
 	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuDescHandle;
 
 	cmdList->SetGraphicsRootSignature(pointRootsignature.Get());
@@ -3483,6 +3904,31 @@ void DirectX12::setPointScale(DirectX::XMFLOAT2 scale, int pointNum, int num)
 {
 	pointVertices[pointNum][num].scale = scale;
 }
+
+
+#pragma region ポストエフェクト
+
+void DirectX12::setRenderTargerPosition(const DirectX::XMFLOAT3& pos, const int& rtNum)
+{
+	postEffectWorldMatData[rtNum].pos = pos;
+}
+
+void DirectX12::setRenderTargetAngle(const DirectX::XMFLOAT3& angle, const int& rtNum)
+{
+	postEffectWorldMatData[rtNum].angle = angle;
+}
+
+void DirectX12::setRenderTargetScale(const DirectX::XMFLOAT3& scale, const int& rtNum)
+{
+	postEffectWorldMatData[rtNum].scale = scale;
+}
+
+void DirectX12::setPostEffectCameraFlag(const bool& flag, const int& rtNum)
+{
+	postEffectCametaFlag = flag;
+}
+#pragma endregion
+
 #pragma endregion
 
 #pragma region 頂点座標取得

@@ -7,6 +7,7 @@ enum CollosionType
 	COLLISION_RECT,
 	COLLISION_CIRCLE,
 	COLLISION_SPHERE,
+	COLLISION_PLANE,
 	COLLISION_BOARD,
 	COLLISION_LINESEGMENT,
 	COLLISION_LAY,
@@ -41,10 +42,20 @@ struct SphereData
 	float r;
 };
 
-struct BoardData
+struct PlaneData
 {
 	Vector3 normal;
 	float distance;
+};
+
+struct BoardData
+{
+	Vector3 normal;
+	Vector3 position;
+	Vector3 leftDownPos;
+	Vector3 leftUpPos;
+	Vector3 rightUpPos;
+	Vector3 rightDownPos;
 };
 
 struct LineSegmentData

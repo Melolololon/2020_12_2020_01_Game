@@ -16,9 +16,6 @@
     <Filter Include="ソース ファイル\DirectX">
       <UniqueIdentifier>{2c93d515-f1b4-400c-9153-86425d3f9099}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Loader">
-      <UniqueIdentifier>{fb63133a-3a85-42ca-9cfb-e2badc981d0e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\DirectX">
       <UniqueIdentifier>{361a3039-c792-4977-bf89-7b8b3b0e1bb4}</UniqueIdentifier>
     </Filter>
@@ -42,6 +39,9 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\Scene">
       <UniqueIdentifier>{9f62ab05-bff9-4cc3-89e6-543c6ec40589}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Loader">
+      <UniqueIdentifier>{fb63133a-3a85-42ca-9cfb-e2badc981d0e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +122,10 @@
     <FxCompile Include="NotShadowPixelShader.hlsl" />
     <FxCompile Include="NotShadowGeometryShader.hlsl" />
     <FxCompile Include="ObjGeometryShader.hlsl" />
+    <FxCompile Include="PostEffectVertexShader.hlsl" />
+    <FxCompile Include="PostEffectPixelShader.hlsl" />
+    <FxCompile Include="ToonPixelShader.hlsl" />
+    <FxCompile Include="ToonVertexShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectInput.h">
@@ -203,5 +207,7 @@
     <None Include="PointShaderHeader.hlsli" />
     <None Include="OBJShaderHeader.hlsli" />
     <None Include="NotShadowShaderHeader.hlsli" />
+    <None Include="PostEffectShaderHeader.hlsli" />
+    <None Include="ToonShaderHeader.hlsli" />
   </ItemGroup>
 </Project>

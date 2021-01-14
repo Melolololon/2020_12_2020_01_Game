@@ -37,14 +37,15 @@ void ObjectManager::update()
 
 #pragma region collision
 
-	//if•¶–ˆ‚ÉŠÖ”ŒÄ‚Î‚¸‚É‚ ‚ç‚©‚¶‚ßŽæ“¾‚µ‚½‚Ù‚¤‚ª‚¢‚¢
-#pragma region ‹…‚Æ‹…
 	Object::CollisionFlag f1;
 	Object::CollisionFlag f2;
 
-	for (auto& o1 : objects)
+	//if•¶–ˆ‚ÉŠÖ”ŒÄ‚Î‚¸‚É‚ ‚ç‚©‚¶‚ßŽæ“¾‚µ‚½‚Ù‚¤‚ª‚¢‚¢
+#pragma region ‹…‚Æ‹…
+
+	for (auto& o1 : o)
 	{
-		for (auto& o2 : objects)
+		for (auto& o2 : o)
 		{
 			f1 = o1->getCollisionFlag();
 			f2 = o2->getCollisionFlag();
@@ -74,6 +75,47 @@ void ObjectManager::update()
 
 #pragma endregion
 
+#pragma region ü•ª‚Æ•½–Ê
+	for (auto& o1 : o)
+	{
+		for (auto& o2 : o)
+		{
+			f1 = o1->getCollisionFlag();
+			f2 = o2->getCollisionFlag();
+
+			if (o1 == o2 || !f1.lineSegment || !f2.board)continue;
+
+			for (auto& c1 : o1->getLineSegmentData())
+			{
+				for (auto& c2 : o2->getBoardData())
+				{
+					std::vector<Vector3>p(4);
+					p[0] = c2.leftDownPos;
+					p[1] = c2.leftUpPos;
+					p[3] = c2.rightUpPos;
+					p[2] = c2.rightDownPos;
+
+					if (LibMath::lineSegmentAndBoardCollision
+					(
+						c1.position[0],
+						c1.position[1],
+						c2.normal,
+						c2.position,
+						p,
+						nullptr
+						
+					))
+					{
+						o1->hit(o2, CollosionType::COLLISION_LINESEGMENT);
+						o2->hit(o1, CollosionType::COLLISION_BOARD);
+					}
+				}
+			}
+
+		}
+	}
+#pragma endregion
+
 
 #pragma endregion
 
@@ -85,7 +127,6 @@ void ObjectManager::draw()
 	{
 		o->draw();
 	}
-
 }
 
 void ObjectManager::isDeadCheck()

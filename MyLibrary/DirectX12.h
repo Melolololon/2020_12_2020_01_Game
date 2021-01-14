@@ -53,7 +53,7 @@ class DirectX12
 	};
 
 private:
-
+	float clearColor[4];
 
 #pragma region Windows
 	HWND hwnd;
@@ -75,9 +75,11 @@ private:
 
 #pragma region RTV
 
+	//メイン
 	ComPtr<ID3D12DescriptorHeap> rtvHeaps;
 	ComPtr<ID3D12Resource> backBuffer[2];
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
+
 #pragma endregion
 
 	ComPtr<ID3D12Fence> fence;
@@ -211,10 +213,9 @@ private:
 	std::vector<HeapData> despDatas;
 	//取得したスプライトのポインタ
 	std::vector<int*>spriteP;
-
 	std::vector<int*>pointP;
 
-	//多分これいらない
+	//これいらない
 	std::vector<DirectX::XMFLOAT2>spriteSizes;
 
 	//create○○した回数
@@ -226,7 +227,6 @@ private:
 	int createSpriteCounter;
 	int spriteFontDrawCounter;
 
-	Color screenColor;
 
 #pragma region カメラ
 	CameraData mainCameraData;
@@ -287,6 +287,50 @@ private:
 	std::vector<std::vector<int>>parentNums;
 #pragma endregion
 
+#pragma region ポストエフェクト
+	//カメラの影響を与えるかどうか
+	bool postEffectCametaFlag;
+
+	//ポストエフェクト用リソース(レンダーターゲット兼テクスチャ)
+	std::vector<ComPtr<ID3D12Resource>>postEffectResources;
+
+	//ポストエフェクト用ヒープ
+	//レンダーターゲットごとに用意したほうがよさそう(自作構造体バッファのせいで調整大変だから)
+	ComPtr<ID3D12DescriptorHeap>postEffectHeap;//テクスチャ + ポストエフェクト分の定数バッファビュー
+	ComPtr<ID3D12DescriptorHeap>postEffectRTVHeap;
+
+	//レンダリング先板ポリ情報
+	std::vector<Vertex> postEffectVertex;
+	VertexBufferSet postEffectVertexBufferSet;
+	std::vector<ComPtr<ID3D12PipelineState>>postEffectPipeline;
+	ComPtr<ID3D12RootSignature>postEffectRootSigneture;
+
+	//生成数
+	int currentPostEffectPipeline;
+
+	//値格納用
+	std::vector<WorldMatData>postEffectWorldMatData;
+
+	//Map用
+	PostEffectConstData* postEffectConstDataP;
+	std::vector<ConstBufferSet>postEfectConstBuffers;//行列とか送る用
+	
+#pragma endregion
+
+#pragma region 2枚目のポストエフェクト用レンダーターゲット(仮)
+	//ポストエフェクト用リソース(レンダーターゲット兼テクスチャ)
+	std::vector<ComPtr<ID3D12Resource>>toonShaderResources;
+
+	//ポストエフェクト用ヒープ
+	ComPtr<ID3D12DescriptorHeap>toonShaderHeap;
+	ComPtr<ID3D12DescriptorHeap>toonShaderRTVHeap;
+
+	//レンダリング先板ポリ情報
+	//頂点とルートシグネチャは使いまわす
+	std::vector<ComPtr<ID3D12PipelineState>>toonShaderPipeline;
+#pragma endregion
+
+
 
 #pragma region バッファ作成private関数
 	void resizeObjectData(int objectNum);
@@ -324,7 +368,7 @@ public:
 
 #pragma region ユーザーパイプライン関係
 
-	const int getStartPipelineCreateNum();
+	int getStartPipelineCreateNum();
 
 	/// <summary>
 	/// 自作シェーダーを使ってパイプラインを作ります
@@ -365,7 +409,17 @@ public:
 /// 現在のインプットレイアウトを削除します
 /// </summary>
 	void deleteInputLayout();
+
+
+#pragma region ポストエフェクト
+	void setPostEffectPipeline(const int& num);
+
+	bool createUserPostEffectPipelineState(const ShaderData& pShaderData);
 #pragma endregion
+
+
+#pragma endregion
+
 
 #pragma region バッファ作成
 	void createPoint(int createNum, int* point);
@@ -468,6 +522,9 @@ public:
 
 
 	void setPointMulColor(Color color, int pointNum, int num);
+
+
+
 #pragma endregion
 
 #pragma region ライト操作
@@ -490,6 +547,25 @@ public:
 
 
 	void setPointScale(DirectX::XMFLOAT2 scale, int pointNum, int num);
+
+
+
+#pragma region ポストエフェクト
+
+	/// <summary>
+	/// レンダーターゲットの座標を変更します
+	/// </summary>
+	/// <param name="pos">座標</param>
+	/// <param name="rtNum">どのレンダーターゲットを指定するか(今は意味なし)</param>
+	 void setRenderTargerPosition(const DirectX::XMFLOAT3& pos, const int& rtNum);
+
+	 void setRenderTargetAngle(const DirectX::XMFLOAT3& angle, const int& rtNum);
+
+	 void setRenderTargetScale(const DirectX::XMFLOAT3& scale, const int& rtNum);
+
+	 void setPostEffectCameraFlag(const bool& flag, const int& rtNum);
+#pragma endregion
+
 #pragma endregion
 
 #pragma region 頂座標取得

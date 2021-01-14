@@ -35,12 +35,9 @@ float4 PSmain(GSOutput input) : SV_TARGET
 	shaderColor.rgb = (ambient + diffuse + specular) * lightColor;
 	shaderColor.a = m_alpha;
 
+	texColor += addColor - subColor;
+	texColor *= mulColor;
+
 	return shaderColor * texColor;
-	//return float4(lightColor.x, lightColor.y, lightColor.z, 1);
-
-	//return float4(s,0,0, 1);
-
-	//return float4(input.worldPos.x, input.worldPos.y, input.worldPos.z, 1);
-	//return float4(cameraPos.x, cameraPos.y, cameraPos.z, 1);
 
 }

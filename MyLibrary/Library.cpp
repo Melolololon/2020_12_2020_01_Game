@@ -21,6 +21,7 @@ int Library::loadTextureCounter;
 int Library::createSpriteConter;
 
 int Library::createPipelineCounter;
+int Library::createPostEffectPuiperineCounter;
 
 HDC Library::hdc;
 int Library::refReat;
@@ -39,7 +40,7 @@ LRESULT Library::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 }
 
-void Library::initialize(int windowWidth, int windowHeight)
+void Library::initialize(int windowWidth, int windowHeight, const Color& screenColor)
 {
 	srand((unsigned int)time(NULL));
 	count = 0;
@@ -91,6 +92,7 @@ void Library::initialize(int windowWidth, int windowHeight)
 	audio = std::unique_ptr<Audio>(new Audio());
 
 	directx12 = new DirectX12(hwnd, windowWidth, windowHeight);
+	directx12->setScreenColor(screenColor);
 	directx12->initialize();
 
 	createPipelineCounter = directx12->getStartPipelineCreateNum();
@@ -127,8 +129,8 @@ void Library::roopStartProcess()
 void Library::roopEndProcess()
 {
 	directx12->draw();
-	
-	if (isSetFPS60) 
+
+	if (isSetFPS60)
 	{
 
 		//60fpsの時の1フレームの処理時間を計測(この数値は、環境に依存しない)
@@ -143,7 +145,7 @@ void Library::roopEndProcess()
 		nowTime = timeGetTime();
 		DWORD keika = nowTime - startProsessTime;
 		//sabun /= 1000;
-		
+
 		//待機時間を計測(taikiTimeとsabunの差だけsleeで待機)
 		int sleepTime = taikiTime - keika;
 		sleepTime = sleepTime <= 0 ? 0 : sleepTime;
@@ -153,7 +155,7 @@ void Library::roopEndProcess()
 		Sleep(sleepTime);
 		timeEndPeriod(1);
 	}
-	
+
 }
 
 void Library::endFlagTrue()
@@ -190,7 +192,7 @@ float Library::getRandomNumberFloat(int number)
 }
 
 #pragma region WinAPI関係
-HWND Library::getHWND() 
+HWND Library::getHWND()
 {
 	return hwnd;
 }
@@ -266,7 +268,28 @@ void Library::deleteInputLayout()
 	directx12->deleteInputLayout();
 }
 
+
+
+#pragma region ポストエフェクト
+void Library::setPostEffectPipeline(const pipeline& num)
+{
+	directx12->setPostEffectPipeline(num);
+}
+
+pipeline Library::createUserPostEffectPipelineState
+(
+	const ShaderData& pShaderData
+)
+{
+	createPostEffectPuiperineCounter++;
+	directx12->createUserPostEffectPipelineState(pShaderData);
+	return createPostEffectPuiperineCounter;
+}
 #pragma endregion
+
+
+#pragma endregion
+
 
 #pragma region 設定
 
@@ -274,11 +297,11 @@ void Library::setFramesPerSecond60(bool flag)
 {
 	isSetFPS60 = flag;
 }
-
-void Library::setScreenColor(Color color)
-{
-	directx12->setScreenColor(color);
-}
+//
+//void Library::setScreenColor(Color color)
+//{
+//	directx12->setScreenColor(color);
+//}
 
 #pragma endregion
 
@@ -296,16 +319,16 @@ void  Library::loadOBJVertex(const char* path, bool loadUV, bool loadNormal, std
 	pData.sikibetuNumP = *p;
 	pData.dimention = dimention3D;
 
-	directx12->loadOBJVertex(path, loadUV, loadNormal, materialFireName,pData);
+	directx12->loadOBJVertex(path, loadUV, loadNormal, materialFireName, pData);
 
 }
 #pragma endregion
 
 
-void Library::createPoint(int createNum,point* p) 
+void Library::createPoint(int createNum, point* p)
 {
 	*p = new int(createPointCount);
-	directx12->createPoint(createNum,*p);
+	directx12->createPoint(createNum, *p);
 	createPointCount++;
 }
 
@@ -434,14 +457,14 @@ void Library::createUserObject2(void** vertexData, unsigned int vertexDataSize, 
 
 #pragma region ヒープ作成
 
-void Library::loadOBJMaterial(std::string materialDirectoryPath, std::string materialFileName,  int objectNum, heap* heapP)
+void Library::loadOBJMaterial(std::string materialDirectoryPath, std::string materialFileName, int objectNum, heap* heapP)
 {
 	HeapData hData;
 	hData.objectNum = objectNum;
 	*heapP = new int(directx12->getCreateNumber().despNum);
 	hData.sikibetuNumP = *heapP;
 
-	directx12->loadOBJMaterial(materialDirectoryPath, materialFileName, hData,false);
+	directx12->loadOBJMaterial(materialDirectoryPath, materialFileName, hData, false);
 }
 
 void Library::loadObjMaterialUseUserData
@@ -452,7 +475,7 @@ void Library::loadObjMaterialUseUserData
 	void** dataP,
 	unsigned int dataSize,
 	heap* heapP
-) 
+)
 {
 	HeapData hData;
 	hData.objectNum = objectNum;
@@ -528,10 +551,10 @@ void Library::loadOBJ(const char* path, std::string materialDirectoryPath, bool 
 	directx12->loadOBJ
 	(
 		path,
-		materialDirectoryPath, 
-		loadUV, 
-		loadNormal, 
-		pData, 
+		materialDirectoryPath,
+		loadUV,
+		loadNormal,
+		pData,
 		hData
 	);
 }
@@ -624,7 +647,7 @@ void Library::drawSpriteAnimation2(Vector2 position, Vector2 currentStartNum, Ve
 	directx12->spriteSetCmdList(*spriteNumber, *textureNumber);
 }
 
-void Library::drawPointAndTexture(Vector3 pos,point point, texture texture, int num)
+void Library::drawPointAndTexture(Vector3 pos, point point, texture texture, int num)
 {
 	directx12->pointSetCmdList({ pos.x,pos.y,pos.z }, *point, texture, num);
 }
@@ -633,7 +656,7 @@ void Library::drawPointAndTexture(Vector3 pos,point point, texture texture, int 
 void Library::drawBox(const Vector2 position, const Vector2& size, const Color& color, sprite spriteHandle)
 {
 	setSpriteAddColor(color, spriteHandle);
-	directx12->spriteMap({ position.x,position.y }, { size.x,size.y}, *spriteHandle, 0);
+	directx12->spriteMap({ position.x,position.y }, { size.x,size.y }, *spriteHandle, 0);
 	directx12->spriteSetCmdList(*spriteHandle, 0);
 }
 #pragma endregion
@@ -711,7 +734,7 @@ void Library::setSpriteSubColor(Color color, sprite spriteNum)
 }
 
 
-void Library::setPointScale(Vector2 scale, point pointNum, int num) 
+void Library::setPointScale(Vector2 scale, point pointNum, int num)
 {
 	directx12->setPointScale({ scale.x,scale.y }, *pointNum, num);
 }
@@ -754,7 +777,7 @@ void Library::setLightVector(Vector3 vector)
 }
 //
 
-void Library::setLightColor(Color lightColor) 
+void Library::setLightColor(Color lightColor)
 {
 	directx12->setLightColor(lightColor);
 }
@@ -807,10 +830,35 @@ void changeSpriteSize(Vector2 size, int *spriteData)
 
 
 
-void Library::setPointMulColor(Color color, point pointNum, int num) 
+void Library::setPointMulColor(Color color, point pointNum, int num)
 {
 	directx12->setPointMulColor(color, *pointNum, num);
 }
+
+
+
+#pragma region ポストエフェクト
+
+void Library::setRenderTargetPosition(const Vector3& pos, const int& rtNum) 
+{
+	directx12->setRenderTargerPosition({ pos .x,pos .y,pos .z}, rtNum);
+}
+
+void Library::setRenderTargetAngle(const Vector3& angle, const int& rtNum)
+{
+	directx12->setRenderTargetAngle({ angle .x,angle .y,angle .z}, rtNum);
+}
+
+void Library::setRenderTargetScale(const Vector3& scale, const int& rtNum)
+{
+	directx12->setRenderTargetScale({ scale.x,scale.y,scale.z }, rtNum);
+}
+
+void Library::setPostEffectCameraFlag(const bool& flag, const int& rtNum)
+{
+	directx12->setPostEffectCameraFlag(true, rtNum);
+}
+#pragma endregion
 
 #pragma endregion
 
@@ -980,7 +1028,7 @@ void Library::playLoadSound(std::string name)
 {
 	audio.get()->playLoadSound(name);
 }
-void Library::stopLoadSound(std::string name,bool resetFlag)
+void Library::stopLoadSound(std::string name, bool resetFlag)
 {
 	audio.get()->stopLoadSound(name, resetFlag);
 }

@@ -132,11 +132,6 @@ public:
 	static bool directionalButtonState(int button);
 #pragma endregion
 
-	/// <summary>
-	/// パッドが認識されているかを取得します
-	/// </summary>
-	/// <returns></returns>
-	bool getPadRecognition();
 #pragma endregion
 
 #pragma region スティック

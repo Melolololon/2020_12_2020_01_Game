@@ -32,7 +32,7 @@ std::string Scene::nextScene()
 }
 
 
-void Scene::getPtr(void** ptr) 
+void* Scene::getPtr() 
 {
-	*ptr = this;
+	return this;
 }

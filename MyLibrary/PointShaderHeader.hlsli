@@ -18,6 +18,5 @@ struct GSOutput
 {
 	float4 svpos : SV_POSITION;
 	float2 uv : TEXCOORD;
-	float2 scale : TEXCOORD;
 	float4 color : COLOR;
 };

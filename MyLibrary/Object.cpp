@@ -15,7 +15,7 @@ Object::Object()
 	lineSegmentData.position[0] = 0.0f;
 	lineSegmentData.position[1] = 1.0f;*/
 	
-	collisionFlag.board = false;
+	collisionFlag.plane = false;
 	collisionFlag.lay = false;
 	collisionFlag.lineSegment = false;
 	collisionFlag.sphere = false;
@@ -56,4 +56,19 @@ std::vector<SphereData> Object::getSphereData()
 void* Object::getPtr() 
 {
 	return this;
+}
+
+std::vector<LineSegmentData> Object::getLineSegmentData()
+{
+	return lineSegmentData;
+}
+
+std::vector<PlaneData> Object::getPlaneData()
+{
+	return planeData;
+}
+
+std::vector<BoardData> Object::getBoardData()
+{
+	return boardData;
 }

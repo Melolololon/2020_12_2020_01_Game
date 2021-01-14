@@ -27,12 +27,19 @@ enum DepthMode
 	DEPTH_TRUE,
 };
 
+enum DepthWhite 
+{
+	ALPHA_WIGHT_NONE,
+	ALPHA_WIGHT_TRUE,
+};
+
 struct PipelineData
 {
 	DrawMode drawMode;
 	CullMode cullMode;
 	BlendMode blendMode;
 	DepthMode depthMode;
+	DepthWhite alphaWrite;
 };
 
 

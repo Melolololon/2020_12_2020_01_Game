@@ -60,13 +60,14 @@ private:
 	static bool isDestroy;
 	static bool isEnd;
 
-	
+
 
 	static int loadFontTextureCounter;
 	static int loadTextureCounter;
 	static int createSpriteConter;
 
 	static int createPipelineCounter;//現在のパイプライン生成数
+	static int createPostEffectPuiperineCounter;//
 
 	static HDC hdc;//dcのハンドル
 
@@ -86,7 +87,7 @@ public:
 	/// </summary>
 	/// <param name="windowWidth">ウィンドウ横幅</param>
 	/// <param name="windowHeight">ウィンドウ縦幅</param>
-	static void initialize(int windowWidth, int windowHeight);
+	static void initialize(int windowWidth, int windowHeight,const Color& screenColor);
 
 	/// <summary>
 	/// 描画準備をします。更新処理部分の一番上で呼び出してください
@@ -193,7 +194,17 @@ public:
 	static void setDespTestFlag(bool flag);
 #pragma endregion
 
+
+
+#pragma region ポストエフェクト
+	static void setPostEffectPipeline(const pipeline& num);
+
+	static pipeline createUserPostEffectPipelineState(const ShaderData& pShaderData);
 #pragma endregion
+
+
+#pragma endregion
+
 
 #pragma region 設定
 
@@ -207,7 +218,7 @@ public:
 	/// 画面を指定した色で初期化します
 	/// </summary>
 	/// <param name="color">初期化するための色</param>
-	static void setScreenColor(Color color);
+	//static void setScreenColor(Color color);
 
 
 
@@ -229,7 +240,7 @@ public:
 	/// <param name="loadNormal">法線ベクトルを読み込むかどうか</param>
 	/// <param name="materialFireName">読み取ったマテリアルのファイル(.mtl)名を入れるstring型の変数(読み取らない場合、nullptr)</param>
 	/// <param name="p"></param>
-	static void loadOBJVertex(const char* path, bool loadUV, bool loadNormal, std::string* materialFireName,vertex* p);
+	static void loadOBJVertex(const char* path, bool loadUV, bool loadNormal, std::string* materialFireName, vertex* p);
 #pragma endregion
 
 #pragma region ライブラリ実装オブジェクト
@@ -239,7 +250,7 @@ public:
 	/// </summary>
 	/// <param name="createNum">生成数</param>
 	/// <param name="p"></param>
-	static void createPoint(int createNum,point* p);
+	static void createPoint(int createNum, point* p);
 
 	/// <summary>
 	/// 四角形の頂点情報を作成します
@@ -326,7 +337,7 @@ public:
 	/// <param name="materialFileName">objのファイル名(拡張子含む)</param>
 	/// <param name="objectNum">生成数</param>
 	/// <param name="heapP"></param>
-	static void loadOBJMaterial( std::string materialDirectoryPath, std::string materialFileName,int objectNum,heap* heapP);
+	static void loadOBJMaterial(std::string materialDirectoryPath, std::string materialFileName, int objectNum, heap* heapP);
 
 	/// <summary>
 	/// マテリアルを読み込み、かつ自作のシェーダーに送るデータを渡します
@@ -339,11 +350,11 @@ public:
 	/// <param name="heapP"></param>
 	static void loadObjMaterialUseUserData
 	(
-		std::string materialDirectoryPath, 
-		std::string materialFileName, 
-		int objectNum, 
-		void** dataP, 
-		unsigned int dataSize, 
+		std::string materialDirectoryPath,
+		std::string materialFileName,
+		int objectNum,
+		void** dataP,
+		unsigned int dataSize,
 		heap* heapP
 	);
 
@@ -394,7 +405,7 @@ public:
 	/// <param name="objectNum"></param>
 	/// <param name="vertP"></param>
 	/// <param name="heapP"></param>
-	static void loadOBJ(const char* path,std::string materialDirectoryPath, bool loadUV, bool loadNormal, int objectNum, vertex* vertP, heap* heapP);
+	static void loadOBJ(const char* path, std::string materialDirectoryPath, bool loadUV, bool loadNormal, int objectNum, vertex* vertP, heap* heapP);
 	//これいらん(無駄な頂点読み込みがあるから)
 
 	//static void loadOBJAndCreateUserData
@@ -502,7 +513,7 @@ public:
 	/// <param name="point"></param>
 	/// <param name="texture"></param>
 	/// <param name="num">番号</param>
-	static void drawPointAndTexture(Vector3 pos,point point, texture texture,int num);
+	static void drawPointAndTexture(Vector3 pos, point point, texture texture, int num);
 
 #pragma endregion
 
@@ -570,7 +581,7 @@ public:
 	/// <param name="x">X軸ビルボードするかどうか</param>
 	/// <param name="y"></param>
 	/// <param name="z"></param>
-	static void setIsBillboard( bool x, bool y, bool z);
+	static void setIsBillboard(bool x, bool y, bool z);
 
 	static void setSpriteMulColor(Color color, sprite spriteNum);
 	static void setSpriteAddColor(Color color, sprite spriteNum);
@@ -619,7 +630,7 @@ public:
 	/// <param name="position"></param>
 	/// <param name="sptiteNumber"></param>
 	static void setSpritePosition(Vector2 position, sprite sptiteNumber);
-	
+
 	/// <summary>
 	/// スプライトのサイズを変えます(アンカーポイントを調整する)
 	/// </summary>
@@ -641,6 +652,29 @@ public:
 	/// <param name="pointNum"></param>
 	/// <param name="num"></param>
 	static void setPointScale(Vector2 scale, point pointNum, int num);
+
+
+#pragma region ポストエフェクト
+	/// <summary>
+	/// レンダーターゲットの座標を変更します
+	/// </summary>
+	/// <param name="pos">座標</param>
+	/// <param name="rtNum">どのレンダーターゲットを指定するか(今は意味なし)</param>
+	static void setRenderTargetPosition(const Vector3& pos, const int& rtNum);
+
+	static void setRenderTargetAngle(const Vector3& angle, const int& rtNum);
+
+	static void setRenderTargetScale(const Vector3& scale, const int& rtNum);
+
+	//trueにすると上(Y軸)向くの修正する
+	/// <summary>
+	/// レンダーターゲットがカメラの影響を受けるようにするかどうかのフラグを設定します
+	/// </summary>
+	/// <param name="flag"></param>
+	/// <param name="rtNum"></param>
+	static void setPostEffectCameraFlag(const bool& flag,const int& rtNum);
+#pragma endregion
+
 #pragma endregion
 
 #pragma region アニメーション(ここxとyを同じにする)
@@ -740,7 +774,7 @@ public:
 	static bool overrideWriteVertexPosition(std::vector<Vector3>vertPos, int* vertNum);
 
 
-	
+
 #pragma endregion
 
 #pragma region 行列による変換
@@ -830,7 +864,7 @@ public:
 	/// <param name="path">ファイルのパス</param>
 	/// <param name="name">サウンド名(任意の名前)</param>
 	static void loadSound(const char* path, std::string name);
-	
+
 	/// <summary>
 	/// 読み込んだサウンド再生します
 	/// </summary>
@@ -842,7 +876,7 @@ public:
 	/// </summary>
 	/// <param name="name"></param>
 	/// <param name="resetFlag">曲をリセットするかどうか</param>
-	static void stopLoadSound(std::string name,bool resetFlag);
+	static void stopLoadSound(std::string name, bool resetFlag);
 #pragma endregion
 
 

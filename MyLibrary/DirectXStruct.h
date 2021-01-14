@@ -189,6 +189,13 @@ struct SpriteFontData
 
 #pragma region バッファ類
 
+struct WorldMatData 
+{
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 angle;
+	DirectX::XMFLOAT3 scale;
+};
+
 #pragma region 汎用バッファセット
 
 //バッファー、Mapするための変数、ビューのセット
@@ -289,6 +296,16 @@ struct DepthBufferSet
 //	DirectX::XMFLOAT3 scale;
 //
 //};
+
+#pragma region ポストエフェクト
+struct PostEffectConstData 
+{
+	DirectX::XMMATRIX worldMat;
+};
+
+#pragma endregion
+
+
 #pragma endregion
 
 

@@ -65,6 +65,34 @@ void PolygonManager::clearPolygonHeap()
 	}
 }
 
+void PolygonManager::addTexture(std::string keyName, texture texture)
+{
+	textures.emplace(keyName, texture);
+}
+void PolygonManager::deleteTexture(std::string keyName){}
+texture PolygonManager::getTexture(std::string keyName)
+{
+
+	return textures[keyName];
+}
+void PolygonManager::clearTexture(){}
+
+
+void PolygonManager::addPolygonPoint(std::string keyName, point point)
+{
+	points.emplace(keyName, point);
+}
+void PolygonManager::deletePolygonPoint(std::string keyName)
+{
+}
+point PolygonManager::getPolygonPoint(std::string keyName) 
+{
+	return points[keyName];
+}
+void PolygonManager::clearPolygonPoint()
+{
+}
+
 
 void PolygonManager::clear()
 {
@@ -77,6 +105,13 @@ void PolygonManager::clear()
 
 	for (std::unordered_map<std::string, int*>::iterator it = heaps.begin();
 		it != heaps.end();
+		it++)
+	{
+		Library::deleteHeapData(it->second);
+	}
+
+	for (std::unordered_map<std::string, int*>::iterator it = points.begin();
+		it != points.end();
 		it++)
 	{
 		Library::deleteHeapData(it->second);

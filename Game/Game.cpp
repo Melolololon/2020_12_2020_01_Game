@@ -33,7 +33,7 @@ void Game::run()
 
 void Game::initialize()
 {
-	Library::initialize(1280, 720);
+	Library::initialize(1280, 720, { 0,0,0,255 });
 
 #pragma region マネージャー初期化
 	SceneManager::getInstace()->initialize();

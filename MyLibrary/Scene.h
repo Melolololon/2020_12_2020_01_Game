@@ -21,6 +21,6 @@ public:
 	virtual std::string nextScene() = 0;//次のシーンの指定
 	bool getIsEnd();//シーンが終わったかどうか
 
-	void getPtr(void** ptr);
+	void* getPtr();
 };
 
