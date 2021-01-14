@@ -432,6 +432,12 @@ bool DirectInput::rightStickDown(int lYNum)
 }
 
 
+
+bool DirectInput::getPadRecognition()
+{
+	return setPad;
+}
+
 #pragma endregion
 
 

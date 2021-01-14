@@ -62,7 +62,6 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 
 #pragma endregion
 
-
 }
 
 
