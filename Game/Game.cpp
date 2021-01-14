@@ -3,6 +3,7 @@
 #include"SceneManager.h"
 
 #include"Play.h"
+//テストコメント
 
 Game::Game() {}
 
