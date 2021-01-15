@@ -11,7 +11,7 @@ float4 PSmain(GSOutput input) : SV_TARGET
 
 	const float shininess = 4.0f;//光沢度
 
-	float3 lightDir = normalize(light);
+	float3 lightDir = normalize(mul(lightMat, light));
 
 	//カメラ座標ちゃんと遅れてない?
 	//なぜか突然正常に送れるようになった(cameraPosYがXに入ってたけどなぜか不明)

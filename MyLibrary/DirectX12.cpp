@@ -3573,7 +3573,7 @@ void DirectX12::map(int polyNum, int despNumber, int number)
 			commonBuffer[despNumber]->Map(0, nullptr, (void**)&commonConstData3D);
 			commonConstData3D->lightColor = { lightColor.x,lightColor.y,lightColor.z,1 };
 			commonConstData3D->light = { lightVector.x,lightVector.y,lightVector.z,1 };
-			commonConstData3D->lightMat = DirectX::XMMatrixIdentity();
+			commonConstData3D->lightMat = cameraMat;
 			commonConstData3D->cameraPos = { mainCameraData.nowEye.x,mainCameraData.nowEye.y,mainCameraData.nowEye.z,1 };
 
 			commonBuffer[despNumber]->Unmap(0, nullptr);
