@@ -2,7 +2,7 @@
 #include"ObjectManager.h"
 #include"Player.h"
 #include"Rubber.h"
-
+#include "Enemy.h"
 #include"PolygonManager.h"
 
 
@@ -29,11 +29,31 @@ void Play::initialize()
 	{
 		ObjectManager::getInstance()->addObject(new Rubber(i));
 	}
+
+	addEnemyTimer = 0;
 }
 
 void Play::update()
 {
+	//“G’Ç‰Áˆ—
+	addEnemyTimer++;
+	if (addEnemyTimer > ADD_ENEMY_TIME)
+	{
+		Enemy* enemy = Enemy::GetEnemy();
+		enemies.push_back(enemy);
+		ObjectManager::getInstance()->addObject(enemy);
+		addEnemyTimer = 0;
+	}
+
 	ObjectManager::getInstance()->update();
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		if (enemies[i]->GetUpdateVelocityTimer() > UPDATE_VELOCITY_TIME)
+		{
+			Vector3 playerPos = player[enemies[i]->GetTargetTypeAsInt()]->getSphereData()[0].position;
+			enemies[i]->UpdateVelocity(playerPos);
+		}
+	}
 }
 
 void Play::draw()
