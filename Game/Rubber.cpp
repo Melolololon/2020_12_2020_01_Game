@@ -23,6 +23,8 @@ Rubber::Rubber(const int& pNum)
 
 	Library::createManyVertex3DBox({ 1,1,1 }, &vertexHandle);
 	Library::createHeapData2({ 255,255,255,255 }, 1, &heapHandle);
+
+	enemyMoveVector = 0;
 }
 
 Rubber::~Rubber()
@@ -35,6 +37,8 @@ void Rubber::update()
 
 	sphereData[0].position = position;
 	Library::setPosition(position, heapHandle, 0);
+
+	
 }
 
 void Rubber::draw()
@@ -44,6 +48,23 @@ void Rubber::draw()
 
 void Rubber::hit(Object* object, CollosionType collisionType)
 {
+	//敵は紐の中心によるように調整
+
+	//if (typeid(*object) == typeid(Enemy)) 
+	{
+		//敵のvelocityと速度を取得
+		
+		//敵のベクトル
+		Vector3 eVec;
+		
+		//ゴムとプレイヤーを動かす
+
+		//プレイヤーのがダッシュしたら敵を動かす(吹っ飛ばす)
+		//既定の位置(当たってないときの座標)よりどのくらい離れているかで威力を変える
+		
+		//紐の後ろ(引っ張られてるほうにいる敵)にいる敵は吹っ飛ばないように対策する 
+	}
+
 }
 
 void Rubber::setPlayerPosition(const Vector3& pos)

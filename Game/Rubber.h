@@ -10,6 +10,10 @@ private:
 
 	//何個目の点か(これにより座標を決める)
 	int pointNum;
+	//エネミーが紐にぶつかってるときに進む方向
+	//pointNum1234 6789が同じ方向 5は{0,0,0}
+	Vector3 enemyMoveVector;
+
 public:
 	/// <summary>
 	/// 
