@@ -1,5 +1,5 @@
 #include "Player.h"
-
+#include"Rubber.h"
 
 Vector3 Player::leftPlayerPosition;
 Vector3 Player::rightPlayerPosition;
@@ -33,6 +33,7 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 	collisionFlag.lay = false;
 	collisionFlag.lineSegment = false;
 	collisionFlag.sphere = true;
+	collisionFlag.plane = false;
 
 	this->playerType = playerType;
 
@@ -279,7 +280,13 @@ void Player::update()
 	//15ˆÈã—£‚ê‚½‚çˆø‚Á’£‚ç‚ê‚é
 	if (playerDistance > PlayerRevDistance)
 	{
+		if(velocity.x == 0 && velocity.z == 0)
+		position += firstAddPlayerVector * speed * 1.5;
+		else
 		position += firstAddPlayerVector * speed * 0.5;
+
+
+
 	}
 #pragma endregion
 
@@ -391,6 +398,11 @@ void Player::update()
 #pragma endregion
 
 
+#pragma endregion
+
+#pragma region ƒSƒ€‚Éî•ñ‚ğ‘—‚é
+	Rubber::setPlayerToPlayerVector(leftPlayerPosition - rightPlayerPosition);
+	Rubber::setPlayerPosition(position);
 #pragma endregion
 
 }

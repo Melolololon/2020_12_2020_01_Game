@@ -1,6 +1,7 @@
 #include "Play.h"
 #include"ObjectManager.h"
 #include"Player.h"
+#include"Rubber.h"
 
 #include"PolygonManager.h"
 
@@ -24,6 +25,10 @@ void Play::initialize()
 	ObjectManager::getInstance()->addObject(player[0]);
 	ObjectManager::getInstance()->addObject(player[1]);
 
+	for (int i = 1; i < 10; i++) 
+	{
+		ObjectManager::getInstance()->addObject(new Rubber(i));
+	}
 }
 
 void Play::update()
