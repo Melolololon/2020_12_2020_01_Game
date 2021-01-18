@@ -706,6 +706,7 @@ void DirectX12::initialize()
 	peSepthStencilValue.Depth = 1.0f;
 	peSepthStencilValue.Stencil = 0.0f;
 	peClesrValue.DepthStencil = peSepthStencilValue;*/
+
 	peClesrValue = CD3DX12_CLEAR_VALUE(DXGI_FORMAT_R8G8B8A8_UNORM, clearColor);
 	//リソース作成
 	postEffectResources.resize(1);
@@ -855,12 +856,10 @@ void DirectX12::initialize()
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pePLDesc = spriteGpipeline;
 	pePLDesc.pRootSignature = postEffectRootSigneture.Get();
-	//pePLDesc.pRootSignature = spriteRootsignature.Get();
-	/*PipelineData pePlData;
-	pePlData.blendMode = BLEND_NONE;
-	pePlData.cullMode = CULL_NONE;
-	pePlData.depthMode = DEPTH_NONE;
-	pePlData.drawMode = DRAW_SOLID;*/
+	
+	//バックバッファの色と加算したくないので、false
+	blenddesc.BlendEnable = false;//ブレンドを有効にするかのフラグ
+	pePLDesc.BlendState.RenderTarget[0] = blenddesc;
 
 	createPipeline->createUserPipeline
 	(
@@ -1237,6 +1236,7 @@ bool DirectX12::createUserPipelineState
 		blenddesc.BlendOpAlpha = D3D12_BLEND_OP_SUBTRACT;
 		break;
 	}
+	gpipeline.BlendState.RenderTarget[0] = blenddesc;
 
 	switch (pipelineData.depthMode)
 	{

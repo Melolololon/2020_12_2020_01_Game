@@ -61,7 +61,7 @@ double LibMath::getDoublePI()
 
 #pragma region ƒxƒNƒgƒ‹
 
-float LibMath::calcDictance3D(Vector3 pos1, Vector3 pos2)
+float LibMath::calcDistance3D(Vector3 pos1, Vector3 pos2)
 {
 	return sqrt
 	(

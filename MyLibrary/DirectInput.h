@@ -20,6 +20,7 @@ const int LBButton = 4;
 const int RBButton = 5;
 const int LTButton = 6;
 const int RTButton = 7;
+const int StartButton = 11;
 #pragma endregion
 #pragma region 十字キー
 //enumに変える
@@ -130,6 +131,7 @@ public:
 #pragma region 十字キー
 
 	static bool directionalButtonState(int button);
+	static bool directionalButtonTrigger(int button);
 #pragma endregion
 
 #pragma endregion

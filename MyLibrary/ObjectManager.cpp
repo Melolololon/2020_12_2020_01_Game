@@ -39,6 +39,7 @@ void ObjectManager::update()
 
 	Object::CollisionFlag f1;
 	Object::CollisionFlag f2;
+	int forCnt[2] = { 0,0 };
 
 	//if•¶–ˆ‚ÉŠÖ”ŒÄ‚Î‚¸‚É‚ ‚ç‚©‚¶‚ßŽæ“¾‚µ‚½‚Ù‚¤‚ª‚¢‚¢
 #pragma region ‹…‚Æ‹…
@@ -95,6 +96,7 @@ void ObjectManager::update()
 					p[3] = c2.rightUpPos;
 					p[2] = c2.rightDownPos;
 
+					Vector3 hitPos = {0,0,0};
 					if (LibMath::lineSegmentAndBoardCollision
 					(
 						c1.position[0],
@@ -102,18 +104,27 @@ void ObjectManager::update()
 						c2.normal,
 						c2.position,
 						p,
-						nullptr
+						&hitPos
 						
 					))
 					{
+						o1->setLineSegmentDataHitPos(hitPos, forCnt[1]);
+						o2->setBoardDataHitPos(hitPos, forCnt[0]);
+
 						o1->hit(o2, CollosionType::COLLISION_LINESEGMENT);
 						o2->hit(o1, CollosionType::COLLISION_BOARD);
 					}
+					forCnt[0]++;
 				}
+				forCnt[1]++;
+				forCnt[0] = 0;
 			}
 
+			forCnt[0] = 0;
+			forCnt[1] = 0;
 		}
 	}
+
 #pragma endregion
 
 

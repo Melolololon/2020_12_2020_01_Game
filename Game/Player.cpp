@@ -78,7 +78,7 @@ void Player::update()
 #pragma region 移動処理
 
 	float playerDistance;
-	playerDistance = LibMath::calcDictance3D(leftPlayerPosition, rightPlayerPosition);
+	playerDistance = LibMath::calcDistance3D(leftPlayerPosition, rightPlayerPosition);
 
 	Vector3 firstAddPlayerVector;//先に追加されたプレイヤーへのベクトル
 	Vector3 reversVector;//上のベクトルの逆ベクトル
@@ -312,7 +312,7 @@ void Player::update()
 	{
 		while (1)
 		{
-			playerDistance = LibMath::calcDictance3D(leftPlayerPosition, rightPlayerPosition);
+			playerDistance = LibMath::calcDistance3D(leftPlayerPosition, rightPlayerPosition);
 
 			if (playerType == PlayerType::LEFT)firstAddPlayerVector = LibMath::otherVector(leftPlayerPosition, rightPlayerPosition);
 			if (playerType == PlayerType::RIGHT)firstAddPlayerVector = LibMath::otherVector(rightPlayerPosition, leftPlayerPosition);

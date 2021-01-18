@@ -35,13 +35,28 @@ public:
 	/// <returns></returns>
 	static float getFloatPI();
 
+	/// <summary>
+	/// 円周率を取得します
+	/// </summary>
+	/// <returns></returns>
 	static double getDoublePI();
 
 #pragma region ベクトル
 
-	static float calcDictance3D(Vector3 pos1, Vector3 pos2);
+	/// <summary>
+	/// 2つの座標の距離を取得します
+	/// </summary>
+	/// <param name="pos1">座標1</param>
+	/// <param name="pos2">座標2</param>
+	/// <returns></returns>
+	static float calcDistance3D(Vector3 pos1, Vector3 pos2);
 
-
+	/// <summary>
+	/// 別のオブジェクトへのベクトルを取得します(正規化は行う)
+	/// </summary>
+	/// <param name="myPos"></param>
+	/// <param name="otherPos"></param>
+	/// <returns></returns>
 	static Vector3 otherVector(Vector3 myPos, Vector3 otherPos);
 
 
@@ -60,8 +75,19 @@ public:
 	/// <returns></returns>
 	static float vecto2rToAngle(Vector2 v);
 
+	/// <summary>
+	/// 角度をVector2に変換します
+	/// </summary>
+	/// <param name="angle"></param>
+	/// <returns></returns>
 	static Vector2 angleToVector2(float angle);
 
+	/// <summary>
+	/// Vector2のベクトルを指定した角度に応じて回転させます
+	/// </summary>
+	/// <param name="v"></param>
+	/// <param name="angle"></param>
+	/// <returns></returns>
 	static Vector2 rotateVector2(Vector2 v, float angle);
 #pragma endregion
 

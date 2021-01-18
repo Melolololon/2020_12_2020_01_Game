@@ -67,6 +67,9 @@ public:
 	std::vector<PlaneData> getPlaneData();
 	std::vector<BoardData> getBoardData();
 
+	void setLineSegmentDataHitPos(const Vector3& pos, const int& arrayNum);
+	void setBoardDataHitPos(const Vector3& pos, const int& arrayNum);
+
 	virtual void* getPtr();
 
 	

@@ -72,3 +72,14 @@ std::vector<BoardData> Object::getBoardData()
 {
 	return boardData;
 }
+
+
+void Object::setLineSegmentDataHitPos(const Vector3& pos, const int& arrayNum)
+{
+	lineSegmentData[arrayNum].hitPos = pos;
+}
+
+void Object::setBoardDataHitPos(const Vector3& pos, const int& arrayNum)
+{
+	boardData[arrayNum].hitPos = pos;
+}

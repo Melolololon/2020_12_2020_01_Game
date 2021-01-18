@@ -56,11 +56,15 @@ struct BoardData
 	Vector3 leftUpPos;
 	Vector3 rightUpPos;
 	Vector3 rightDownPos;
+
+	Vector3 hitPos;
 };
 
 struct LineSegmentData
 {
 	Vector3 position[2];
+
+	Vector3 hitPos;
 };
 
 struct LayData 

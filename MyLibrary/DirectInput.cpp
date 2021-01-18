@@ -317,7 +317,6 @@ bool DirectInput::buttonRelease(int button)
 
 bool DirectInput::directionalButtonState(int button)
 {
-
 	//‰Ÿ‚µ‚Ä‚é‚Æ‚«
 
 	if (!devPad)return false;
@@ -352,8 +351,67 @@ bool DirectInput::directionalButtonState(int button)
 		break;
 	}
 	return false;
+
+
 }
 
+bool DirectInput::directionalButtonTrigger(int button)
+{
+
+	//‰Ÿ‚µ‚Ä‚é‚Æ‚«
+
+	if (!devPad)return false;
+
+	switch (button)
+	{
+	case UpButton:
+		if (padState.rgdwPOV[0] <= 4500 ||
+			padState.rgdwPOV[0] >= 31500 &&
+			padState.rgdwPOV[0] <= 36000)
+		{
+			if (padPrevious.rgdwPOV[0] <= 4500 ||
+				padPrevious.rgdwPOV[0] >= 31500 &&
+				padPrevious.rgdwPOV[0] <= 36000) {}
+			else
+				return true;
+		}
+		break;
+
+	case RightButton:
+		if (padState.rgdwPOV[0] <= 13500 &&
+			padState.rgdwPOV[0] >= 4500)
+		{
+			if (padPrevious.rgdwPOV[0] <= 13500 &&
+				padPrevious.rgdwPOV[0] >= 4500) {
+			}
+			else
+				return true;
+		}
+		break;
+
+	case DownButton:
+		if (padState.rgdwPOV[0] <= 22500 &&
+			padState.rgdwPOV[0] >= 13500)
+		{
+			if (padPrevious.rgdwPOV[0] <= 22500 &&
+				padPrevious.rgdwPOV[0] >= 13500) {	}else
+				return true;
+		}
+		break;
+
+	case LeftButton:
+		if (padState.rgdwPOV[0] <= 31500 &&
+			padState.rgdwPOV[0] >= 22500)
+		{
+			if (padPrevious.rgdwPOV[0] <= 31500 &&
+				padPrevious.rgdwPOV[0] >= 22500){ }
+			else
+				return true;
+		}
+		break;
+	}
+	return false;
+}
 
 bool DirectInput::leftStickLeft(int lXNum)
 {
