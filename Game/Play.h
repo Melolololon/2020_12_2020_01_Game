@@ -3,11 +3,11 @@
 #include"Library.h"
 #include"LibMath.h"
 #include"Vector.h"
+#include"Player.h"
 class Play :public Scene
 {
 private:
-	static Vector3 scrollSpeed;
-
+	Player* player[2];
 public:
 	Play();
 	~Play();
@@ -18,6 +18,5 @@ public:
 	void end();
 	std::string nextScene();
 
-	static Vector3 getScrollSpeed();
 };
 

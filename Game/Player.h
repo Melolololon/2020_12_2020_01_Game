@@ -58,13 +58,17 @@ private:
 	bool isDash;
 	//最高ダッシュスピード
 	const Vector3 MaxDashSpeed = { 1.0f,1.0f,1.0f };
+	//通常スピード
 	const Vector3 NormalSpeed = { 0.2f,0.2f,0.2f };
 #pragma endregion
 
 
 	//最高距離(playerMaxDistanceNumber以上は離れることができない)
 	const float PlayerMaxDistanceNumber = 20.0f;
+	//もう片方のプレイヤーへの力が働く距離
+	const float PlayerRevDidtanceNumber = 7.5f;
 	const float PlayerMaxDistance = LibMath::calcDictance3D({ PlayerMaxDistanceNumber,0,0 }, { 0,0,0 });//25がmax
+	const float PlayerRevDistance = LibMath::calcDictance3D({ PlayerRevDidtanceNumber,0,0 }, { 0,0,0 });//15でrev
 
 #pragma region 紐
 

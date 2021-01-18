@@ -71,10 +71,23 @@ Player::~Player()
 
 void Player::update()
 {
-
+	//一定以上引っ張ると引っ張る速度が落ちる(ゴム引っ張ってるから)
+	//これにより、引っ張ると受け止めやすくなるが、ショットに時間がかかる
+	//(引っ張るのも時間かかるし、敵がゴムを引っ張るのにも時間かかる)
 
 #pragma region 移動処理
-	
+
+	float playerDistance;
+	playerDistance = LibMath::calcDictance3D(leftPlayerPosition, rightPlayerPosition);
+
+	Vector3 firstAddPlayerVector;//先に追加されたプレイヤーへのベクトル
+	Vector3 reversVector;//上のベクトルの逆ベクトル
+	if (playerType == PlayerType::LEFT)firstAddPlayerVector = LibMath::otherVector(leftPlayerPosition, rightPlayerPosition);
+	if (playerType == PlayerType::RIGHT)firstAddPlayerVector = LibMath::otherVector(rightPlayerPosition, leftPlayerPosition);
+	//自分からもう一体のプレイヤーへのベクトル(firstAddPlayerVectorの逆ベクトル)
+	reversVector = firstAddPlayerVector * -1;
+
+#pragma region 移動
 
 	if (!isDash) 
 	{
@@ -105,6 +118,7 @@ void Player::update()
 				velocity.x--;
 		}
 	}
+#pragma endregion
 
 #pragma region ダッシュ
 
@@ -260,6 +274,16 @@ void Player::update()
 
 #pragma endregion
 
+#pragma region ゴムによる引っ張られ処理
+
+	//15以上離れたら引っ張られる
+	if (playerDistance > PlayerRevDistance)
+	{
+		position += firstAddPlayerVector * speed * 0.5;
+	}
+#pragma endregion
+
+#pragma region 通常の座標セット
 
 	position += velocity * speed;
 	Library::setPosition(position, heapHandle, 0);
@@ -275,28 +299,29 @@ void Player::update()
 		rightPlayerPosition = position;
 		rightPlayerVelocity = velocity;
 	}
+#pragma endregion
 
 #pragma region 離れるの防止
 	//最初に追加したやつでは行わない
+	//こう書かないと、片方が引っ張られても動かなくなる
+	//(移動処理が片方で終わるため)
+	//片方をspeed分戻すからこう書かないといけないだけで、
+	//両方にspeedの半分分だけ戻せばいいのでは?
+	//片方が動いてるとき、一方的に引っ張りたい(動いてるほうは戻されないようにしたい)ので、こうする
 	if (firstAddType != playerType)
 	{
 		while (1)
 		{
-			float playerDistance;
-
 			playerDistance = LibMath::calcDictance3D(leftPlayerPosition, rightPlayerPosition);
+
+			if (playerType == PlayerType::LEFT)firstAddPlayerVector = LibMath::otherVector(leftPlayerPosition, rightPlayerPosition);
+			if (playerType == PlayerType::RIGHT)firstAddPlayerVector = LibMath::otherVector(rightPlayerPosition, leftPlayerPosition);
+			//自分からもう一体のプレイヤーへのベクトル(firstAddPlayerVectorの逆ベクトル)
+			reversVector = firstAddPlayerVector * -1;
 
 			//プレイヤー同士の距離が限界地を超えていたら
 			if (playerDistance > PlayerMaxDistance)
 			{
-				Vector3 firstAddPlayerVector;//先に追加されたプレイヤーへのベクトル
-				Vector3 reversVector;//上のベクトルの逆ベクトル
-				if (playerType == PlayerType::LEFT)firstAddPlayerVector = LibMath::otherVector(leftPlayerPosition, rightPlayerPosition);
-				if (playerType == PlayerType::RIGHT)firstAddPlayerVector = LibMath::otherVector(rightPlayerPosition, leftPlayerPosition);;
-
-				//自分からもう一体のプレイヤーへのベクトル
-				reversVector = firstAddPlayerVector * -1;
-
 
 				//座標を変更(動かなかったら引っ張る)
 				if (playerType == PlayerType::LEFT)
