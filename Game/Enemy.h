@@ -19,6 +19,11 @@ private:
 	//移動量更新に使用するタイマー
 	int updateVelocityTimer = 0;
 
+	//紐に引っかかって止まるかどうか
+	bool stopFlag;
+
+	//自分が発射されてるかどうか
+	bool myShot;
 public:
 	//コンストラクタ
 	Enemy();
@@ -43,5 +48,15 @@ public:
 	int GetTargetTypeAsInt();
 
 	static Enemy* GetEnemy();
+
+	void* getPtr()override;
+
+	void GetVelocityAndSpeed(Vector3& vel,Vector3& spe);
+
+	void SetStopFlag(const bool& flag);
+
+	void SetVelocity(const Vector3& vec);
+
+	bool GetMyShot();
 };
 

@@ -101,5 +101,7 @@ public:
 	void hit(Object* object, CollosionType collisionType)override;
 
 	void setPosition(Vector3 pos);
+
+
 };
 

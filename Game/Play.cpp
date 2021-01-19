@@ -25,10 +25,13 @@ void Play::initialize()
 	ObjectManager::getInstance()->addObject(player[0]);
 	ObjectManager::getInstance()->addObject(player[1]);
 
+	Rubber* rP[9];
 	for (int i = 1; i < 10; i++) 
 	{
-		ObjectManager::getInstance()->addObject(new Rubber(i));
+		rP[i - 1] = new Rubber(i);
+		ObjectManager::getInstance()->addObject(rP[i - 1]);
 	}
+	Rubber::setRubberPtr(rP);
 
 	addEnemyTimer = 0;
 }

@@ -63,6 +63,11 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 
 #pragma endregion
 
+#pragma region ƒSƒ€‚Éî•ñ‚ğ‘—‚é
+	Rubber::setPlayerToPlayerVector(leftPlayerPosition - rightPlayerPosition);
+	Rubber::setPlayerPosition(position);
+#pragma endregion
+
 }
 
 
@@ -403,6 +408,7 @@ void Player::update()
 #pragma region ƒSƒ€‚Éî•ñ‚ğ‘—‚é
 	Rubber::setPlayerToPlayerVector(leftPlayerPosition - rightPlayerPosition);
 	Rubber::setPlayerPosition(position);
+	Rubber::setDashFlag(isDash);
 #pragma endregion
 
 }
