@@ -30,9 +30,9 @@ Rubber::Rubber(const int& pNum)
 	enemyMoveVector = 0;
 	hitEnemy = false;
 
-	normalPos = 0;
 
 	position = playerPos + vecPToP * (pointNum * 0.1);
+	normalPos = position;
 }
 
 Rubber::~Rubber()
@@ -41,20 +41,25 @@ Rubber::~Rubber()
 
 void Rubber::update()
 {
+	//規定位置を取得
 	normalPos = playerPos + vecPToP * (pointNum * 0.1);
 
 	//当たってなかったら戻るように
 	if (!hitEnemy) 
 	{
 		//自分の座標から規定位置のベクトル
-		/*Vector3 myPosToNorPos = LibMath::otherVector(position, normalPos);
+		Vector3 myPosToNorPos = LibMath::otherVector(position, normalPos);
 
-		if(LibMath::calcDistance3D(position, normalPos) >= 1.0f)
-		position += myPosToNorPos * speed;*/
-
-
-		position = normalPos;
+		float dis = LibMath::calcDistance3D(position, normalPos);
+		//一定以上離れてたら元の位置に向かって移動
+		if (dis >= 0.45f)
+		{
+			position += myPosToNorPos * speed;
+		}
+		else
+			position = normalPos;
 	}
+	//position = normalPos;
 
 	sphereData[0].position = position;
 	Library::setPosition(position, heapHandle, 0);
@@ -128,24 +133,32 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		if (!moveFlag)
 			e->SetStopFlag(true);
 
+
 		//移動
 		if (moveFlag) 
 		{
-			position += eVel * eSpe;
+			Vector3 moveVec = eVel * eSpe;
+			position += moveVec;
 			Library::setPosition(position, heapHandle, 0);
 			sphereData[0].position = position;
 
 			//近くの点も動かす
-		/*	for (int i = pointNum + 1; i < 9; i++) 
+			int arrNum = 0;
+			for (int i = pointNum + 1; i < 9; i++) 
 			{
-				rubberPtr[i]->movePosition(eVel * eSpe * MoveBairitu[i - 1 - pointNum]);
+				moveVec = eVel * eSpe * MoveBairitu[arrNum];
+				rubberPtr[i]->movePosition(moveVec);
 				rubberPtr[i]->setHitEnemy(true);
+				arrNum++;
 			}
+			arrNum = 0;
 			for (int i = pointNum - 1; i > -1; i--)
 			{
-				rubberPtr[i]->movePosition(eVel * eSpe * MoveBairitu[i + 1 + pointNum]);
+				moveVec = eVel * eSpe * MoveBairitu[arrNum];
+				rubberPtr[i]->movePosition(moveVec);
 				rubberPtr[i]->setHitEnemy(true);
-			}*/
+				arrNum++;
+			}
 
 			//固定しない
 			e->SetStopFlag(false);
@@ -153,7 +166,10 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 #pragma endregion
 
 		//プレイヤー
-		
+#pragma region プレイヤー
+
+#pragma endregion
+
 
 
 		//プレイヤーのがダッシュしたら敵を動かす(吹っ飛ばす)
@@ -164,6 +180,8 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		}
 		
 		//紐の後ろ(引っ張られてるほうにいる敵)にいる敵は吹っ飛ばないように対策する 
+	    //引っ張り具合に応じて、敵遅くする
+
 	}
 
 }
