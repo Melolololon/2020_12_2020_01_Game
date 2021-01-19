@@ -139,12 +139,13 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		{
 			Vector3 moveVec = eVel * eSpe;
 			position += moveVec;
+			hitEnemy = true;
 			Library::setPosition(position, heapHandle, 0);
 			sphereData[0].position = position;
 
 			//‹ß‚­‚Ì“_‚à“®‚©‚·
 			int arrNum = 0;
-			for (int i = pointNum + 1; i < 9; i++) 
+			for (int i = pointNum; i < 9; i++) 
 			{
 				moveVec = eVel * eSpe * MoveBairitu[arrNum];
 				rubberPtr[i]->movePosition(moveVec);
@@ -152,7 +153,7 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 				arrNum++;
 			}
 			arrNum = 0;
-			for (int i = pointNum - 1; i > -1; i--)
+			for (int i = pointNum - 2; i > -1; i--)
 			{
 				moveVec = eVel * eSpe * MoveBairitu[arrNum];
 				rubberPtr[i]->movePosition(moveVec);
