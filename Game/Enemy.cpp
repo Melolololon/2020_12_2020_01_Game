@@ -61,10 +61,14 @@ void Enemy::draw()
 void Enemy::UpdateVelocity(Vector3 playerPosition)
 {
 	if (myShot)return;
-	velocity = Vector3::straight(position, playerPosition);
+	Vector3 v = velocity;
+	velocity = v + (playerPosition - position);
 	velocity = Vector3::normalize(velocity);
-	updateVelocityTimer = 0;
-
+	for (int i = 0; i < 5; i++)
+	{
+		velocity = v + velocity;
+		velocity = Vector3::normalize(velocity);
+	}
 }
 
 int Enemy::GetTargetTypeAsInt()
