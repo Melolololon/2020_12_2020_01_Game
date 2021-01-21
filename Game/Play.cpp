@@ -51,9 +51,11 @@ void Play::update()
 	ObjectManager::getInstance()->update();
 	for (int i = 0; i < enemies.size(); i++)
 	{
-		Vector3 playerPos = player[enemies[i]->GetTargetTypeAsInt()]->getSphereData()[0].position;
-		enemies[i]->UpdateVelocity(playerPos);
-		
+		if (enemies[i]->GetUpdateVelocityTimer() > UPDATE_VELOCITY_TIME)
+		{
+			Vector3 playerPos = player[enemies[i]->GetTargetTypeAsInt()]->getSphereData()[0].position;
+			enemies[i]->UpdateVelocity(playerPos);
+		}
 	}
 
 
