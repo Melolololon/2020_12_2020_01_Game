@@ -22,7 +22,7 @@ Rubber::Rubber(const int& pNum)
 	pointNum = pNum;
 
 	velocity = 0;
-	speed = 0.5f;
+	speed = 1.0f;
 	isDead = false;
 
 	collisionFlag.board = false;

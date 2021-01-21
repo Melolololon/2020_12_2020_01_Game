@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include"Rubber.h"
 
 Enemy::Enemy()
 {
@@ -18,7 +19,7 @@ void Enemy::Initialize()
 	//移動量はとりあえず手前方向へ。
 	velocity = { 0, 0, -1.0f };
 	//スピードはとりあえず2.0で。
-	speed = 0.1f;
+	speed = 0.15f;
 	//目標タイプはランダムで決める。途中の変更はない(今のところ)
 	if (Library::getRandomNumber(2) == 0)
 	{
@@ -39,8 +40,9 @@ void Enemy::Initialize()
 
 	sphereData.resize(1);
 	sphereData[0].position = position;
-	sphereData[0].r = 0.05f;
+	sphereData[0].r = 0.2f;
 
+	hitRubber = false;
 }
 
 void Enemy::update()
@@ -59,14 +61,20 @@ void Enemy::draw()
 void Enemy::UpdateVelocity(Vector3 playerPosition)
 {
 	if (myShot)return;
-	Vector3 v = velocity;
-	velocity = v + (playerPosition - position);
-	velocity = Vector3::normalize(velocity);
-	for (int i = 0; i < 5; i++)
+
+	if (!hitRubber) 
 	{
-		velocity = v + velocity;
+		Vector3 v = velocity;
+		velocity = v + (playerPosition - position);
 		velocity = Vector3::normalize(velocity);
+		for (int i = 0; i < 5; i++)
+		{
+			velocity = v + velocity;
+			velocity = Vector3::normalize(velocity);
+		}
 	}
+
+	hitRubber = false;
 }
 
 int Enemy::GetTargetTypeAsInt()
@@ -123,5 +131,10 @@ void Enemy::hit(Object* object, CollosionType collisionType)
 		{
 			isDead = true;
 		}
+	}
+
+	if (typeid(*object) == typeid(Rubber)) 
+	{
+		hitRubber = true;
 	}
 }

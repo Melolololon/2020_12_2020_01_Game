@@ -152,6 +152,8 @@ void Player::update()
 
 	if (!isDash ) 
 	{
+#pragma region スティックダッシュ
+
 		if (playerType == PlayerType::LEFT && !dashOperTimeFlag)
 		{
 			if (DirectInput::leftStickUp(32767) || DirectInput::keyState(DIK_W))
@@ -282,7 +284,41 @@ void Player::update()
 				leftInputDirectionUpDown = InputDirection::INPUT_DIRECTION_CENTER;
 			}
 		}
+#pragma endregion
+
+#pragma region ボタンダッシュ
+		if (velocity.x != 0 ||
+			velocity.z != 0) 
+		{
+			if (DirectInput::keyTrigger(DIK_SPACE) ||
+				DirectInput::buttonTrigger(LBButton) ||
+				DirectInput::buttonTrigger(RBButton)) 
+			{
+				isDash = true;
+
+
+			}
+
+			if (isDash)
+			{
+				speed = MaxDashSpeed;
+				dashOperTimeFlag = false;
+				dashOperPossibleFlag = false;
+				dashOperTimer = 0;
+
+				rightInputDirectionUpDown = InputDirection::INPUT_DIRECTION_CENTER;
+				rightInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_CENTER;
+				leftInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_CENTER;
+				leftInputDirectionUpDown = InputDirection::INPUT_DIRECTION_CENTER;
+			}
+		}
+
+#pragma endregion
+
 	}
+
+
+
 	if (isDash) 
 	{
 		dashTimer++;

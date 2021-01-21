@@ -67,7 +67,7 @@ private:
 	//Å‚‹——£(playerMaxDistanceNumberˆÈã‚Í—£‚ê‚é‚±‚Æ‚ª‚Å‚«‚È‚¢)
 	const float PlayerMaxDistanceNumber = 20.0f;
 	//‚à‚¤•Ğ•û‚ÌƒvƒŒƒCƒ„[‚Ö‚Ì—Í‚ª“­‚­‹——£
-	const float PlayerRevDidtanceNumber = 7.5f;
+	const float PlayerRevDidtanceNumber = 10.0f;
 	const float PlayerMaxDistance = LibMath::calcDistance3D({ PlayerMaxDistanceNumber,0,0 }, { 0,0,0 });//25‚ªmax
 	const float PlayerRevDistance = LibMath::calcDistance3D({ PlayerRevDidtanceNumber,0,0 }, { 0,0,0 });//15‚Årev
 

@@ -21,6 +21,9 @@ private:
 
 	//自分が発射されてるかどうか
 	bool myShot;
+
+	//ゴムと当たったかどうか
+	bool hitRubber;
 public:
 	//コンストラクタ
 	Enemy();
