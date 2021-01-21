@@ -51,10 +51,20 @@ void Play::update()
 	ObjectManager::getInstance()->update();
 	for (int i = 0; i < enemies.size(); i++)
 	{
-		Vector3 playerPos = player[enemies[i]->GetTargetTypeAsInt()]->getSphereData()[0].position;
-		enemies[i]->UpdateVelocity(playerPos);
-		
+		if (enemies[i]->GetUpdateVelocityTimer() > UPDATE_VELOCITY_TIME)
+		{
+			Vector3 playerPos = player[enemies[i]->GetTargetTypeAsInt()]->getSphereData()[0].position;
+			enemies[i]->UpdateVelocity(playerPos);
+		}
 	}
+
+
+#pragma region ƒvƒŒƒCƒ„[‚É“G‚ÌˆÚ“®—Ê‘ã“ü
+	player[0]->addPosition(Rubber::getPlayerMoveVector());
+	player[1]->addPosition(Rubber::getPlayerMoveVector());
+#pragma endregion
+
+	ObjectManager::getInstance()->isDeadCheck();
 }
 
 void Play::draw()

@@ -19,9 +19,6 @@ private:
 	//移動量更新に使用するタイマー
 	int updateVelocityTimer = 0;
 
-	//紐に引っかかって止まるかどうか
-	bool stopFlag;
-
 	//自分が発射されてるかどうか
 	bool myShot;
 public:
@@ -36,6 +33,7 @@ public:
 	//描画
 	void draw() override;
 
+	void hit(Object* object, CollosionType collisionType)override;
 
 	/// <summary>
 	/// 移動量更新
@@ -53,9 +51,9 @@ public:
 
 	void GetVelocityAndSpeed(Vector3& vel,Vector3& spe);
 
-	void SetStopFlag(const bool& flag);
+	void AddPosition(const Vector3 vec);
 
-	void SetVelocity(const Vector3& vec);
+	void ShotEnemy(const Vector3& vec);
 
 	bool GetMyShot();
 };
