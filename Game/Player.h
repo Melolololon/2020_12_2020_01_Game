@@ -77,6 +77,14 @@ private:
 	//ˆê’èˆÈã(Ÿè‚Éˆø‚Á’£‚ç‚ê‚é‚Ü‚Å)—£‚ê‚Ä‚¢‚é‚©
 	static bool leavePlayer;
 
+	//‘Ì—Í
+	int life;
+
+	//–³“GŠÔ
+	bool isMuteki;
+	int mutekiTimer;
+	const int MutekiTime = 60 * 1;
+
 #pragma region •R
 
 

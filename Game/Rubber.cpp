@@ -15,7 +15,8 @@ bool Rubber::playerInputFlag[2];
 int Rubber::rimitCount;
 bool Rubber::allRimitFlag; 
 
-bool Rubber::leavePlayerFlag;
+bool Rubber::leavePlayerFlag; 
+bool Rubber::playerDashEnd;
 
 Rubber::Rubber(const int& pNum)
 {
@@ -33,11 +34,11 @@ Rubber::Rubber(const int& pNum)
 
 	sphereData.resize(1);
 	sphereData[0].position = position;
-	sphereData[0].r = 1.0f;
+	sphereData[0].r = 0.4f;
 
 	Library::createManyVertex3DBox({ 1,1,1 }, &vertexHandle);
 	Library::createHeapData2({ 255,255,255,255 }, 1, &heapHandle);
-
+	
 	enemyMoveVector = 0;
 	hitEnemy = false;
 
@@ -76,6 +77,7 @@ void Rubber::update()
 	}
 
 	//入力してないかつ、プレイヤーが一定以上離れていたら。プレイヤーと同じように移動
+	//(離れてるときに敵にぶつかって、引っ張るのやめてもついてくるように)
 	Vector3 nVecPToP;
 	if (pointNum <= 5 && !playerInputFlag[0] && leavePlayerFlag)
 	{ 
@@ -122,13 +124,24 @@ void Rubber::update()
 
 	if (pointNum == 1 || pointNum == 9) 
 	{
-		if (rubberDis  >= MaxMoveDistance + 1.0f)
+		if (rubberDis  >= MaxMoveDistance + 2.0f)
 		{
 			allRimitFlag = true;
 		}
 	}
 
 	if (rimitCount == 9)allRimitFlag = true;
+
+	//地下かったら特定の点のサイズを変える
+	if (LibMath::calcDistance3D(playerPos[0], playerPos[1]) < 10.0f) 
+	{
+		if (pointNum == 4 ||
+			pointNum == 5 ||
+			pointNum == 6) 
+		{
+			sphereData[0].r = 0.01f;
+		}
+	}
 
 	
 }
@@ -148,15 +161,13 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 
 	//3.紐の後ろ(引っ張られてるほうにいる敵)にいる敵は吹っ飛ばないように対策する (飛んでも問題ないのでは? 引っ張ってるわけだし物理的に問題ないと思われる)
 	//3.続き　しかし、規定位置からどのくらい移動したかで判断するため、めっちゃ吹っ飛ぶ
-	//3.続き ゴムと敵の位置が規定位置へのベクトルと大体逆だったら飛ばさなければいい?
-	
-	//5.敵が引っかかっててプレイヤーが動いてないときは、動くようにする(プレイヤー動かしたが、ゴムがおかしい)
-	//5.続き rimitがtrueになったりfalseになったりを繰り返して、MoveBairitu[arrNum]が掛けられるからプレイヤーと同じように動かないから修正
-	//5.続き このままでも大して影響なさそうだからこのままでいい?
-	//5.続き もしかして押し戻しをhit内に書いてるからちゃんとプレイヤーみたいに移動しない?
-	//5.続き addPosition呼んでるからそんなことない
-	
-	
+	//3.続き ゴムと敵の位置が、ゴムと規定位置へのベクトルと大体逆だったら飛ばさなければいい?
+
+	//4.ちゃんとした向きにダッシュしなかったときは、吹っ飛ばないようにする
+	//4.続き エネミーのベクトルの角度と、プレイヤーのダッシュ方向が、一定の角度以上かつ未満だったらでOK?
+	//4.続き 逆(内側にダッシュ)した場合の対策もしっかり(お互いが大体反対か調べる?)
+	//4.続き 内側ダッシュ対策も!!
+	//4.続き 内側ダッシュ対策はした。少しでも敵の方に向いてると吹っ飛ばないから少し緩めたが、まだシビア?
 
 	if (typeid(*object) == typeid(Enemy)) 
 	{
@@ -197,7 +208,8 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		{
 			//敵を動かなくする
 			//moveFlagがtrueとfalseを繰り返す?ので、実質数値の半分くらいしか反映されてない
-			e->AddPosition(eVel*eSpe * -1);
+			//敵の移動なくしちゃう
+			//e->AddPosition(eVel*eSpe * -1);
 
 			//プレイヤーを動かすベクトルセット
 			playerMoveVector = eVel * eSpe;
@@ -211,7 +223,7 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 			int arrNum = 0;
 			for (int i = pointNum; i < 9; i++)
 			{
-				rubberPtr[i]->addPosition(moveVec  );
+				rubberPtr[i]->addPosition(moveVec);
 				arrNum++;
 			}
 			arrNum = 0;
@@ -267,11 +279,44 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		allRimitFlag = false;
 #pragma endregion
 
-		//プレイヤーのがダッシュしたら敵を動かす(吹っ飛ばす)
-		//既定の位置(当たってないときの座標)よりどのくらい離れているかで威力を変える
+		//4.ちゃんとした向きにダッシュしなかったときは、吹っ飛ばないようにする
+		//ok 4.続き エネミーのベクトルの角度と、プレイヤーのダッシュ方向が、一定の角度以上かつ未満だったらでOK?
+		//4.続き 逆(内側にダッシュ)した場合の対策もしっかり(お互いが大体反対か調べる?)
+		//4.続き 同時方向ダッシュ対策も
 		if (dashFlag) 
 		{
-			e->ShotEnemy(normalPos - position);
+			Vector3 eV, eS;
+			e->GetVelocityAndSpeed(eV, eS);
+
+		
+			//数値だけ動かしてみる前の距離
+			float distance[2];
+			//後
+			float moveDistance[2];
+			Vector3 ePos = e->getSphereData()[0].position;
+
+			distance[0] = LibMath::calcDistance3D(playerPos[0], ePos);
+			moveDistance[0] = LibMath::calcDistance3D(playerPos[0] + playerVelocity[0], ePos);
+
+			distance[1] = LibMath::calcDistance3D(playerPos[1], ePos);
+			moveDistance[1] = LibMath::calcDistance3D(playerPos[1] + playerVelocity[1], ePos);
+
+			//仮に動かした後のほうが離れているかつ、
+			//ダッシュした瞬間だったら入る
+			if (distance[0] < moveDistance[0] + 0.05f&&
+				distance[1] < moveDistance[1] + 0.05f &&
+				!playerDashEnd)
+			{
+				//敵発射
+				eS = normalPos - position;
+				e->ShotEnemy(eV * -1, { abs((eS.x + eS.z) / 4),0, abs((eS.x + eS.z) / 4) });
+			}
+				
+			playerDashEnd = true;
+		}
+		else 
+		{
+			playerDashEnd = false;
 		}
 		
 	}

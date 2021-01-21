@@ -8,7 +8,7 @@
 
 Play::Play()
 {
-	Library::setCamera({ 0,30,-10 }, { 0,0,0 }, { 0,-1,0 });
+	Library::setCamera({ 0,35,-10 }, { 0,0,0 }, { 0,-1,0 });
 	Library::setCameraNearAndFar(1.0f, 1000.0f);
 
 }
@@ -45,7 +45,7 @@ void Play::update()
 		Enemy* enemy = Enemy::GetEnemy();
 		enemies.push_back(enemy);
 		ObjectManager::getInstance()->addObject(enemy);
-		addEnemyTimer = 0;
+		addEnemyTimer = -99999;
 	}
 
 	ObjectManager::getInstance()->update();

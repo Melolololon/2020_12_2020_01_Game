@@ -40,9 +40,14 @@ void Enemy::Initialize()
 
 	sphereData.resize(1);
 	sphereData[0].position = position;
-	sphereData[0].r = 0.2f;
+	sphereData[0].r = 1.0f;
 
-	hitRubber = false;
+	//ライフ
+	life = 20;
+
+	//無敵処理
+	isMuteki = false;
+	mutekiTimer = 0;
 }
 
 void Enemy::update()
@@ -51,6 +56,14 @@ void Enemy::update()
 	Library::setPosition(position, heapHandle, 0);
 	sphereData[0].position = position;
 	updateVelocityTimer++;
+
+	//無敵処理
+	if (isMuteki)mutekiTimer++;
+	if (mutekiTimer >= MutekiTime) 
+	{
+		mutekiTimer = 0;
+		isMuteki = false;
+	}
 }
 
 void Enemy::draw()
@@ -60,9 +73,22 @@ void Enemy::draw()
 
 void Enemy::UpdateVelocity(Vector3 playerPosition)
 {
-	if (myShot)return;
+	//速度落ちたら再度追尾
+	if (myShot) 
+	{
+		speed -= {0.025, 0, 0.025};
+		if (speed.x <= 0.0f &&
+			speed.z <= 0.0f) 
+		{
+			myShot = false;
+			speed = 0.15f;
+		}
 
-	if (!hitRubber) 
+		return;
+	}
+
+	float pAndEDistance = LibMath::calcDistance3D(playerPosition, position);
+	if (pAndEDistance >= 10.0f) 
 	{
 		Vector3 v = velocity;
 		velocity = v + (playerPosition - position);
@@ -74,7 +100,6 @@ void Enemy::UpdateVelocity(Vector3 playerPosition)
 		}
 	}
 
-	hitRubber = false;
 }
 
 int Enemy::GetTargetTypeAsInt()
@@ -109,12 +134,12 @@ void Enemy::AddPosition(const Vector3 vec)
 	sphereData[0].position = position;
 }
 
-void Enemy::ShotEnemy(const Vector3 & vec)
+void Enemy::ShotEnemy(const Vector3 & vel, const Vector3& spe)
 {
-	velocity = vec;
+	velocity = vel;
+	speed = spe;
 	myShot = true;
 
-	sphereData[0].r = 1.0f;
 }
 
 bool Enemy::GetMyShot()
@@ -124,17 +149,33 @@ bool Enemy::GetMyShot()
 
 void Enemy::hit(Object* object, CollosionType collisionType)
 {
+
+
+	if (typeid(*object) == typeid(Rubber)) 
+	{
+	}
+
+	if (isMuteki)return;
+
+	//吹っ飛んでるときでも敵とぶつかったらダメージ
 	if (typeid(*object) == typeid(Enemy))
 	{
 		Enemy* e = static_cast<Enemy*>(object->getPtr());
 		if (e->GetMyShot())
 		{
-			isDead = true;
+			life -= e->GetDamage();
+			isMuteki = true;
 		}
 	}
+}
 
-	if (typeid(*object) == typeid(Rubber)) 
+int Enemy::GetDamage()
+{
+	if (myShot)
 	{
-		hitRubber = true;
+		float damageNum = speed.x * 10;
+		return (int)damageNum;
 	}
+
+	return 0;
 }

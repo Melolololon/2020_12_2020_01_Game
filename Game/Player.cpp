@@ -1,4 +1,5 @@
 #include "Player.h"
+#include"Enemy.h"
 
 Vector3 Player::leftPlayerPosition;
 Vector3 Player::rightPlayerPosition;
@@ -63,6 +64,12 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 
 #pragma endregion
 
+	//ライフ
+	life = 3;
+
+	//無敵処理
+	isMuteki = false;
+	mutekiTimer = 0;
 }
 
 
@@ -461,6 +468,15 @@ void Player::update()
 #pragma endregion
 
 
+#pragma region 移動可能範囲指定
+	//動いてないときに出る(押されたりして)可能性があるから、velocity使わない
+	if (position.x >= 20) position.x -= speed.x;
+	if (position.x <= -20) position.x += speed.x;
+	if (position.z >= 15) position.z -= speed.z;
+	if (position.z <= -15) position.z += speed.z;
+	
+#pragma endregion
+
 #pragma endregion
 
 #pragma region ゴムに情報を送る
@@ -479,6 +495,16 @@ void Player::update()
 	Rubber::setLeavePlayerFlag(leavePlayer);
 #pragma endregion
 
+#pragma region 無敵処理
+	if (isMuteki)mutekiTimer++;
+	if (mutekiTimer >= MutekiTime) 
+	{
+		isMuteki = false;
+		mutekiTimer = 0;
+	}
+#pragma endregion
+
+
 }
 
 void Player::draw()
@@ -491,6 +517,13 @@ void Player::hit(Object* object, CollosionType collisionType)
 	if (typeid(*object) == typeid(Player))
 	{
 		setPosition(position + velocity * -1 * speed);
+	}
+
+	if (isMuteki)return;
+	if (typeid(*object) == typeid(Enemy)) 
+	{
+		life--;
+		isMuteki = true;
 	}
 }
 

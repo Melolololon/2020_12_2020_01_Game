@@ -22,8 +22,14 @@ private:
 	//自分が発射されてるかどうか
 	bool myShot;
 
-	//ゴムと当たったかどうか
-	bool hitRubber;
+	//ライフ
+	int life;
+
+	//無敵処理
+	bool isMuteki;
+	int mutekiTimer;
+	const int MutekiTime = 60 * 0.2f;
+
 public:
 	//コンストラクタ
 	Enemy();
@@ -56,8 +62,10 @@ public:
 
 	void AddPosition(const Vector3 vec);
 
-	void ShotEnemy(const Vector3& vec);
+	void ShotEnemy(const Vector3& vel ,const Vector3& spe);
 
 	bool GetMyShot();
+
+	int GetDamage();
 };
 

@@ -49,6 +49,9 @@ private:
 	static bool allRimitFlag;
 
 	static bool leavePlayerFlag;
+
+	//ダッシュが終ったかどうか
+	static bool playerDashEnd;
 public:
 	/// <summary>
 	/// 
