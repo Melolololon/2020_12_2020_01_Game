@@ -1,5 +1,4 @@
 #include "Player.h"
-#include"Rubber.h"
 
 Vector3 Player::leftPlayerPosition;
 Vector3 Player::rightPlayerPosition;
@@ -7,6 +6,7 @@ Vector3 Player::leftPlayerVelocity;
 Vector3 Player::rightPlayerVelocity;
 Player::PlayerType Player::firstAddType;
 Player* Player::firstAddPlayer;
+bool Player::leavePlayer;
 
 Player::Player(const Vector3& pos, const PlayerType& playerType)
 {
@@ -52,7 +52,7 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 	rightInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_CENTER;
 #pragma endregion
 
-
+	inputFlag = false;
 #pragma region ƒSƒ€
 
 
@@ -61,11 +61,6 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 	Library::setInputLayout("NORMAL", 3);
 	Library::setInputLayout("ADDPOSITION", 3);
 
-#pragma endregion
-
-#pragma region ƒSƒ€‚Éî•ñ‚ğ‘—‚é
-	Rubber::setPlayerToPlayerVector(leftPlayerPosition - rightPlayerPosition);
-	Rubber::setPlayerPosition(position);
 #pragma endregion
 
 }
@@ -77,6 +72,8 @@ Player::~Player()
 
 void Player::update()
 {
+	inputFlag = false;
+	leavePlayer = false;
 	//ˆê’èˆÈãˆø‚Á’£‚é‚Æˆø‚Á’£‚é‘¬“x‚ª—‚¿‚é(ƒSƒ€ˆø‚Á’£‚Á‚Ä‚é‚©‚ç)
 	//‚±‚ê‚É‚æ‚èAˆø‚Á’£‚é‚Æó‚¯~‚ß‚â‚·‚­‚È‚é‚ªAƒVƒ‡ƒbƒg‚ÉŠÔ‚ª‚©‚©‚é
 	//(ˆø‚Á’£‚é‚Ì‚àŠÔ‚©‚©‚é‚µA“G‚ªƒSƒ€‚ğˆø‚Á’£‚é‚Ì‚É‚àŠÔ‚©‚©‚é)
@@ -102,26 +99,51 @@ void Player::update()
 		if (playerType == PlayerType::LEFT)
 		{
 			if (DirectInput::leftStickUp(30000) || DirectInput::keyState(DIK_W)) 
-				velocity.z++; 
+			{
+				inputFlag = true;
+				velocity.z++;
+			}
 			if (DirectInput::leftStickDown(30000) || DirectInput::keyState(DIK_S)) 
+			{
+				inputFlag = true;
 				velocity.z--;
+			}
 			if (DirectInput::leftStickRight(30000) || DirectInput::keyState(DIK_D)) 
+			{
+				inputFlag = true;
 				velocity.x++;
+			}
 			if (DirectInput::leftStickLeft(30000) || DirectInput::keyState(DIK_A)) 
-				velocity.x--; 
+			{
+				inputFlag = true;
+				velocity.x--;
+			}
 
 		}
 
 		if (playerType == PlayerType::RIGHT)
 		{
-			if (DirectInput::rightStickUp(30000) || DirectInput::keyState(DIK_UP))
+			if (DirectInput::rightStickUp(30000) || DirectInput::keyState(DIK_UP)) 
+			{
+				inputFlag = true;
 				velocity.z++;
+			}
 			if (DirectInput::rightStickDown(30000) || DirectInput::keyState(DIK_DOWN)) 
+			{
+
+				inputFlag = true;
 				velocity.z--;
-			if (DirectInput::rightStickRight(30000) || DirectInput::keyState(DIK_RIGHT))
+			}
+			if (DirectInput::rightStickRight(30000) || DirectInput::keyState(DIK_RIGHT)) 
+			{
+				inputFlag = true;
 				velocity.x++;
+			}
 			if (DirectInput::rightStickLeft(30000) || DirectInput::keyState(DIK_LEFT)) 
+			{
+				inputFlag = true;
 				velocity.x--;
+			}
 		}
 	}
 #pragma endregion
@@ -290,7 +312,7 @@ void Player::update()
 		else
 		position += firstAddPlayerVector * speed * 0.5;
 
-
+		leavePlayer = true;
 
 	}
 #pragma endregion
@@ -406,9 +428,19 @@ void Player::update()
 #pragma endregion
 
 #pragma region ƒSƒ€‚Éî•ñ‚ğ‘—‚é
-	Rubber::setPlayerToPlayerVector(leftPlayerPosition - rightPlayerPosition);
-	Rubber::setPlayerPosition(position);
+	if(playerType == PlayerType::LEFT)
+	Rubber::setPlayerToPlayerVector(rightPlayerPosition - leftPlayerPosition, playerType);
+
+	if (playerType == PlayerType::RIGHT)
+		Rubber::setPlayerToPlayerVector(leftPlayerPosition - rightPlayerPosition, playerType);
+
+
+	Rubber::setPlayerPosition(position,playerType);
 	Rubber::setDashFlag(isDash);
+	Rubber::setPlayerVectorAndSpeed(velocity, speed, playerType);
+	Rubber::resetRimitCount();
+	Rubber::setPlayerInputFlag(inputFlag,playerType);
+	Rubber::setLeavePlayerFlag(leavePlayer);
 #pragma endregion
 
 }
@@ -435,3 +467,14 @@ void Player::setPosition(Vector3 pos)
 	if (playerType == PlayerType::LEFT)leftPlayerPosition = pos;
 	if (playerType == PlayerType::RIGHT)rightPlayerPosition = pos;
 }
+
+void Player::addPosition(const Vector3& vec)
+{
+	position += vec;
+	Library::setPosition(position, heapHandle, 0);
+	sphereData[0].position = position;
+
+	if (playerType == PlayerType::LEFT)leftPlayerPosition = position;
+	if (playerType == PlayerType::RIGHT)rightPlayerPosition = position;
+}
+

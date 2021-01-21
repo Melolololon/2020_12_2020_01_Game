@@ -29,7 +29,6 @@ void Enemy::Initialize()
 		targetType = TargetType::RIGHT;
 	}
 
-	stopFlag = false;
 	myShot = false;
 
 	collisionFlag.board = false;
@@ -40,13 +39,12 @@ void Enemy::Initialize()
 
 	sphereData.resize(1);
 	sphereData[0].position = position;
-	sphereData[0].r = 1.0f;
+	sphereData[0].r = 0.05f;
 
 }
 
 void Enemy::update()
 {
-	if (stopFlag)return;
 	position = position + velocity * speed;
 	Library::setPosition(position, heapHandle, 0);
 	sphereData[0].position = position;
@@ -61,10 +59,10 @@ void Enemy::draw()
 void Enemy::UpdateVelocity(Vector3 playerPosition)
 {
 	if (myShot)return;
-	velocity = Vector3::straight(position, playerPosition);
-	velocity = Vector3::normalize(velocity);
-	updateVelocityTimer = 0;
-
+	//velocity = Vector3::straight(position, playerPosition);
+	//velocity = Vector3::normalize(velocity);
+	//updateVelocityTimer = 0;
+	velocity = { 0,0,-1 };
 }
 
 int Enemy::GetTargetTypeAsInt()
@@ -92,19 +90,34 @@ void Enemy::GetVelocityAndSpeed(Vector3& vel, Vector3& spe)
 	spe = speed;
 }
 
-
-void Enemy::SetStopFlag(const bool& flag)
+void Enemy::AddPosition(const Vector3 vec)
 {
-	stopFlag = flag;
+	position += vec;
+	Library::setPosition(position, heapHandle, 0);
+	sphereData[0].position = position;
 }
 
-void Enemy::SetVelocity(const Vector3& vec)
+void Enemy::ShotEnemy(const Vector3& vec)
 {
 	velocity = vec;
 	myShot = true;
+
+	sphereData[0].r = 1.0f;
 }
 
 bool Enemy::GetMyShot()
 {
 	return myShot;
+}
+
+void Enemy::hit(Object* object, CollosionType collisionType)
+{
+	if (typeid(*object) == typeid(Enemy)) 
+	{
+		Enemy* e = static_cast<Enemy*>(object->getPtr());
+		if (e->GetMyShot()) 
+		{
+			isDead = true;
+		}
+	}
 }

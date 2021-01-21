@@ -2,6 +2,7 @@
 #include"Object.h"
 #include"LibMath.h"
 #include"Vector.h"
+#include"Rubber.h"
 class Player : public Object
 {
 public:
@@ -70,6 +71,12 @@ private:
 	const float PlayerMaxDistance = LibMath::calcDistance3D({ PlayerMaxDistanceNumber,0,0 }, { 0,0,0 });//25‚ªmax
 	const float PlayerRevDistance = LibMath::calcDistance3D({ PlayerRevDidtanceNumber,0,0 }, { 0,0,0 });//15‚Årev
 
+	//“ü—Í‚µ‚½‚©‚Ç‚¤‚©
+	bool inputFlag;
+
+	//ˆê’èˆÈã(Ÿè‚Éˆø‚Á’£‚ç‚ê‚é‚Ü‚Å)—£‚ê‚Ä‚¢‚é‚©
+	static bool leavePlayer;
+
 #pragma region •R
 
 
@@ -102,6 +109,7 @@ public:
 
 	void setPosition(Vector3 pos);
 
+	void addPosition(const Vector3& vec);
 
 };
 

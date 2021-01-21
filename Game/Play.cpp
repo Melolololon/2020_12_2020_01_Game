@@ -57,6 +57,14 @@ void Play::update()
 			enemies[i]->UpdateVelocity(playerPos);
 		}
 	}
+
+
+#pragma region ƒvƒŒƒCƒ„[‚É“G‚ÌˆÚ“®—Ê‘ã“ü
+	player[0]->addPosition(Rubber::getPlayerMoveVector());
+	player[1]->addPosition(Rubber::getPlayerMoveVector());
+#pragma endregion
+
+	ObjectManager::getInstance()->isDeadCheck();
 }
 
 void Play::draw()
