@@ -1,5 +1,7 @@
 #include "Play.h"
 #include"ObjectManager.h"
+#include"SceneChange.h"
+
 #include"Player.h"
 #include"Rubber.h"
 #include "Enemy.h"
@@ -8,8 +10,16 @@
 
 Play::Play()
 {
-	Library::setCamera({ 0,35,-10 }, { 0,0,0 }, { 0,-1,0 });
+	Library::setCamera({ 0,35,-22 }, { 0,0,-3 }, { 0,-1,0 });
+	Library::setLightVector({ -0.25,-0.75,0 });
 	Library::setCameraNearAndFar(1.0f, 1000.0f);
+
+#pragma region モデル
+	std::string material;
+	Library::loadOBJVertex("Resources/Obj/fierd.obj", true, true, &material, &fierdVertexH);
+	Library::loadOBJMaterial("Resources/Obj/", material, 1, &fierdHeapH);
+#pragma endregion
+
 
 }
 
@@ -65,11 +75,37 @@ void Play::update()
 #pragma endregion
 
 	ObjectManager::getInstance()->isDeadCheck();
+
+#pragma region 地形関係
+	Library::setPosition({ 0,-21,0 }, fierdHeapH, 0);
+	Library::setScale({ 22,20,16}, fierdHeapH, 0);
+#pragma endregion
+
+
+#pragma region シーン遷移
+
+	//if (DirectInput::keyTrigger(DIK_SPACE))SceneChange::getInstance()->trueFeadFlag();
+
+	SceneChange::getInstance()->update();
+
+	if (SceneChange::getInstance()->getSceneChangeFlag())isEnd = true;
+
+#pragma endregion
+
+
 }
 
 void Play::draw()
 {
 	ObjectManager::getInstance()->draw();
+
+#pragma region 地形関係
+	Library::drawGraphic(fierdVertexH, fierdHeapH, 0);
+#pragma endregion
+
+
+	//シーン遷移
+	SceneChange::getInstance()->draw();
 }
 
 void Play::end()
@@ -78,6 +114,6 @@ void Play::end()
 
 std::string Play::nextScene()
 {
-	return "";
+	return "Title";
 }
 

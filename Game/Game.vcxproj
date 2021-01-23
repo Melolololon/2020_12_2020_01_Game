@@ -153,6 +153,8 @@
     <ClCompile Include="Play.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Rubber.cpp" />
+    <ClCompile Include="SceneChange.cpp" />
+    <ClCompile Include="StageSelect.cpp" />
     <ClCompile Include="Title.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +163,8 @@
     <ClInclude Include="Play.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Rubber.h" />
+    <ClInclude Include="SceneChange.h" />
+    <ClInclude Include="StageSelect.h" />
     <ClInclude Include="Title.h" />
   </ItemGroup>
   <ItemGroup>

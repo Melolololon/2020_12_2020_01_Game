@@ -18,7 +18,9 @@ private:
 	const int ADD_ENEMY_TIME = 180;
 
 	int addEnemyTimer = 0;
-
+	
+	vertex fierdVertexH;
+	heap fierdHeapH;
 public:
 	Play();
 	~Play();
