@@ -283,12 +283,12 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		//ok 4.続き エネミーのベクトルの角度と、プレイヤーのダッシュ方向が、一定の角度以上かつ未満だったらでOK?
 		//4.続き 逆(内側にダッシュ)した場合の対策もしっかり(お互いが大体反対か調べる?)
 		//4.続き 同時方向ダッシュ対策も
+		
+		Vector3 eV, eS;
+		e->GetVelocityAndSpeed(eV, eS);
 		if (dashFlag) 
 		{
-			Vector3 eV, eS;
-			e->GetVelocityAndSpeed(eV, eS);
-
-		
+			
 			//数値だけ動かしてみる前の距離
 			float distance[2];
 			//後
@@ -317,6 +317,16 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		else 
 		{
 			playerDashEnd = false;
+		}
+		
+
+		//敵エリア外に出きない
+		if (position.x >= 22  ||
+			position.x <= -22 ||
+			position.z >= 19 ||
+			position.z <= -19)
+		{
+			e->AddPosition(eV * eS * -1 * 2);
 		}
 		
 	}

@@ -88,7 +88,7 @@ void Enemy::UpdateVelocity(Vector3 playerPosition)
 	}
 
 	float pAndEDistance = LibMath::calcDistance3D(playerPosition, position);
-	if (pAndEDistance >= 10.0f) 
+	if (pAndEDistance >= 12.0f) 
 	{
 		Vector3 v = velocity;
 		velocity = v + (playerPosition - position);

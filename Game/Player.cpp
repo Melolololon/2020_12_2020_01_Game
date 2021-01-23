@@ -516,6 +516,12 @@ void Player::hit(Object* object, CollosionType collisionType)
 {
 	if (typeid(*object) == typeid(Player))
 	{
+		if (leftPlayerVelocity.x == 0 &&
+			leftPlayerVelocity.z == 0 &&
+			rightPlayerVelocity.x == 0 &&
+			rightPlayerVelocity.z == 0)
+			firstAddPlayer->addPosition({ 0,0,0.5f });
+
 		setPosition(position + velocity * -1 * speed);
 	}
 
