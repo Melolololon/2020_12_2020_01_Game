@@ -19,6 +19,8 @@ private:
 
 	int addEnemyTimer = 0;
 	
+	bool pauseFlag;
+
 	vertex fierdVertexH;
 	heap fierdHeapH;
 public:

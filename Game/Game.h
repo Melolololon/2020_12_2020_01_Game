@@ -1,4 +1,5 @@
 #pragma once
+#include"Library.h"
 class Game final
 {
 private:
@@ -10,6 +11,8 @@ private:
 	void draw();
 	void end();
 
+
+	pipeline billboardPL;
 public:
 	Game(const Game&) = delete;
 	Game& operator=(const Game) = delete;

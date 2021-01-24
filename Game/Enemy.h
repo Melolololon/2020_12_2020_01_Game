@@ -30,6 +30,8 @@ private:
 	int mutekiTimer;
 	const int MutekiTime = 60 * 0.2f;
 
+
+
 public:
 	//コンストラクタ
 	Enemy();
@@ -43,6 +45,11 @@ public:
 	void draw() override;
 
 	void hit(Object* object, CollosionType collisionType)override;
+
+	/// <summary>
+	/// モデルの読み込み
+	/// </summary>
+	static void loadModelData();
 
 	/// <summary>
 	/// 移動量更新

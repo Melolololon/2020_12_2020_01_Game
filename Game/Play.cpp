@@ -7,6 +7,8 @@
 #include "Enemy.h"
 #include"PolygonManager.h"
 
+//テスト用
+#include"DamageNumber.h"
 
 Play::Play()
 {
@@ -44,10 +46,21 @@ void Play::initialize()
 	Rubber::setRubberPtr(rP);
 
 	addEnemyTimer = 0;
+
+	pauseFlag = false;
 }
 
 void Play::update()
 {
+#pragma region ポーズ処理
+	if (DirectInput::keyTrigger(DIK_ESCAPE) || DirectInput::buttonTrigger(StartButton))
+		pauseFlag = pauseFlag == false ? true : false;
+
+	if (pauseFlag)return;
+#pragma endregion
+
+
+
 	//敵追加処理
 	addEnemyTimer++;
 	if (addEnemyTimer > ADD_ENEMY_TIME)
@@ -55,7 +68,7 @@ void Play::update()
 		Enemy* enemy = Enemy::GetEnemy();
 		enemies.push_back(enemy);
 		ObjectManager::getInstance()->addObject(enemy);
-		addEnemyTimer = -99999;
+		addEnemyTimer = -300;
 	}
 
 	ObjectManager::getInstance()->update();

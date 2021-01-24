@@ -1,15 +1,25 @@
 #include "Enemy.h"
 #include"Rubber.h"
+#include"DamageNumber.h"
+
+#include"ObjectManager.h"
 
 Enemy::Enemy()
 {
 	Library::createManyVertex3DBox({ 2,2,2 }, &vertexHandle);
 	Library::createHeapData2({ 64,255,64,255 }, 2, &heapHandle);
 	Initialize();
+
+
 }
 
 Enemy::~Enemy()
 {
+}
+
+void Enemy::loadModelData()
+{
+
 }
 
 void Enemy::Initialize()
@@ -43,11 +53,13 @@ void Enemy::Initialize()
 	sphereData[0].r = 1.0f;
 
 	//ライフ
-	life = 20;
+	life = 3;
 
 	//無敵処理
 	isMuteki = false;
 	mutekiTimer = 0;
+
+
 }
 
 void Enemy::update()
@@ -64,6 +76,8 @@ void Enemy::update()
 		mutekiTimer = 0;
 		isMuteki = false;
 	}
+
+	if (life <= 0)isDead = true;
 }
 
 void Enemy::draw()
@@ -161,21 +175,37 @@ void Enemy::hit(Object* object, CollosionType collisionType)
 	if (typeid(*object) == typeid(Enemy))
 	{
 		Enemy* e = static_cast<Enemy*>(object->getPtr());
-		if (e->GetMyShot())
+		if (e->GetMyShot() || myShot)
 		{
-			life -= e->GetDamage();
+			int damage;
+			
+			//多いほう(飛ばされてるほうの)ダメージを代入
+			int myDamage,otherDamage;
+			myDamage = GetDamage();
+			otherDamage = e->GetDamage();
+			if (myDamage >= otherDamage)
+				damage = myDamage;
+			else
+				damage = otherDamage;
+		
+			life -= damage;
 			isMuteki = true;
+
+			if(damage != 0)
+			ObjectManager::getInstance()->addObject(new DamageNumber(position,damage));
 		}
+		
+		
 	}
 }
 
 int Enemy::GetDamage()
 {
-	if (myShot)
-	{
-		float damageNum = speed.x * 10;
-		return (int)damageNum;
-	}
+	//これじゃダメージ全然与えられない?
+	//なぜかダメージのやつ表示されない
+	//damage代入してなかった
+	float damageNum = speed.x * 10;
+	damageNum /= 3;
+	return (int)damageNum;
 
-	return 0;
 }
