@@ -5,6 +5,7 @@
 
 class Enemy : public Object
 {
+public:
 	//目標タイプのenum
 	enum TargetType
 	{

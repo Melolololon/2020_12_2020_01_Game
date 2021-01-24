@@ -5,6 +5,7 @@
 #include"Player.h"
 #include"Rubber.h"
 #include "Enemy.h"
+#include "ParentEnemy.h"
 #include"PolygonManager.h"
 
 //テスト用
@@ -36,6 +37,8 @@ void Play::initialize()
 	player[1] = new Player({ 2,0,0 }, Player::PlayerType::RIGHT);
 	ObjectManager::getInstance()->addObject(player[0]);
 	ObjectManager::getInstance()->addObject(player[1]);
+	parentEnemy = new ParentEnemy();
+	ObjectManager::getInstance()->addObject(parentEnemy);
 
 	Rubber* rP[9];
 	for (int i = 1; i < 10; i++) 
