@@ -5,12 +5,14 @@
 #include"Vector.h"
 #include"Player.h"
 #include"Enemy.h"
+#include "ParentEnemy.h"
 #include<vector>
 class Play :public Scene
 {
 private:
 	Player* player[2];
 	std::vector<Enemy*> enemies;
+	ParentEnemy* parentEnemy;
 
 	//移動量をプレイヤーの向きに更新する間隔
 	//極端に少ないとクリア不可能になる
