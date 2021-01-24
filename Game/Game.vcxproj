@@ -147,9 +147,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DamageNumber.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParentEnemy.cpp" />
     <ClCompile Include="Play.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -159,8 +161,10 @@
     <ClCompile Include="Title.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DamageNumber.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Particle.h" />
     <ClInclude Include="ParentEnemy.h" />
     <ClInclude Include="Play.h" />
     <ClInclude Include="Player.h" />

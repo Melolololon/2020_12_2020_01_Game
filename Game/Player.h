@@ -85,6 +85,10 @@ private:
 	int mutekiTimer;
 	const int MutekiTime = 60 * 1;
 
+	//重なり防止
+	int kasanariTimer;
+	bool hitOtherPlayer;
+
 #pragma region 紐
 
 
@@ -104,6 +108,14 @@ private:
 
 #pragma endregion
 
+	/// <summary>
+	/// エリアに戻す
+	/// </summary>
+	void areaPush();
+
+	//タイトルにプレイヤー表示させる?
+	//紐伸ばしたり縮めたりさせる?
+	//チュートリアル1/24に作る
 
 public:
 

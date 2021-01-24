@@ -70,6 +70,9 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 	//無敵処理
 	isMuteki = false;
 	mutekiTimer = 0;
+
+	kasanariTimer = 0;
+	hitOtherPlayer = false;
 }
 
 
@@ -79,6 +82,9 @@ Player::~Player()
 
 void Player::update()
 {
+	if (!hitOtherPlayer)kasanariTimer = 0;
+	hitOtherPlayer = false;
+
 	inputFlag = false;
 	leavePlayer = false;
 	//一定以上引っ張ると引っ張る速度が落ちる(ゴム引っ張ってるから)
@@ -363,8 +369,7 @@ void Player::update()
 #pragma region 通常の座標セット
 
 	position += velocity * speed;
-	Library::setPosition(position, heapHandle, 0);
-	sphereData[0].position = position;
+	areaPush();
 
 	if (playerType == PlayerType::LEFT)
 	{
@@ -376,6 +381,8 @@ void Player::update()
 		rightPlayerPosition = position;
 		rightPlayerVelocity = velocity;
 	}
+
+
 #pragma endregion
 
 #pragma region 離れるの防止
@@ -468,14 +475,9 @@ void Player::update()
 #pragma endregion
 
 
-#pragma region 移動可能範囲指定
-	//動いてないときに出る(押されたりして)可能性があるから、velocity使わない
-	if (position.x >= 20) position.x -= speed.x;
-	if (position.x <= -20) position.x += speed.x;
-	if (position.z >= 15) position.z -= speed.z;
-	if (position.z <= -15) position.z += speed.z;
-	
-#pragma endregion
+
+	Library::setPosition(position, heapHandle, 0);
+	sphereData[0].position = position;
 
 #pragma endregion
 
@@ -516,13 +518,22 @@ void Player::hit(Object* object, CollosionType collisionType)
 {
 	if (typeid(*object) == typeid(Player))
 	{
-		if (leftPlayerVelocity.x == 0 &&
+	/*	if (leftPlayerVelocity.x == 0 &&
 			leftPlayerVelocity.z == 0 &&
 			rightPlayerVelocity.x == 0 &&
 			rightPlayerVelocity.z == 0)
+			firstAddPlayer->addPosition({ 0,0,0.5f });*/
+
+		//めり込み対策
+		kasanariTimer++;
+		if(kasanariTimer >= 60 * 0.2)
 			firstAddPlayer->addPosition({ 0,0,0.5f });
+		hitOtherPlayer = true;
+		//他のプレイヤー押せるようにする?
+
 
 		setPosition(position + velocity * -1 * speed);
+
 	}
 
 	if (isMuteki)return;
@@ -531,6 +542,7 @@ void Player::hit(Object* object, CollosionType collisionType)
 		life--;
 		isMuteki = true;
 	}
+
 }
 
 void Player::setPosition(Vector3 pos)
@@ -538,6 +550,8 @@ void Player::setPosition(Vector3 pos)
 	position = pos;
 	Library::setPosition(position, heapHandle, 0);
 	sphereData[0].position = position;
+
+	areaPush();
 
 	if (playerType == PlayerType::LEFT)leftPlayerPosition = pos;
 	if (playerType == PlayerType::RIGHT)rightPlayerPosition = pos;
@@ -549,7 +563,24 @@ void Player::addPosition(const Vector3& vec)
 	Library::setPosition(position, heapHandle, 0);
 	sphereData[0].position = position;
 
+	if (position.x >= 20) position.x -= vec.x;
+	if (position.x <= -20) position.x += vec.x;
+	if (position.z >= 15) position.z -= vec.z;
+	if (position.z <= -15) position.z += vec.z;
+
+
 	if (playerType == PlayerType::LEFT)leftPlayerPosition = position;
 	if (playerType == PlayerType::RIGHT)rightPlayerPosition = position;
 }
 
+void Player::areaPush() 
+{	
+	//動いてないときに出る(押されたりして)可能性があるから、velocity使わない
+	if (position.x >= 20) position.x -= speed.x;
+	if (position.x <= -20) position.x += speed.x;
+	if (position.z >= 15) position.z -= speed.z;
+	if (position.z <= -15) position.z += speed.z;
+	
+	if (playerType == PlayerType::LEFT)leftPlayerPosition = position;
+	if (playerType == PlayerType::RIGHT)rightPlayerPosition = position;
+}

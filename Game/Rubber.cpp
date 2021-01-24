@@ -132,7 +132,19 @@ void Rubber::update()
 
 	if (rimitCount == 9)allRimitFlag = true;
 
-	//地下かったら特定の点のサイズを変える
+
+	//ダッシュ時判定でかく(敵すり抜け防止)
+	if (dashFlag)
+	{
+		sphereData[0].r = 0.8f;
+	}
+	else
+	{
+		sphereData[0].r = 0.4f;
+	}
+
+
+	//近かったら特定の点のサイズを変える
 	if (LibMath::calcDistance3D(playerPos[0], playerPos[1]) < 10.0f) 
 	{
 		if (pointNum == 4 ||
@@ -142,6 +154,11 @@ void Rubber::update()
 			sphereData[0].r = 0.01f;
 		}
 	}
+	else 
+	{
+		sphereData[0].r = 0.4f;
+	}
+
 
 	
 }

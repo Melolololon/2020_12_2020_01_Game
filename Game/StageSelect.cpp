@@ -30,8 +30,9 @@ void StageSelect::update()
 #pragma region ステージ切り替え
 	if (stageNumUpDown == STAGE_NUM_NOT_CHANGE)
 	{
-		if (DirectInput::keyTrigger(DIK_LEFT) ||
-			DirectInput::directionalButtonTrigger(LeftButton))
+		if (DirectInput::keyState(DIK_LEFT) ||
+			DirectInput::directionalButtonState(LeftButton) ||
+			DirectInput::leftStickLeft(30000))
 		{
 			if (stageNum > 0) 
 			{
@@ -40,8 +41,9 @@ void StageSelect::update()
 			}
 		}
 
-		if (DirectInput::keyTrigger(DIK_RIGHT) ||
-			DirectInput::directionalButtonTrigger(RightButton))
+		if (DirectInput::keyState(DIK_RIGHT) ||
+			DirectInput::directionalButtonState(RightButton) ||
+			DirectInput::leftStickRight(30000))
 		{
 			if (stageNum < 4) 
 			{

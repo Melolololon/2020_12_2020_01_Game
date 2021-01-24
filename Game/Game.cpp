@@ -1,6 +1,7 @@
 #include "Game.h"
 #include<Library.h>
 #include"SceneManager.h"
+#include"PipelineManager.h"
 
 #include"Title.h"
 #include"StageSelect.h"
@@ -42,6 +43,25 @@ void Game::initialize()
 	SceneManager::getInstace()->addScene("Title", new Title());
 	SceneManager::getInstace()->addScene("StageSelect", new StageSelect());
 	SceneManager::getInstace()->addScene("Play", new Play());
+#pragma endregion
+
+#pragma region パイプライン生成
+	PipelineData pData;
+	pData.alphaWrite = ALPHA_WIGHT_NONE;
+	pData.blendMode = BLEND_NONE;
+	pData.cullMode = CULL_BACK;
+	pData.depthMode = DEPTH_TRUE;
+	pData.drawMode = DRAW_SOLID;
+
+	billboardPL = Library::createUserPipelineState
+	(
+		pData,
+		{ L"LIB" ,"","" },
+		{ L"LIB","","" },
+		{ L"../MyLibrary/NotShadowPixelShader.hlsl","PSmain" ,"ps_5_0"},
+		false
+	);
+	PipelineManager::getInstance()->addPipeline("billboardPL", billboardPL);
 #pragma endregion
 
 }
