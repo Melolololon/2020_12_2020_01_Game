@@ -3143,6 +3143,8 @@ void DirectX12::deleteHeapData(int despNum)
 		parentHeaps.erase(parentHeaps.begin() + despNum);
 		parentNums.erase(parentNums.begin() + despNum);
 
+		commonBuffer.erase(commonBuffer.begin() + despNum);
+
 		heapTags.erase(heapTags.begin() + despNum);
 
 		delete despDatas[despNum].sikibetuNumP;
@@ -3163,6 +3165,8 @@ void DirectX12::deleteHeapData(int despNum)
 		scale.shrink_to_fit();
 		parentHeaps.shrink_to_fit();
 		parentNums.shrink_to_fit();
+
+		commonBuffer.shrink_to_fit();
 
 		heapTags.shrink_to_fit();
 

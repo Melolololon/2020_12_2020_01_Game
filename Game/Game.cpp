@@ -3,6 +3,8 @@
 #include"SceneManager.h"
 #include"PipelineManager.h"
 
+#include"Player.h"
+
 #include"Title.h"
 #include"StageSelect.h"
 #include"Play.h"
@@ -63,6 +65,7 @@ void Game::initialize()
 	);
 	PipelineManager::getInstance()->addPipeline("billboardPL", billboardPL);
 #pragma endregion
+
 
 }
 

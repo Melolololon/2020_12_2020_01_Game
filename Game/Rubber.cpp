@@ -11,6 +11,8 @@ Vector3 Rubber::playerPos[2];
 Vector3 Rubber::playerVelocity[2];
 Vector3 Rubber::playerSpeed[2];
 bool Rubber::playerInputFlag[2];
+float Rubber::playerRevDidtanceNumber;
+float Rubber::playerMaxDistanceNumber;;
 
 int Rubber::rimitCount;
 bool Rubber::allRimitFlag; 
@@ -45,7 +47,7 @@ Rubber::Rubber(const int& pNum)
 
 	position = playerPos[0] + vecPToP[0] * (pointNum * 0.1);
 	normalPos = position;
-	
+	maxMoveDistance = 2.0f;
 }
 
 Rubber::~Rubber()
@@ -114,9 +116,17 @@ void Rubber::update()
 	//一定距離あったら限界
 	float rubberDis = LibMath::calcDistance3D(v, position);
 	
+	float pToPDis = LibMath::calcDistance3D(playerPos[0], playerPos[1]);
+	maxMoveDistance = 2.0f;
+	if (pToPDis >= playerRevDidtanceNumber) 
+	{
+		maxMoveDistance -= pToPDis / 7;
+		maxMoveDistance = maxMoveDistance <= 0 ? 0 : maxMoveDistance;
+	}
+
 	if(pointNum != 1 && pointNum != 9)
 	{
-		if (rubberDis >= MaxMoveDistance)
+		if (rubberDis >= maxMoveDistance)
 		{
 			allRimitFlag = true;
 		}
@@ -124,7 +134,7 @@ void Rubber::update()
 
 	if (pointNum == 1 || pointNum == 9) 
 	{
-		if (rubberDis  >= MaxMoveDistance + 2.0f)
+		if (rubberDis  >= maxMoveDistance + 2.0f)
 		{
 			allRimitFlag = true;
 		}
@@ -145,7 +155,7 @@ void Rubber::update()
 
 
 	//近かったら特定の点のサイズを変える
-	if (LibMath::calcDistance3D(playerPos[0], playerPos[1]) < 10.0f) 
+	if (LibMath::calcDistance3D(playerPos[0], playerPos[1]) < playerRevDidtanceNumber)
 	{
 		if (pointNum == 4 ||
 			pointNum == 5 ||
@@ -186,13 +196,19 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 	//4.続き 内側ダッシュ対策も!!
 	//4.続き 内側ダッシュ対策はした。少しでも敵の方に向いてると吹っ飛ばないから少し緩めたが、まだシビア?
 
+	//5.敵が引っかかってるときにゴムがエリア外に行くとプレイヤーエリア外に出る
+	//5.続き プレイヤー動かしたあとに戻す処理呼んでないから
+
+
 	if (typeid(*object) == typeid(Enemy)) 
 	{
 		//どれか一個当たったら、無視
 		if (hitEnemy)return;
 
 		Enemy* e = static_cast<Enemy*>(object->getPtr());
-		
+		Vector3 eV, eS;
+		e->GetVelocityAndSpeed(eV, eS);
+
 		//発射されてたら判定無視
 		if (e->GetMyShot())return;
 
@@ -250,6 +266,11 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 				arrNum++;
 			}
 
+			//最大まで引っ張ってたら敵止まる
+			if(LibMath::calcDistance3D(playerPos[0],playerPos[1]) >= playerMaxDistanceNumber - 1.0f &&
+				!dashFlag)
+			e->AddPosition(eV * eS * -1 * 2);
+
 			//限界の時にプレイヤーが動いたら引っ張られる
 			Vector3 pMoveSpeed = { 0,0,0 };
 			for (int i = 0; i < _countof(rubberPtr); i++) 
@@ -296,13 +317,105 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		allRimitFlag = false;
 #pragma endregion
 
+#pragma region 場外防止
+
+		//敵エリア外に出さない
+		if (position.x > 23 ||
+			position.x < -23 ||
+			position.z > 19 ||
+			position.z < -19)
+		{
+			e->AddPosition(eV * eS * -1 * 2);
+		}
+
+		//ゴムも	
+	/*	Vector3 otherRubPos;
+		if (position.x > 23) 
+		{
+
+			setPosition({ 23,position.y,position.z });
+
+			int arrNum = 0;
+			for (int i = pointNum; i < 9; i++)
+			{
+				otherRubPos = rubberPtr[i]->getSphereData()[0].position;
+				rubberPtr[i]->setPosition({ 23,otherRubPos.y,otherRubPos.z });
+				arrNum++;
+			}
+			arrNum = 0;
+			for (int i = pointNum - 2; i > -1; i--)
+			{
+				otherRubPos = rubberPtr[i]->getSphereData()[0].position;
+				rubberPtr[i]->setPosition({ 23,otherRubPos.y,otherRubPos.z });
+				arrNum++;
+			}
+		}
+
+		if (position.x < -23) 
+		{
+			setPosition({ -23,position.y,position.z });
+			int arrNum = 0;
+			for (int i = pointNum; i < 9; i++)
+			{
+				otherRubPos = rubberPtr[i]->getSphereData()[0].position;
+				rubberPtr[i]->setPosition({ -23,otherRubPos.y,otherRubPos.z });
+				arrNum++;
+			}
+			arrNum = 0;
+			for (int i = pointNum - 2; i > -1; i--)
+			{
+				otherRubPos = rubberPtr[i]->getSphereData()[0].position;
+				rubberPtr[i]->setPosition({ -23,otherRubPos.y,otherRubPos.z });
+				arrNum++;
+			}
+		}
+
+		if (position.z > 19)
+		{
+			setPosition({ position.x,position.y,19 });
+			int arrNum = 0;
+			for (int i = pointNum; i < 9; i++)
+			{
+				otherRubPos = rubberPtr[i]->getSphereData()[0].position;
+				rubberPtr[i]->setPosition({ otherRubPos.x,otherRubPos.y,15});
+				arrNum++;
+			}
+			arrNum = 0;
+			for (int i = pointNum - 2; i > -1; i--)
+			{
+				otherRubPos = rubberPtr[i]->getSphereData()[0].position;
+				rubberPtr[i]->setPosition({ otherRubPos.x,otherRubPos.y,15 });
+				arrNum++;
+			}
+		}
+
+		if (position.z < -19)
+		{
+			setPosition({ position.x,position.y,-19 });
+			int arrNum = 0;
+			for (int i = pointNum; i < 9; i++)
+			{
+				otherRubPos = rubberPtr[i]->getSphereData()[0].position;
+				rubberPtr[i]->setPosition({ otherRubPos.x,otherRubPos.y,-15 });
+				arrNum++;
+			}
+			arrNum = 0;
+			for (int i = pointNum - 2; i > -1; i--)
+			{
+				otherRubPos = rubberPtr[i]->getSphereData()[0].position;
+				rubberPtr[i]->setPosition({ otherRubPos.x,otherRubPos.y,-15 });
+				arrNum++;
+			}
+		}*/
+#pragma endregion
+
+
+
 		//4.ちゃんとした向きにダッシュしなかったときは、吹っ飛ばないようにする
 		//ok 4.続き エネミーのベクトルの角度と、プレイヤーのダッシュ方向が、一定の角度以上かつ未満だったらでOK?
 		//4.続き 逆(内側にダッシュ)した場合の対策もしっかり(お互いが大体反対か調べる?)
 		//4.続き 同時方向ダッシュ対策も
 		
-		Vector3 eV, eS;
-		e->GetVelocityAndSpeed(eV, eS);
 		if (dashFlag) 
 		{
 			
@@ -313,21 +426,28 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 			Vector3 ePos = e->getSphereData()[0].position;
 
 			distance[0] = LibMath::calcDistance3D(playerPos[0], ePos);
-			moveDistance[0] = LibMath::calcDistance3D(playerPos[0] + playerVelocity[0], ePos);
+			moveDistance[0] = LibMath::calcDistance3D(playerPos[0] + playerVelocity[0] , ePos);
 
 			distance[1] = LibMath::calcDistance3D(playerPos[1], ePos);
-			moveDistance[1] = LibMath::calcDistance3D(playerPos[1] + playerVelocity[1], ePos);
+			moveDistance[1] = LibMath::calcDistance3D(playerPos[1] + playerVelocity[1] , ePos);
 
-			//仮に動かした後のほうが離れているかつ、
-			//ダッシュした瞬間だったら入る
+			
 			if (distance[0] < moveDistance[0] + 0.05f&&
 				distance[1] < moveDistance[1] + 0.05f &&
 				!playerDashEnd)
 			{
 				//敵発射
-				eS = normalPos - position;
-				e->ShotEnemy(eV * -1, { abs((eS.x + eS.z) / 4),0, abs((eS.x + eS.z) / 4) });
+				/*eS = normalPos - position;
+				e->ShotEnemy(eV * -1, { abs((eS.x + eS.z) / 4),0, abs((eS.x + eS.z) / 4) });*/
+				float speed = LibMath::calcDistance3D(normalPos, position) / 4;
+				e->ShotEnemy(eV * -1, { speed ,0,speed });
 			}
+
+
+			//新しいほう
+			//敵からプレイヤーのベクトルを求める
+			//そのベクトルから、一定角度回転させた方向以内だったらショット成功
+
 				
 			playerDashEnd = true;
 		}
@@ -337,17 +457,16 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		}
 		
 
-		//敵エリア外に出きない
-		if (position.x >= 22  ||
-			position.x <= -22 ||
-			position.z >= 19 ||
-			position.z <= -19)
-		{
-			e->AddPosition(eV * eS * -1 * 2);
-		}
 		
 	}
 
+}
+
+void Rubber::setPosition(const Vector3& pos) 
+{
+	position = pos;
+	Library::setPosition(position, heapHandle, 0);
+	sphereData[0].position = position;
 }
 
 void Rubber::setPlayerPosition(const Vector3& pos, const int& pNum)
@@ -417,4 +536,14 @@ void Rubber::setPlayerInputFlag(const bool& flag, const int& pNum)
 void Rubber::setLeavePlayerFlag(const bool& flag)
 {
 	leavePlayerFlag = flag;
+}
+
+void Rubber::setPlayerRevDidtanceNumber(const float& num)
+{
+	playerRevDidtanceNumber = num;
+}
+
+void Rubber::setPlayerMaxDistanceNumber(const float& num)
+{
+	playerMaxDistanceNumber = num;
 }

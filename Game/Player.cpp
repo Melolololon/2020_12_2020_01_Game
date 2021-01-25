@@ -1,6 +1,8 @@
 #include "Player.h"
 #include"Enemy.h"
 
+#include"PolygonManager.h"
+
 Vector3 Player::leftPlayerPosition;
 Vector3 Player::rightPlayerPosition;
 Vector3 Player::leftPlayerVelocity;
@@ -8,6 +10,7 @@ Vector3 Player::rightPlayerVelocity;
 Player::PlayerType Player::firstAddType;
 Player* Player::firstAddPlayer;
 bool Player::leavePlayer;
+bool Player::deadPlayer;
 
 Player::Player(const Vector3& pos, const PlayerType& playerType)
 {
@@ -27,7 +30,7 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 
 	Library::createManyVertex3DBox({ 2,2,2 }, &vertexHandle);
 
-	if (playerType == PlayerType::LEFT)Library::createHeapData2({ 0,255,255,255 }, 1, &heapHandle);
+	if (playerType == PlayerType::LEFT)Library::createHeapData2({ 0,0,255,255 }, 1, &heapHandle);
 	if (playerType == PlayerType::RIGHT)Library::createHeapData2({ 255,0,0,255 }, 1, &heapHandle);
 
 	collisionFlag.board = false;
@@ -65,8 +68,8 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 #pragma endregion
 
 	//ライフ
-	life = 3;
-
+	life = 4;
+	
 	//無敵処理
 	isMuteki = false;
 	mutekiTimer = 0;
@@ -80,8 +83,15 @@ Player::~Player()
 {
 }
 
+void Player::initializeModel()
+{
+}
+
 void Player::update()
 {
+	//片方死んだら早期リターン
+	if (deadPlayer)return;
+
 	if (!hitOtherPlayer)kasanariTimer = 0;
 	hitOtherPlayer = false;
 
@@ -111,22 +121,30 @@ void Player::update()
 
 		if (playerType == PlayerType::LEFT)
 		{
-			if (DirectInput::leftStickUp(30000) || DirectInput::keyState(DIK_W)) 
+			if (DirectInput::leftStickUp(30000) || 
+				DirectInput::keyState(DIK_W) ||
+				DirectInput::directionalButtonState(UpButton)) 
 			{
 				inputFlag = true;
 				velocity.z++;
 			}
-			if (DirectInput::leftStickDown(30000) || DirectInput::keyState(DIK_S)) 
+			if (DirectInput::leftStickDown(30000) ||
+				DirectInput::keyState(DIK_S) ||
+				DirectInput::directionalButtonState(DownButton))
 			{
 				inputFlag = true;
 				velocity.z--;
 			}
-			if (DirectInput::leftStickRight(30000) || DirectInput::keyState(DIK_D)) 
+			if (DirectInput::leftStickRight(30000) || 
+				DirectInput::keyState(DIK_D) ||
+				DirectInput::directionalButtonState(RightButton))
 			{
 				inputFlag = true;
 				velocity.x++;
 			}
-			if (DirectInput::leftStickLeft(30000) || DirectInput::keyState(DIK_A)) 
+			if (DirectInput::leftStickLeft(30000) ||
+				DirectInput::keyState(DIK_A)||
+				DirectInput::directionalButtonState(LeftButton))
 			{
 				inputFlag = true;
 				velocity.x--;
@@ -136,23 +154,31 @@ void Player::update()
 
 		if (playerType == PlayerType::RIGHT)
 		{
-			if (DirectInput::rightStickUp(30000) || DirectInput::keyState(DIK_UP)) 
+			if (DirectInput::rightStickUp(30000) ||
+				DirectInput::keyState(DIK_UP) ||
+				DirectInput::buttonState(YButton))
 			{
 				inputFlag = true;
 				velocity.z++;
 			}
-			if (DirectInput::rightStickDown(30000) || DirectInput::keyState(DIK_DOWN)) 
+			if (DirectInput::rightStickDown(30000) ||
+				DirectInput::keyState(DIK_DOWN) ||
+				DirectInput::buttonState(AButton))
 			{
 
 				inputFlag = true;
 				velocity.z--;
 			}
-			if (DirectInput::rightStickRight(30000) || DirectInput::keyState(DIK_RIGHT)) 
+			if (DirectInput::rightStickRight(30000) ||
+				DirectInput::keyState(DIK_RIGHT) ||
+				DirectInput::buttonState(BButton))
 			{
 				inputFlag = true;
 				velocity.x++;
 			}
-			if (DirectInput::rightStickLeft(30000) || DirectInput::keyState(DIK_LEFT)) 
+			if (DirectInput::rightStickLeft(30000) ||
+				DirectInput::keyState(DIK_LEFT) ||
+				DirectInput::buttonState(XButton))
 			{
 				inputFlag = true;
 				velocity.x--;
@@ -169,22 +195,30 @@ void Player::update()
 
 		if (playerType == PlayerType::LEFT && !dashOperTimeFlag)
 		{
-			if (DirectInput::leftStickUp(32767) || DirectInput::keyState(DIK_W))
+			if (DirectInput::leftStickUp(30000) ||
+				DirectInput::keyState(DIK_W) ||
+				DirectInput::directionalButtonState(UpButton))
 			{
 				dashOperTimeFlag = true;
 				leftInputDirectionUpDown = InputDirection::INPUT_DIRECTION_UP;
 			}
-			if (DirectInput::leftStickDown(32767) || DirectInput::keyState(DIK_S))
+			if (DirectInput::leftStickDown(30000) ||
+				DirectInput::keyState(DIK_S) ||
+				DirectInput::directionalButtonState(DownButton))
 			{
 				dashOperTimeFlag = true;
 				leftInputDirectionUpDown = InputDirection::INPUT_DIRECTION_DOWN;
 			}
-			if (DirectInput::leftStickRight(32767) || DirectInput::keyState(DIK_D))
+			if (DirectInput::leftStickRight(30000) ||
+				DirectInput::keyState(DIK_D) ||
+				DirectInput::directionalButtonState(RightButton))
 			{
 				dashOperTimeFlag = true;
 				leftInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_RIGHT;
 			}
-			if (DirectInput::leftStickLeft(32767) || DirectInput::keyState(DIK_A))
+			if (DirectInput::leftStickLeft(30000) ||
+				DirectInput::keyState(DIK_A) ||
+				DirectInput::directionalButtonState(LeftButton))
 			{
 				dashOperTimeFlag = true;
 				leftInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_LEFT;
@@ -192,22 +226,30 @@ void Player::update()
 		}
 		if (playerType == PlayerType::RIGHT && !dashOperTimeFlag)
 		{
-			if (DirectInput::rightStickUp(32767) || DirectInput::keyState(DIK_UP))
+			if (DirectInput::rightStickUp(30000) ||
+				DirectInput::keyState(DIK_UP) ||
+				DirectInput::buttonState(YButton))
 			{
 				dashOperTimeFlag = true;
 				rightInputDirectionUpDown = InputDirection::INPUT_DIRECTION_UP;
 			}
-			if (DirectInput::rightStickDown(32767) || DirectInput::keyState(DIK_DOWN))
+			if (DirectInput::rightStickDown(30000) ||
+				DirectInput::keyState(DIK_DOWN) ||
+				DirectInput::buttonState(AButton))
 			{
 				dashOperTimeFlag = true;
 				rightInputDirectionUpDown = InputDirection::INPUT_DIRECTION_DOWN;
 			}
-			if (DirectInput::rightStickRight(32767) || DirectInput::keyState(DIK_RIGHT))
+			if (DirectInput::rightStickRight(30000) ||
+				DirectInput::keyState(DIK_RIGHT) ||
+				DirectInput::buttonState(BButton))
 			{
 				dashOperTimeFlag = true;
 				rightInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_RIGHT;
 			}
-			if (DirectInput::rightStickLeft(32767) || DirectInput::keyState(DIK_LEFT))
+			if (DirectInput::rightStickLeft(30000) ||
+				DirectInput::keyState(DIK_LEFT) ||
+				DirectInput::buttonState(XButton))
 			{
 				dashOperTimeFlag = true;
 				rightInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_LEFT;
@@ -239,22 +281,30 @@ void Player::update()
 			//再入力されたらダッシュ
 			if (playerType == PlayerType::LEFT)
 			{
-				if (DirectInput::leftStickUp(32767) || DirectInput::keyState(DIK_W))
+				if (DirectInput::leftStickUp(30000) ||
+					DirectInput::keyState(DIK_W) ||
+					DirectInput::directionalButtonState(UpButton))
 				{
 					if(leftInputDirectionUpDown == InputDirection::INPUT_DIRECTION_UP)
 					isDash = true;
 				}
-				if (DirectInput::leftStickDown(32767) || DirectInput::keyState(DIK_S))
+				if (DirectInput::leftStickDown(30000) ||
+					DirectInput::keyState(DIK_S) ||
+					DirectInput::directionalButtonState(DownButton))
 				{
 					if (leftInputDirectionUpDown == InputDirection::INPUT_DIRECTION_DOWN)
 					isDash = true;
 				}
-				if (DirectInput::leftStickRight(32767) || DirectInput::keyState(DIK_D))
+				if (DirectInput::leftStickRight(30000) ||
+					DirectInput::keyState(DIK_D) ||
+					DirectInput::directionalButtonState(RightButton))
 				{
 					if (leftInputDirectionLeftRight == InputDirection::INPUT_DIRECTION_RIGHT)
 					isDash = true;
 				}
-				if (DirectInput::leftStickLeft(32767) || DirectInput::keyState(DIK_A))
+				if (DirectInput::leftStickLeft(30000) ||
+					DirectInput::keyState(DIK_A) ||
+					DirectInput::directionalButtonState(LeftButton))
 				{
 					if (leftInputDirectionLeftRight == InputDirection::INPUT_DIRECTION_LEFT)
 					isDash = true;
@@ -263,22 +313,30 @@ void Player::update()
 
 			if (playerType == PlayerType::RIGHT)
 			{
-				if (DirectInput::rightStickUp(32767) || DirectInput::keyState(DIK_UP))
+				if (DirectInput::rightStickUp(30000) ||
+					DirectInput::keyState(DIK_UP) ||
+					DirectInput::buttonState(YButton))
 				{
 					if (rightInputDirectionUpDown == InputDirection::INPUT_DIRECTION_UP)
 					isDash = true;
 				}
-				if (DirectInput::rightStickDown(32767) || DirectInput::keyState(DIK_DOWN))
+				if (DirectInput::rightStickDown(30000) ||
+					DirectInput::keyState(DIK_DOWN) ||
+					DirectInput::buttonState(AButton))
 				{
 					if (rightInputDirectionUpDown == InputDirection::INPUT_DIRECTION_DOWN)
 					isDash = true;
 				}
-				if (DirectInput::rightStickRight(32767) || DirectInput::keyState(DIK_RIGHT))
+				if (DirectInput::rightStickRight(30000) ||
+					DirectInput::keyState(DIK_RIGHT) ||
+					DirectInput::buttonState(BButton))
 				{
 					if (rightInputDirectionLeftRight == InputDirection::INPUT_DIRECTION_RIGHT)
 					isDash = true;
 				}
-				if (DirectInput::rightStickLeft(32767) || DirectInput::keyState(DIK_LEFT))
+				if (DirectInput::rightStickLeft(30000) ||
+					DirectInput::keyState(DIK_LEFT) ||
+					DirectInput::buttonState(XButton))
 				{
 					if (rightInputDirectionLeftRight == InputDirection::INPUT_DIRECTION_LEFT)
 					isDash = true;
@@ -369,7 +427,7 @@ void Player::update()
 #pragma region 通常の座標セット
 
 	position += velocity * speed;
-	areaPush();
+	
 
 	if (playerType == PlayerType::LEFT)
 	{
@@ -475,7 +533,7 @@ void Player::update()
 #pragma endregion
 
 
-
+	areaPush();
 	Library::setPosition(position, heapHandle, 0);
 	sphereData[0].position = position;
 
@@ -495,7 +553,12 @@ void Player::update()
 	Rubber::resetRimitCount();
 	Rubber::setPlayerInputFlag(inputFlag,playerType);
 	Rubber::setLeavePlayerFlag(leavePlayer);
+	Rubber::setPlayerRevDidtanceNumber(PlayerRevDidtanceNumber);
+	Rubber::setPlayerMaxDistanceNumber(PlayerMaxDistance);
 #pragma endregion
+
+	Enemy::SetPlayerPos(position, playerType);
+
 
 #pragma region 無敵処理
 	if (isMuteki)mutekiTimer++;
@@ -506,12 +569,28 @@ void Player::update()
 	}
 #pragma endregion
 
+#pragma region ライフ処理
+	if (life <= 0) 
+	{
+		isDash = true;
+		deadPlayer = true;
+	}
+#pragma endregion
 
 }
 
 void Player::draw()
 {
+	if(!isMuteki)
 	Library::drawGraphic(vertexHandle, heapHandle, 0);
+	else 
+	{
+		if (mutekiTimer % 2 == 0) 
+		{
+			Library::drawGraphic(vertexHandle, heapHandle, 0);
+		}
+	}
+
 }
 
 void Player::hit(Object* object, CollosionType collisionType)
@@ -539,6 +618,8 @@ void Player::hit(Object* object, CollosionType collisionType)
 	if (isMuteki)return;
 	if (typeid(*object) == typeid(Enemy)) 
 	{
+		Enemy* e = static_cast<Enemy*>(object->getPtr());
+		if (e->GetMyShot())return;
 		life--;
 		isMuteki = true;
 	}
@@ -576,11 +657,21 @@ void Player::addPosition(const Vector3& vec)
 void Player::areaPush() 
 {	
 	//動いてないときに出る(押されたりして)可能性があるから、velocity使わない
-	if (position.x >= 20) position.x -= speed.x;
-	if (position.x <= -20) position.x += speed.x;
-	if (position.z >= 15) position.z -= speed.z;
-	if (position.z <= -15) position.z += speed.z;
+
+	if (position.x > 20 || position.x < -20)velocity.x = 0;
+	if (position.z > 15 || position.z < -15)velocity.z = 0;
+	if (position.x > 20) position.x = 20;
+	if (position.x < -20) position.x = -20;
+	if (position.z > 15) position.z = 15;
+	if (position.z < -15) position.z = -15;
 	
 	if (playerType == PlayerType::LEFT)leftPlayerPosition = position;
 	if (playerType == PlayerType::RIGHT)rightPlayerPosition = position;
+
+
+}
+
+int Player::getLife()
+{
+	return life;
 }

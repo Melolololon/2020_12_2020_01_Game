@@ -157,6 +157,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Rubber.cpp" />
     <ClCompile Include="SceneChange.cpp" />
+    <ClCompile Include="Stage.cpp" />
     <ClCompile Include="StageSelect.cpp" />
     <ClCompile Include="Title.cpp" />
   </ItemGroup>
@@ -170,6 +171,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Rubber.h" />
     <ClInclude Include="SceneChange.h" />
+    <ClInclude Include="Stage.h" />
     <ClInclude Include="StageSelect.h" />
     <ClInclude Include="Title.h" />
   </ItemGroup>

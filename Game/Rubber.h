@@ -18,7 +18,7 @@ private:
 	bool hitEnemy;
 
 	//ƒSƒ€‚ÌŒÀŠEˆÚ“®—Ê(—×‚Æ‚Ì‹——£‚ª‚±‚êˆÈã‚É‚È‚Á‚½‚çŒÀŠE)
-	const float MaxMoveDistance = 2.0f;
+	float maxMoveDistance;
 
 	//‹ß‚­‚ÌƒSƒ€“®‚©‚·‚Æ‚«‚Ì”{—¦
 	const float MoveBairitu[8] = { 0.8f,0.6f,0.5f,0.4f,0.38f,0.1f,0.07f,0.05f };
@@ -43,6 +43,8 @@ private:
 	static Vector3 playerVelocity[2];
 	static Vector3 playerSpeed[2];
 	static bool playerInputFlag[2];
+	static float playerRevDidtanceNumber;
+	static float playerMaxDistanceNumber;
 
 	//ƒŠƒ~ƒbƒg‚©‚Ç‚¤‚©
 	static int rimitCount;
@@ -69,6 +71,7 @@ public:
 
 	static void setRubberPtr( Rubber* rP[]);
 
+	void setPosition(const Vector3& pos);
 	void addPosition(const Vector3& vec);
 	void setHitEnemy(const bool& flag);
 
@@ -80,5 +83,8 @@ public:
 	static void resetRimitCount();
 	static void setPlayerInputFlag(const bool& flag, const int& pNum);
 	static void setLeavePlayerFlag(const bool& flag);
+	static void setPlayerRevDidtanceNumber(const float& num);
+	static void setPlayerMaxDistanceNumber(const float& num);
+
 };
 

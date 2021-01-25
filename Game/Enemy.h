@@ -13,8 +13,17 @@ public:
 		RIGHT
 	};
 
+	enum EnemyType
+	{
+		PLAYER_TARGET,
+		PLAYER_TUIBI,
+	};
+
 private:
 	
+	//自分のタイプ
+	EnemyType enemyType;
+
 	//目標タイプ
 	TargetType targetType;
 	//移動量更新に使用するタイマー
@@ -31,11 +40,15 @@ private:
 	int mutekiTimer;
 	const int MutekiTime = 60 * 0.2f;
 
+	static Vector3 playerPosition[2];
 
-
+	//移動量をプレイヤーの向きに更新する間隔
+//極端に少ないとクリア不可能になる
+	const int UPDATE_VELOCITY_TIME = 30;
+	const int ADD_ENEMY_TIME = 180;
 public:
 	//コンストラクタ
-	Enemy();
+	Enemy(const Vector3& pos,const EnemyType& enemyType);
 	//デストラクタ
 	~Enemy();
 	//初期化
@@ -52,23 +65,23 @@ public:
 	/// </summary>
 	static void loadModelData();
 
-	/// <summary>
-	/// 移動量更新
-	/// </summary>
-	/// <param name="playerPosition">プレイヤー座標</param>
-	void UpdateVelocity(Vector3 playerPosition);
+	
+	void UpdateVelocity();
 
-	int GetUpdateVelocityTimer() { return updateVelocityTimer; }
+	//int GetUpdateVelocityTimer() { return updateVelocityTimer; }
 
 	int GetTargetTypeAsInt();
 
-	static Enemy* GetEnemy();
+	//static Enemy* GetEnemy();
+
+	static void SetPlayerPos(const Vector3& pos,const int& playerType);
 
 	void* getPtr()override;
 
 	void GetVelocityAndSpeed(Vector3& vel,Vector3& spe);
 
-	void AddPosition(const Vector3 vec);
+	void SetPosition(const Vector3& pos);
+	void AddPosition(const Vector3& vec);
 
 	void ShotEnemy(const Vector3& vel ,const Vector3& spe);
 

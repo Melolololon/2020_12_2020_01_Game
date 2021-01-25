@@ -20,8 +20,6 @@ private:
 	int generateEnemyTimer = 0;
 	const int GENERATETIME = 60 * 3;                                                           
 
-	//ƒ‰ƒCƒt
-	int Life = 5;
 
 public:
 

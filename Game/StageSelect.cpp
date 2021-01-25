@@ -3,11 +3,18 @@
 
 StageSelect::StageSelect()
 {
-	for (int i = 0; i < _countof(stageNumSpr); i++)
-		Library::createSprite(&stageNumSpr[i]);
+	for (int i = 0; i < _countof(stageNumBoardSpr); i++)
+		Library::createSprite(&stageNumBoardSpr[i]);
 	for (int i = 0; i < _countof(stageNumRubberSpr); i++)
 		Library::createSprite(&stageNumRubberSpr[i]);
 
+	stageNumBoardTex[0] = Library::loadTexture(L"Resources/Texture/numBoard1.png");
+	stageNumBoardTex[1] = Library::loadTexture(L"Resources/Texture/numBoard2.png");
+	stageNumBoardTex[2] = Library::loadTexture(L"Resources/Texture/numBoard3.png");
+	stageNumBoardTex[3] = Library::loadTexture(L"Resources/Texture/numBoard4.png");
+	stageNumBoardTex[4] = Library::loadTexture(L"Resources/Texture/numBoard5.png");
+
+	stageNumRubberTex = Library::loadTexture(L"Resources/Texture/rubberSpr.png");
 
 }
 
@@ -19,7 +26,7 @@ void StageSelect::initialize()
 {
 	stageNum = 0;
 	for (int i = 0; i < _countof(stageNumPos); i++)
-		stageNumPos[i] = { 460 + 400 * (float)i,320 };
+		stageNumPos[i] = { 380 + 700 * (float)i,260 };
 	stageNumChangeTimer = 0;
 	stageNumUpDown = STAGE_NUM_NOT_CHANGE;
 	moveStageNumPos = 0;
@@ -59,31 +66,31 @@ void StageSelect::update()
 		stageNumChangeTimer++;
 
 		if (stageNumChangeTimer < StageNumChangeTime / 2 &&
-			moveStageNumPos < 400)
+			moveStageNumPos < 700)
 		{
 			if (stageNumUpDown == STAGE_NUM_UP)
 				for (int i = stageNum - 1; i > -1; i--)
-					stageNumPos[i].x -= 20;
+					stageNumPos[i].x -= 35;
 
 			if (stageNumUpDown == STAGE_NUM_DOWN)
 				for (int i = stageNum + 1; i < _countof(stageNumPos); i++)
-					stageNumPos[i].x += 20;
+					stageNumPos[i].x += 35;
 
-			moveStageNumPos += 20;
+			moveStageNumPos += 35;
 		}
 
 		if (stageNumChangeTimer >= StageNumChangeTime / 2 &&
-			moveStageNumPos < 800)
+			moveStageNumPos < 700 * 2)
 		{
 			if (stageNumUpDown == STAGE_NUM_UP)
 				for (int i = stageNum; i < _countof(stageNumPos); i++)
-					stageNumPos[i].x -= 20;
+					stageNumPos[i].x -= 35;
 
 			if (stageNumUpDown == STAGE_NUM_DOWN)
 				for (int i = stageNum; i > -1; i--)
-					stageNumPos[i].x += 20;
+					stageNumPos[i].x += 35;
 
-			moveStageNumPos += 20;
+			moveStageNumPos += 35;
 		}
 
 		if (stageNumChangeTimer >= StageNumChangeTime)
@@ -113,10 +120,10 @@ void StageSelect::update()
 void StageSelect::draw()
 {
 	for (int i = 0; i < _countof(stageNumRubberSpr); i++)
-		Library::drawBox({ stageNumPos[i].x ,stageNumPos[i].y + 60 }, { stageNumPos[i + 1].x - stageNumPos[i].x,30 }, { 233,233,233,255 }, stageNumRubberSpr[i]);
+		Library::drawBox({ stageNumPos[i].x ,stageNumPos[i].y + 110 }, { stageNumPos[i + 1].x - stageNumPos[i].x,30 }, { 233,233,233,255 }, stageNumRubberSpr[i]);
 
-	for (int i = 0; i < _countof(stageNumSpr); i++)
-		Library::drawBox(stageNumPos[i], { 300,150 }, { 255,0,0,255 }, stageNumSpr[i]);
+	for (int i = 0; i < _countof(stageNumBoardSpr); i++)
+		Library::drawSprite(stageNumPos[i],  stageNumBoardSpr[i],&stageNumBoardTex[i]);
 
 
 	//ƒV[ƒ“‘JˆÚ

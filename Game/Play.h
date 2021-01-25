@@ -16,15 +16,29 @@ private:
 
 	//移動量をプレイヤーの向きに更新する間隔
 	//極端に少ないとクリア不可能になる
-	const int UPDATE_VELOCITY_TIME = 90;
-	const int ADD_ENEMY_TIME = 180;
+	//Enemy.hに移動
+	//const int UPDATE_VELOCITY_TIME = 90;
+	//const int ADD_ENEMY_TIME = 180;
 
 	int addEnemyTimer = 0;
 	
 	bool pauseFlag;
 
+#pragma region モデル
+
 	vertex fierdVertexH;
 	heap fierdHeapH;
+#pragma endregion
+
+#pragma region スプライト
+	sprite pLifeSpr[2];
+	texture pLifeTex;
+
+	//HPの文字
+	sprite hpSpr[2];
+	texture hpTex;
+#pragma endregion
+
 public:
 	Play();
 	~Play();

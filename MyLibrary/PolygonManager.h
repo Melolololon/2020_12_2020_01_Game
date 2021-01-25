@@ -10,6 +10,7 @@ private:
 
 	std::unordered_map<std::string, vertex> verts;
 	std::unordered_map<std::string, heap> heaps;
+	std::unordered_map<std::string, sprite> sprites;
 	std::unordered_map<std::string, texture> textures;
 	std::unordered_map<std::string, point>points;
 
@@ -31,6 +32,10 @@ public:
 	int* getPolygonHeap(std::string keyName);
 	void clearPolygonHeap();
 
+	void addSprite(std::string keyName, sprite sprite);
+	void deleteSprite(std::string keyName);
+	sprite getSprite(std::string keyName);
+	void clearSprite();
 
 	void addTexture(std::string keyName, texture texture);
 	void deleteTexture(std::string keyName);

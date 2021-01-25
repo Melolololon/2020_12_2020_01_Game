@@ -23,6 +23,14 @@ Play::Play()
 	Library::loadOBJMaterial("Resources/Obj/", material, 1, &fierdHeapH);
 #pragma endregion
 
+#pragma region スプライト
+	Library::createSprite(&pLifeSpr[0]);
+	Library::createSprite(&pLifeSpr[1]);
+	Library::createSprite(&hpSpr[0]);
+	Library::createSprite(&hpSpr[1]);
+	pLifeTex = Library::loadTexture(L"Resources/Texture/playerLife.png");
+	hpTex = Library::loadTexture(L"Resources/Texture/HP.png");
+#pragma endregion
 
 }
 
@@ -33,24 +41,37 @@ Play::~Play()
 
 void Play::initialize()
 {
+#pragma region プレイヤー関係
+
+
 	player[0] = new Player({ -2,0,0 }, Player::PlayerType::LEFT);
 	player[1] = new Player({ 2,0,0 }, Player::PlayerType::RIGHT);
 	ObjectManager::getInstance()->addObject(player[0]);
 	ObjectManager::getInstance()->addObject(player[1]);
-	parentEnemy = new ParentEnemy();
-	ObjectManager::getInstance()->addObject(parentEnemy);
-
+	
 	Rubber* rP[9];
-	for (int i = 1; i < 10; i++) 
+	for (int i = 1; i < 10; i++)
 	{
 		rP[i - 1] = new Rubber(i);
 		ObjectManager::getInstance()->addObject(rP[i - 1]);
 	}
 	Rubber::setRubberPtr(rP);
+#pragma endregion
+
+	parentEnemy = new ParentEnemy();
+	ObjectManager::getInstance()->addObject(parentEnemy);
+
 
 	addEnemyTimer = 0;
 
 	pauseFlag = false;
+
+
+#pragma region 地形関係
+	Library::setPosition({ 0,-21,0 }, fierdHeapH, 0);
+	Library::setScale({ 22,20,16 }, fierdHeapH, 0);
+#pragma endregion
+
 }
 
 void Play::update()
@@ -65,37 +86,37 @@ void Play::update()
 
 
 	//敵追加処理
-	addEnemyTimer++;
-	if (addEnemyTimer > ADD_ENEMY_TIME)
-	{
-		Enemy* enemy = Enemy::GetEnemy();
-		enemies.push_back(enemy);
-		ObjectManager::getInstance()->addObject(enemy);
-		addEnemyTimer = -300;
-	}
+	//addEnemyTimer++;
+	//if (addEnemyTimer > ADD_ENEMY_TIME)
+	//{
+	//	Enemy* enemy = Enemy::GetEnemy();
+	//	enemies.push_back(enemy);
+	//	ObjectManager::getInstance()->addObject(enemy);
+	//	addEnemyTimer = -300;
+	//}
 
 	ObjectManager::getInstance()->update();
-	for (int i = 0; i < enemies.size(); i++)
-	{
-		if (enemies[i]->GetUpdateVelocityTimer() > UPDATE_VELOCITY_TIME)
-		{
-			Vector3 playerPos = player[enemies[i]->GetTargetTypeAsInt()]->getSphereData()[0].position;
-			enemies[i]->UpdateVelocity(playerPos);
-		}
-	}
+
+	//for (int i = 0; i < enemies.size(); i++)
+	//{
+		//if (enemies[i]->GetUpdateVelocityTimer() > UPDATE_VELOCITY_TIME)
+	//	{
+	//		Vector3 playerPos = player[enemies[i]->GetTargetTypeAsInt()]->getSphereData()[0].position;
+	//		enemies[i]->UpdateVelocity(playerPos);
+	//	}
+	//}
 
 
 #pragma region プレイヤーに敵の移動量代入
-	player[0]->addPosition(Rubber::getPlayerMoveVector());
-	player[1]->addPosition(Rubber::getPlayerMoveVector());
+	if (player[0] && player[1]) 
+	{
+		player[0]->addPosition(Rubber::getPlayerMoveVector());
+		player[1]->addPosition(Rubber::getPlayerMoveVector());
+	}
+
 #pragma endregion
 
 	ObjectManager::getInstance()->isDeadCheck();
-
-#pragma region 地形関係
-	Library::setPosition({ 0,-21,0 }, fierdHeapH, 0);
-	Library::setScale({ 22,20,16}, fierdHeapH, 0);
-#pragma endregion
 
 
 #pragma region シーン遷移
@@ -113,10 +134,23 @@ void Play::update()
 
 void Play::draw()
 {
+
 	ObjectManager::getInstance()->draw();
 
 #pragma region 地形関係
 	Library::drawGraphic(fierdVertexH, fierdHeapH, 0);
+#pragma endregion
+
+#pragma region ライフ
+	Library::setSpriteAddColor({ 0,0,255,0 }, hpSpr[0]);
+	Library::setSpriteAddColor({ 255,0,0,0 }, hpSpr[1]);
+	Library::drawSprite({ 10,10 }, hpSpr[0], &hpTex);
+	Library::drawSprite({ 10,70 }, hpSpr[1], &hpTex);
+	if (player) 
+	{
+		Library::drawSpriteAnimation2({ 90,10 }, { 0,0 }, { (float)player[0]->getLife() * 50,50 }, pLifeSpr[0], &pLifeTex);
+		Library::drawSpriteAnimation2({ 90,70 }, { 0,0 }, { (float)player[1]->getLife() * 50,50 }, pLifeSpr[1], &pLifeTex);
+	}
 #pragma endregion
 
 

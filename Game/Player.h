@@ -34,6 +34,7 @@ private:
 	//自分のプレイヤータイプ(LかRか)
 	PlayerType playerType;
 
+
 #pragma region ダッシュ
 	//同じ方向に2回入力するとダッシュ
 
@@ -117,6 +118,9 @@ private:
 	//紐伸ばしたり縮めたりさせる?
 	//チュートリアル1/24に作る
 
+	//どっちか片方死んだかどうか
+	static bool deadPlayer;
+
 public:
 
 
@@ -130,6 +134,12 @@ public:
 	void setPosition(Vector3 pos);
 
 	void addPosition(const Vector3& vec);
+
+	int getLife();
+	/// <summary>
+	/// モデル、スプライト準備
+	/// </summary>
+	static void initializeModel();
 
 };
 

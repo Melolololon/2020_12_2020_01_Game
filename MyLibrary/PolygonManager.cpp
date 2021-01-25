@@ -65,6 +65,28 @@ void PolygonManager::clearPolygonHeap()
 	}
 }
 
+
+void PolygonManager::addSprite(std::string keyName, sprite sprite) 
+{
+	sprites.emplace(keyName, sprite);
+}
+
+void PolygonManager::deleteSprite(std::string keyName)
+{
+}
+
+sprite PolygonManager::getSprite(std::string keyName)
+{
+	return sprites[keyName];
+}
+
+void PolygonManager::clearSprite()
+{
+}
+
+
+
+
 void PolygonManager::addTexture(std::string keyName, texture texture)
 {
 	textures.emplace(keyName, texture);

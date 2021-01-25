@@ -10,7 +10,7 @@ Title::Title()
 	Library::createSprite(&pushSpr);
 
 	titleTex = Library::loadTexture(L"Resources/Texture/titleKari.png");
-	pushTex = Library::loadTexture(L"Resources/Texture/pushKari.png");
+	pushTex = Library::loadTexture(L"Resources/Texture/titleRubberSpr.png");
 }
 
 Title::~Title()
@@ -20,7 +20,7 @@ Title::~Title()
 
 void Title::initialize()
 {
-	pushPos = { 500,500 };
+	pushPos = { 270,500 };
 	pushScale = { 1,1};
 	pushScaleChangeTimer = 0;
 }
@@ -40,7 +40,7 @@ void Title::update()
 	}
 	if (pushScaleChangeTimer == PushScaleChangeTime) 
 	{
-		pushPos = { 500,500 };
+		pushPos = { 270,500 };
 		pushScale = { 1,1 };
 		pushScaleChangeTimer = 0;
 	}
@@ -61,7 +61,7 @@ void Title::update()
 
 void Title::draw()
 {
-	Library::drawSprite({ 100,50 }, titleSpr,&titleTex);
+	Library::drawSprite({ 130,50 }, titleSpr,&titleTex);
 	Library::setSpriteScale(pushScale, pushSpr);
 	Library::drawSprite(pushPos, pushSpr,&pushTex);
 

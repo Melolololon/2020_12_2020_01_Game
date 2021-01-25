@@ -2,19 +2,30 @@
 #include"Rubber.h"
 #include"DamageNumber.h"
 
+#include"Player.h"
+
 #include"ObjectManager.h"
 
-Enemy::Enemy()
+Vector3 Enemy::playerPosition[2];
+
+Enemy::Enemy(const Vector3& pos, const EnemyType& enemyType)
 {
 	Library::createManyVertex3DBox({ 2,2,2 }, &vertexHandle);
-	Library::createHeapData2({ 64,255,64,255 }, 2, &heapHandle);
+	Library::createHeapData2({ 64,255,64,255 }, 1, &heapHandle);
+
+	position = pos;
+	Library::setPosition(position, heapHandle, 0);
+	this->enemyType = enemyType;
+
 	Initialize();
 
-
+	
 }
 
 Enemy::~Enemy()
 {
+	Library::deleteVertexData(vertexHandle);
+	Library::deleteHeapData(heapHandle);
 }
 
 void Enemy::loadModelData()
@@ -25,9 +36,10 @@ void Enemy::loadModelData()
 void Enemy::Initialize()
 {
 	//座標はとりあえず奥からランダムで。
-	position = { 0, 0, 10 };
+	//position = { 0, 0, 10 };
 	//移動量はとりあえず手前方向へ。
 	velocity = { 0, 0, -1.0f };
+
 	//スピードはとりあえず2.0で。
 	speed = 0.15f;
 
@@ -50,11 +62,24 @@ void Enemy::Initialize()
 	isMuteki = false;
 	mutekiTimer = 0;
 
+	float dir[2];
+	dir[0] = LibMath::calcDistance3D(playerPosition[0], position);
+	dir[1] = LibMath::calcDistance3D(playerPosition[1], position);
+	if (dir[0] < dir[1]) 
+	targetType = TargetType::LEFT;
+	else
+		targetType = TargetType::RIGHT;
+
+	if (enemyType == EnemyType::PLAYER_TARGET) 
+	{
+		velocity = LibMath::otherVector(position, playerPosition[targetType]);
+	}
 
 }
 
 void Enemy::update()
 {
+	UpdateVelocity();
 	position = position + velocity * speed;
 	Library::setPosition(position, heapHandle, 0);
 	sphereData[0].position = position;
@@ -69,6 +94,11 @@ void Enemy::update()
 	}
 
 	if (life <= 0)isDead = true;
+
+	if (position.x >= 60 ||
+		position.x <= -60 ||
+		position.z >= 60 ||
+		position.z <= -60)isDead = true;
 }
 
 void Enemy::draw()
@@ -76,9 +106,9 @@ void Enemy::draw()
 	Library::drawGraphic(vertexHandle, heapHandle, 0);
 }
 
-void Enemy::UpdateVelocity(Vector3 playerPosition)
+void Enemy::UpdateVelocity()
 {
-	//速度落ちたら再度追尾
+	//速度落ちたら再度追尾(追尾しない奴はとりあえずそのまま直進)
 	if (myShot) 
 	{
 		speed -= {0.025, 0, 0.025};
@@ -92,11 +122,15 @@ void Enemy::UpdateVelocity(Vector3 playerPosition)
 		return;
 	}
 
-	float pAndEDistance = LibMath::calcDistance3D(playerPosition, position);
+	if (enemyType != EnemyType::PLAYER_TUIBI || 
+		updateVelocityTimer < UPDATE_VELOCITY_TIME )return;
+
+	//updateVelocityTimer = 0;
+	float pAndEDistance = LibMath::calcDistance3D(playerPosition[GetTargetTypeAsInt()], position);
 	if (pAndEDistance >= 12.0f) 
 	{
 		Vector3 v = velocity;
-		velocity = v + (playerPosition - position);
+		velocity = v + (playerPosition[GetTargetTypeAsInt()] - position);
 		velocity = Vector3::normalize(velocity);
 		for (int i = 0; i < 5; i++)
 		{
@@ -115,11 +149,11 @@ int Enemy::GetTargetTypeAsInt()
 	return 1;
 }
 
-Enemy * Enemy::GetEnemy()
-{
-	Enemy* enemy = new Enemy;
-	return enemy;
-}
+//Enemy * Enemy::GetEnemy()
+//{
+//	Enemy* enemy = new Enemy();
+//	return enemy;
+//}
 
 void* Enemy::getPtr()
 {
@@ -132,7 +166,15 @@ void Enemy::GetVelocityAndSpeed(Vector3& vel, Vector3& spe)
 	spe = speed;
 }
 
-void Enemy::AddPosition(const Vector3 vec)
+
+void Enemy::SetPosition(const Vector3& pos)
+{
+	position = pos;
+	Library::setPosition(position, heapHandle, 0);
+	sphereData[0].position = position;
+}
+
+void Enemy::AddPosition(const Vector3& vec)
 {
 	position += vec;
 	Library::setPosition(position, heapHandle, 0);
@@ -154,7 +196,7 @@ bool Enemy::GetMyShot()
 
 void Enemy::hit(Object* object, CollosionType collisionType)
 {
-
+	if (typeid(*object) == typeid(Player))isDead = true;
 
 	if (typeid(*object) == typeid(Rubber)) 
 	{
@@ -199,4 +241,10 @@ int Enemy::GetDamage()
 	damageNum /= 3;
 	return (int)damageNum;
 
+}
+
+
+void Enemy::SetPlayerPos(const Vector3& pos, const int& playerType)
+{
+	playerPosition[playerType - 1] = pos;
 }
