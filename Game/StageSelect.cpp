@@ -30,8 +30,13 @@ StageSelect::~StageSelect()
 
 void StageSelect::initialize()
 {
-	for (int i = 0; i < _countof(stageNumPos); i++)
-		stageNumPos[i] = { 380 + 700 * (float)i,260 };
+	float count = -stage;
+	for (int i = 0; i < _countof(stageNumPos); i++) 
+	{
+		//stageNumPos[i] = { 380 + 700 * (float)i ,260 };
+		stageNumPos[i] = { 380  + 700 * count ,260 };
+		count++;
+	}
 	stageNumChangeTimer = 0;
 	stageNumUpDown = STAGE_NUM_NOT_CHANGE;
 	moveStageNumPos = 0;

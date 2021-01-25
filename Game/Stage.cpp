@@ -46,6 +46,8 @@ void Stage::initialize(const int& stageNum)
 
 void Stage::update()
 {
+	if(stage >= 1)clearFlag = true;
+
 	switch (stage)
 	{
 	case 0:
