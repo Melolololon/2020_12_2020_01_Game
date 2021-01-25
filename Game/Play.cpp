@@ -8,8 +8,10 @@
 #include "ParentEnemy.h"
 #include"PolygonManager.h"
 
-//テスト用
-#include"DamageNumber.h"
+#include"Stage.h"
+
+
+const int Play::SceneChangeTime = 60 * 3;
 
 Play::Play()
 {
@@ -56,10 +58,11 @@ void Play::initialize()
 		ObjectManager::getInstance()->addObject(rP[i - 1]);
 	}
 	Rubber::setRubberPtr(rP);
+
+	Stage::getInstance()->setPlayer(player);
 #pragma endregion
 
-	parentEnemy = new ParentEnemy();
-	ObjectManager::getInstance()->addObject(parentEnemy);
+
 
 
 	addEnemyTimer = 0;
@@ -72,18 +75,22 @@ void Play::initialize()
 	Library::setScale({ 22,20,16 }, fierdHeapH, 0);
 #pragma endregion
 
+	gameState = GAME_STATE_NORMAL;
+	sceneChangeTimer = 0;
 }
 
 void Play::update()
 {
 #pragma region ポーズ処理
 	if (DirectInput::keyTrigger(DIK_ESCAPE) || DirectInput::buttonTrigger(StartButton))
+	{
+		if(!Stage::getInstance()->gettutorialFlag())
 		pauseFlag = pauseFlag == false ? true : false;
-
+	}
 	if (pauseFlag)return;
 #pragma endregion
 
-
+	Stage::getInstance()->update();
 
 	//敵追加処理
 	//addEnemyTimer++;
@@ -116,15 +123,37 @@ void Play::update()
 
 #pragma endregion
 
+	if(gameState == GAME_STATE_NORMAL)
 	ObjectManager::getInstance()->isDeadCheck();
+	if(Player::getDeadPlayer())
+	{
+		player[0] = nullptr;
+		player[1] = nullptr;
+	}
+
+#pragma region ゲーム状態処理
+
+	if (!player[0] || !player[1]) 
+		gameState = GAME_STATE_GAMEOVER;
+	
+
+	if (gameState != GAME_STATE_GAMEOVER && Stage::getInstance()->getClearFlag())
+		gameState = GAME_STATE_CLEAR;
+
+	if (gameState != GAME_STATE_NORMAL)
+		sceneChangeTimer++;
+
+
+#pragma endregion
 
 
 #pragma region シーン遷移
 
-	//if (DirectInput::keyTrigger(DIK_SPACE))SceneChange::getInstance()->trueFeadFlag();
-
 	SceneChange::getInstance()->update();
 
+	if (sceneChangeTimer >= SceneChangeTime)
+		SceneChange::getInstance()->trueFeadFlag();
+	
 	if (SceneChange::getInstance()->getSceneChangeFlag())isEnd = true;
 
 #pragma endregion
@@ -141,18 +170,20 @@ void Play::draw()
 	Library::drawGraphic(fierdVertexH, fierdHeapH, 0);
 #pragma endregion
 
-#pragma region ライフ
-	Library::setSpriteAddColor({ 0,0,255,0 }, hpSpr[0]);
-	Library::setSpriteAddColor({ 255,0,0,0 }, hpSpr[1]);
-	Library::drawSprite({ 10,10 }, hpSpr[0], &hpTex);
-	Library::drawSprite({ 10,70 }, hpSpr[1], &hpTex);
-	if (player) 
+#pragma region ライフ	
+	if (player[0] && player[1]) 
 	{
+		Library::setSpriteAddColor({ 0,0,255,0 }, hpSpr[0]);
+		Library::setSpriteAddColor({ 255,0,0,0 }, hpSpr[1]);
+		Library::drawSprite({ 10,10 }, hpSpr[0], &hpTex);
+		Library::drawSprite({ 10,70 }, hpSpr[1], &hpTex);
+
 		Library::drawSpriteAnimation2({ 90,10 }, { 0,0 }, { (float)player[0]->getLife() * 50,50 }, pLifeSpr[0], &pLifeTex);
 		Library::drawSpriteAnimation2({ 90,70 }, { 0,0 }, { (float)player[1]->getLife() * 50,50 }, pLifeSpr[1], &pLifeTex);
 	}
 #pragma endregion
 
+	Stage::getInstance()->draw();
 
 	//シーン遷移
 	SceneChange::getInstance()->draw();
@@ -160,10 +191,13 @@ void Play::draw()
 
 void Play::end()
 {
+	ParentEnemy::ResetDeadCount();
+
+	ObjectManager::getInstance()->allDeleteObject();
 }
 
 std::string Play::nextScene()
 {
-	return "Title";
+	return "StageSelect";
 }
 

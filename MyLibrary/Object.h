@@ -14,7 +14,7 @@ public:
 	struct CollisionFlag
 	{
 		bool sphere;
-		bool lay;
+		bool ray;
 		bool lineSegment;
 		bool plane;
 		bool board;

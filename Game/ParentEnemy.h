@@ -14,17 +14,17 @@ private:
 	//無敵処理
 	bool isMuteki;
 	int mutekiTimer;
-	const int MutekiTime = 60 * 0.2f;
+	const int MutekiTime = 60 * 1.0f;
 
 	//敵打ち出しに使う時間
 	int generateEnemyTimer = 0;
 	const int GENERATETIME = 60 * 3;                                                           
 
-
+	static int deadCount;
 public:
 
 	//コンストラクタ
-	ParentEnemy();
+	ParentEnemy(const Vector3& pos);
 	//デストラクタ
 	~ParentEnemy();
 	//初期化
@@ -40,5 +40,8 @@ public:
 
 	void ShotEnemy();
 
+
+	static int GetDeadCount();
+	static void ResetDeadCount();
 };
 

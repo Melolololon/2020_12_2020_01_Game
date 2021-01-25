@@ -29,7 +29,7 @@ Rubber::Rubber(const int& pNum)
 	isDead = false;
 
 	collisionFlag.board = false;
-	collisionFlag.lay = false;
+	collisionFlag.ray = false;
 	collisionFlag.lineSegment = false;
 	collisionFlag.sphere = true;
 	collisionFlag.plane = false;
@@ -52,6 +52,8 @@ Rubber::Rubber(const int& pNum)
 
 Rubber::~Rubber()
 {
+	Library::deleteVertexData(vertexHandle);
+	Library::deleteHeapData(heapHandle);
 }
 
 void Rubber::update()
@@ -202,6 +204,7 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 
 	if (typeid(*object) == typeid(Enemy)) 
 	{
+
 		//‚Ç‚ê‚©ˆêŒÂ“–‚½‚Á‚½‚çA–³‹
 		if (hitEnemy)return;
 

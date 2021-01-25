@@ -46,6 +46,7 @@ private:
 //極端に少ないとクリア不可能になる
 	const int UPDATE_VELOCITY_TIME = 30;
 	const int ADD_ENEMY_TIME = 180;
+
 public:
 	//コンストラクタ
 	Enemy(const Vector3& pos,const EnemyType& enemyType);
@@ -88,5 +89,6 @@ public:
 	bool GetMyShot();
 
 	int GetDamage();
+
 };
 

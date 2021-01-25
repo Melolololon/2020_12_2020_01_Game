@@ -34,7 +34,7 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 	if (playerType == PlayerType::RIGHT)Library::createHeapData2({ 255,0,0,255 }, 1, &heapHandle);
 
 	collisionFlag.board = false;
-	collisionFlag.lay = false;
+	collisionFlag.ray = false;
 	collisionFlag.lineSegment = false;
 	collisionFlag.sphere = true;
 	collisionFlag.plane = false;
@@ -76,12 +76,17 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 
 	kasanariTimer = 0;
 	hitOtherPlayer = false;
+
+	deadPlayer = false;
 }
 
 
 Player::~Player()
 {
+	Library::deleteVertexData(vertexHandle);
+	Library::deleteHeapData(heapHandle);
 }
+
 
 void Player::initializeModel()
 {
@@ -572,8 +577,10 @@ void Player::update()
 #pragma region ÉâÉCÉtèàóù
 	if (life <= 0) 
 	{
-		isDash = true;
+		isDead = true;
 		deadPlayer = true;
+		firstAddPlayer = nullptr;
+		firstAddType = PlayerType::NONE;
 	}
 #pragma endregion
 
@@ -618,8 +625,8 @@ void Player::hit(Object* object, CollosionType collisionType)
 	if (isMuteki)return;
 	if (typeid(*object) == typeid(Enemy)) 
 	{
-		Enemy* e = static_cast<Enemy*>(object->getPtr());
-		if (e->GetMyShot())return;
+		//Enemy* e = static_cast<Enemy*>(object->getPtr());
+		/*if (e->GetMyShot())return;*/
 		life--;
 		isMuteki = true;
 	}
@@ -674,4 +681,25 @@ void Player::areaPush()
 int Player::getLife()
 {
 	return life;
+}
+
+
+Vector3 Player::getVelocity()
+{
+	return velocity;
+}
+
+bool Player::getIsDash()
+{
+	return isDash;
+}
+
+bool Player::getDeadPlayer()
+{
+	return deadPlayer;
+}
+
+Player::PlayerType Player::getPlayerType()
+{
+	return playerType;
 }

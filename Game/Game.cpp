@@ -5,6 +5,8 @@
 
 #include"Player.h"
 
+#include"Stage.h"
+#include"Caution.h"
 #include"Title.h"
 #include"StageSelect.h"
 #include"Play.h"
@@ -42,6 +44,7 @@ void Game::initialize()
 
 #pragma region マネージャー初期化
 	SceneManager::getInstace()->initialize();
+	SceneManager::getInstace()->addScene("Caution", new Caution());
 	SceneManager::getInstace()->addScene("Title", new Title());
 	SceneManager::getInstace()->addScene("StageSelect", new StageSelect());
 	SceneManager::getInstace()->addScene("Play", new Play());
@@ -66,6 +69,9 @@ void Game::initialize()
 	PipelineManager::getInstance()->addPipeline("billboardPL", billboardPL);
 #pragma endregion
 
+#pragma region 生成読み込み
+	Stage::getInstance()->createSpriteLoadTexture();
+#pragma endregion
 
 }
 

@@ -12,7 +12,7 @@ DamageNumber::DamageNumber(const Vector3& pos, const int& damageNum)
 	collisionFlag.plane = false;
 	collisionFlag.sphere = false;
 	collisionFlag.lineSegment = false;
-	collisionFlag.lay = false;
+	collisionFlag.ray = false;
 
 	Library::createBoard({ 2,2 }, dimention3D, &vertexHandle);
 	Library::createHeapData(L"Resources/Texture/damageNum.png", 1, &heapHandle);

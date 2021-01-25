@@ -1,5 +1,10 @@
 #include "StageSelect.h"
 #include"SceneChange.h"
+#include"SceneManager.h"
+
+#include"Play.h"
+
+#include"Stage.h"
 
 StageSelect::StageSelect()
 {
@@ -16,6 +21,7 @@ StageSelect::StageSelect()
 
 	stageNumRubberTex = Library::loadTexture(L"Resources/Texture/rubberSpr.png");
 
+	stage = 0;
 }
 
 StageSelect::~StageSelect()
@@ -24,7 +30,6 @@ StageSelect::~StageSelect()
 
 void StageSelect::initialize()
 {
-	stageNum = 0;
 	for (int i = 0; i < _countof(stageNumPos); i++)
 		stageNumPos[i] = { 380 + 700 * (float)i,260 };
 	stageNumChangeTimer = 0;
@@ -41,9 +46,9 @@ void StageSelect::update()
 			DirectInput::directionalButtonState(LeftButton) ||
 			DirectInput::leftStickLeft(30000))
 		{
-			if (stageNum > 0) 
+			if (stage > 0) 
 			{
-				stageNum--;
+				stage--;
 				stageNumUpDown = STAGE_NUM_DOWN;
 			}
 		}
@@ -52,9 +57,9 @@ void StageSelect::update()
 			DirectInput::directionalButtonState(RightButton) ||
 			DirectInput::leftStickRight(30000))
 		{
-			if (stageNum < 4) 
+			if (stage < 4) 
 			{
-				stageNum++;
+				stage++;
 				stageNumUpDown = STAGE_NUM_UP;
 			}
 		}
@@ -69,11 +74,11 @@ void StageSelect::update()
 			moveStageNumPos < 700)
 		{
 			if (stageNumUpDown == STAGE_NUM_UP)
-				for (int i = stageNum - 1; i > -1; i--)
+				for (int i = stage - 1; i > -1; i--)
 					stageNumPos[i].x -= 35;
 
 			if (stageNumUpDown == STAGE_NUM_DOWN)
-				for (int i = stageNum + 1; i < _countof(stageNumPos); i++)
+				for (int i = stage + 1; i < _countof(stageNumPos); i++)
 					stageNumPos[i].x += 35;
 
 			moveStageNumPos += 35;
@@ -83,11 +88,11 @@ void StageSelect::update()
 			moveStageNumPos < 700 * 2)
 		{
 			if (stageNumUpDown == STAGE_NUM_UP)
-				for (int i = stageNum; i < _countof(stageNumPos); i++)
+				for (int i = stage; i < _countof(stageNumPos); i++)
 					stageNumPos[i].x -= 35;
 
 			if (stageNumUpDown == STAGE_NUM_DOWN)
-				for (int i = stageNum; i > -1; i--)
+				for (int i = stage; i > -1; i--)
 					stageNumPos[i].x += 35;
 
 			moveStageNumPos += 35;
@@ -107,8 +112,10 @@ void StageSelect::update()
 #pragma region ƒV[ƒ“‘JˆÚ
 	if (stageNumUpDown == STAGE_NUM_NOT_CHANGE)
 	{
-		if (DirectInput::keyTrigger(DIK_SPACE) || 
-			DirectInput::buttonTrigger(AButton))
+		if (DirectInput::keyTrigger(DIK_SPACE) ||
+			DirectInput::keyTrigger(DIK_RETURN) ||
+			DirectInput::buttonTrigger(AButton) ||
+			DirectInput::buttonTrigger(StartButton))
 			SceneChange::getInstance()->trueFeadFlag();
 	}
 	SceneChange::getInstance()->update();
@@ -134,6 +141,7 @@ void StageSelect::draw()
 
 void StageSelect::end()
 {
+	Stage::getInstance()->initialize(stage);
 }
 
 std::string StageSelect::nextScene()

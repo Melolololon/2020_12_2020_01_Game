@@ -46,7 +46,7 @@ void Enemy::Initialize()
 	myShot = false;
 
 	collisionFlag.board = false;
-	collisionFlag.lay = false;
+	collisionFlag.ray = false;
 	collisionFlag.lineSegment = false;
 	collisionFlag.sphere = true;
 	collisionFlag.plane = false;
@@ -93,7 +93,7 @@ void Enemy::update()
 		isMuteki = false;
 	}
 
-	if (life <= 0)isDead = true;
+	if (life <= 0 && !myShot)isDead = true;
 
 	if (position.x >= 60 ||
 		position.x <= -60 ||

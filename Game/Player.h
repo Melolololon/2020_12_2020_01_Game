@@ -121,12 +121,12 @@ private:
 	//どっちか片方死んだかどうか
 	static bool deadPlayer;
 
+
 public:
 
 
 	Player( const Vector3& pos, const PlayerType& playerType);
 	~Player();
-
 	void update();
 	void draw();
 	void hit(Object* object, CollosionType collisionType)override;
@@ -136,10 +136,18 @@ public:
 	void addPosition(const Vector3& vec);
 
 	int getLife();
+
+	Vector3 getVelocity();
+	bool getIsDash();
+
 	/// <summary>
 	/// モデル、スプライト準備
 	/// </summary>
 	static void initializeModel();
 
+	static bool getDeadPlayer();
+
+	PlayerType getPlayerType();
+	
 };
 

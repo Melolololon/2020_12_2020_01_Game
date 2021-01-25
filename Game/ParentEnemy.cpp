@@ -3,8 +3,11 @@
 #include"ObjectManager.h"
 #include"DamageNumber.h"
 
-ParentEnemy::ParentEnemy()
+int ParentEnemy::deadCount;
+
+ParentEnemy::ParentEnemy(const Vector3& pos)
 {
+	position = pos;
 	Library::createManyVertex3DBox({ 6,6,6 }, &vertexHandle);
 	Library::createHeapData2({ 255,64,255,255 }, 3, &heapHandle);
 	Initialize();
@@ -12,12 +15,14 @@ ParentEnemy::ParentEnemy()
 
 ParentEnemy::~ParentEnemy()
 {
+	Library::deleteVertexData(vertexHandle);
+	Library::deleteHeapData(heapHandle);
 }
 
 void ParentEnemy::Initialize()
 {
 
-	position = {0,0,0 };
+	/*position = {0,0,0 };*/
 	velocity = { 0, 0, 0 };
 	speed = 0.0f;
 
@@ -26,6 +31,12 @@ void ParentEnemy::Initialize()
 	sphereData.resize(1);
 	sphereData[0].position = position;
 	sphereData[0].r = 3.0f;
+
+	collisionFlag.board = false;
+	collisionFlag.ray = false;
+	collisionFlag.plane = false;
+	collisionFlag.lineSegment = false;
+	collisionFlag.sphere = true;
 
 	//‰¼()
 	life = 7;
@@ -41,12 +52,34 @@ void ParentEnemy::update()
 	Library::setPosition(position, heapHandle, 0);
 	sphereData[0].position = position;
 
+	//–³“Gˆ—
+	if (isMuteki)mutekiTimer++;
+	if (mutekiTimer >= MutekiTime)
+	{
+		mutekiTimer = 0;
+		isMuteki = false;
+	}
+
+	if (life <= 0)
+	{
+		deadCount++;
+		isDead = true;
+	}
+
 	ShotEnemy();
 }
 
 void ParentEnemy::draw()
 {
-	Library::drawGraphic(vertexHandle, heapHandle, 0);
+	if (!isMuteki)
+		Library::drawGraphic(vertexHandle, heapHandle, 0);
+	else
+	{
+		if (mutekiTimer % 2 == 0)
+		{
+			Library::drawGraphic(vertexHandle, heapHandle, 0);
+		}
+	}
 }
 
 void ParentEnemy::hit(Object * object, CollosionType collisionType)
@@ -66,7 +99,7 @@ void ParentEnemy::hit(Object * object, CollosionType collisionType)
 			isMuteki = true;
 
 			if (damage != 0)
-				ObjectManager::getInstance()->addObject(new DamageNumber(position, damage));
+				ObjectManager::getInstance()->addObject(new DamageNumber({ position .x,position .y + 3.0f,position .z}, damage));
 		}
 
 	}
@@ -88,3 +121,14 @@ void ParentEnemy::ShotEnemy()
 		ObjectManager::getInstance()->addObject(new Enemy(position, Enemy::PLAYER_TARGET));
 	}
 }
+
+int ParentEnemy::GetDeadCount()
+{
+	return deadCount;
+}
+
+void ParentEnemy::ResetDeadCount()
+{
+	deadCount = 0;
+}
+

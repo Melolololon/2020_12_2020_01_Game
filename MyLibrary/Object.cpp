@@ -16,7 +16,7 @@ Object::Object()
 	lineSegmentData.position[1] = 1.0f;*/
 	
 	collisionFlag.plane = false;
-	collisionFlag.lay = false;
+	collisionFlag.ray = false;
 	collisionFlag.lineSegment = false;
 	collisionFlag.sphere = false;
 }

@@ -48,7 +48,9 @@ void Title::update()
 #pragma region ƒV[ƒ“‘JˆÚ
 
 	if (DirectInput::keyTrigger(DIK_SPACE)||
-		DirectInput::buttonTrigger(AButton))
+		DirectInput::keyTrigger(DIK_RETURN) ||
+		DirectInput::buttonTrigger(AButton) ||
+		DirectInput::buttonTrigger(StartButton))
 		SceneChange::getInstance()->trueFeadFlag();
 	
 	SceneChange::getInstance()->update();

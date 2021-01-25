@@ -14,7 +14,7 @@ private:
 	};
 	
 	//ステージ関係
-	int stageNum;
+	int stage;
 	sprite stageNumBoardSpr[5];
 	texture stageNumBoardTex[5];
 	Vector2 stageNumPos[5];

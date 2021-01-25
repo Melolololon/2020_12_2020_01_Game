@@ -1,4 +1,6 @@
 #pragma once
+#include"Library.h"
+#include"Player.h"
 
 //ステージクラス。敵の配置などのステージごとに違うものはここに書く
 class Stage
@@ -9,13 +11,41 @@ private:
 
 	//ステージ番号
 	int stage;
+
+	//チュートリアルメッセージ
+	sprite tMesSpr;
+	texture tMesTex[4];
+	int tMesNum;
+	bool tutorialFlag;
+	int skipTimer;
+	static const int SkipTime;
+	bool leftInput;
+	bool rightInput;
+
+	Player* player[2];
+
+	//次のメッセージへ進められるようになる時間
+	int nextPossibleTimer;
+	static const int NextPossibleTime;
+
+	//クリアに必要な討伐数
+	static const int StageClearEnemyNum[5];
+
+	bool clearFlag;
+	int addEnemyCount;
 public:
 	Stage(Stage& s) = delete;
 	Stage& operator=(Stage& s) = delete;
-	Stage* getInstance();
+	static Stage* getInstance();
 
+	void createSpriteLoadTexture();
 	void initialize(const int& stageNum);
+	void setPlayer(Player* p[]);
 	void update();
 	void draw();
+	
+	bool gettutorialFlag();
+
+	bool getClearFlag();
 };
 

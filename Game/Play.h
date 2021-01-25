@@ -10,9 +10,17 @@
 class Play :public Scene
 {
 private:
+
+	enum GameState
+	{
+		GAME_STATE_NORMAL,
+		GAME_STATE_GAMEOVER,
+		GAME_STATE_CLEAR,
+	};
+	GameState gameState;
+
 	Player* player[2];
 	std::vector<Enemy*> enemies;
-	ParentEnemy* parentEnemy;
 
 	//移動量をプレイヤーの向きに更新する間隔
 	//極端に少ないとクリア不可能になる
@@ -38,6 +46,10 @@ private:
 	sprite hpSpr[2];
 	texture hpTex;
 #pragma endregion
+
+
+	int sceneChangeTimer;
+	static const int SceneChangeTime;
 
 public:
 	Play();
