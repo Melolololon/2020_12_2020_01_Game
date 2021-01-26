@@ -97,6 +97,25 @@ void DirectInput::initialize(HWND hwnd, int windowWidth, int windowHeight)
 	{
 		dInputDevice->EnumDevices(DI8DEVCLASS_GAMECTRL, &diEnumDevicesCallBack, NULL, DIEDFL_ATTACHEDONLY);
 
+		WCHAR* w = getEnum[0].tszInstanceName;
+		WCHAR wArr[260];
+		for (int i = 0; i < 260; i++)
+			wArr[i] = w[i];
+		char c[260];
+
+		size_t size;
+		wcstombs_s(&size, c, wArr, sizeof(c));
+		std::string enumName;
+
+		for(int i = 0; i < 40;i++)
+		{
+			enumName += c[i];
+		}
+		if(enumName.find("DirectInput") == std::string::npos)
+		{
+			getEnum.clear();
+			getEnum.shrink_to_fit();
+		}
 	}
 }
 
