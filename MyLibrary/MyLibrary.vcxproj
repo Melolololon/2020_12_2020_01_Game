@@ -189,6 +189,7 @@
     <ClCompile Include="TextLoader.cpp" />
     <ClCompile Include="TextureLoad.cpp" />
     <ClCompile Include="Vector.cpp" />
+    <ClCompile Include="XInputManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicGeometryShader.hlsl">
@@ -440,6 +441,7 @@
     <ClInclude Include="TextLoader.h" />
     <ClInclude Include="TextureLoad.h" />
     <ClInclude Include="Vector.h" />
+    <ClInclude Include="XInputManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BasicShaderHeader.hlsli" />

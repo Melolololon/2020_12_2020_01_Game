@@ -1,5 +1,6 @@
 #include "Title.h"
 #include"SceneChange.h"
+#include"XInputManager.h"
 
 Title::Title()
 {
@@ -49,8 +50,8 @@ void Title::update()
 
 	if (DirectInput::keyTrigger(DIK_SPACE)||
 		DirectInput::keyTrigger(DIK_RETURN) ||
-		DirectInput::buttonTrigger(AButton) ||
-		DirectInput::buttonTrigger(StartButton))
+		XInputManager::buttonTrigger(XInputManager::XINPUT_A_BUTTON,1) ||
+		XInputManager::buttonTrigger(XInputManager::XINPUT_START_BUTTON,1))
 		SceneChange::getInstance()->trueFeadFlag();
 	
 	SceneChange::getInstance()->update();
@@ -59,6 +60,10 @@ void Title::update()
 
 #pragma endregion
 
+	if (XInputManager::buttonRelease(XInputManager::XINPUT_B_BUTTON, 1)) 
+	{
+		int s = 0;
+	}
 }
 
 void Title::draw()

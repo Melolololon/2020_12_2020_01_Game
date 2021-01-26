@@ -3,6 +3,8 @@
 
 #include"PolygonManager.h"
 
+#include"XInputManager.h"
+
 Vector3 Player::leftPlayerPosition;
 Vector3 Player::rightPlayerPosition;
 Vector3 Player::leftPlayerVelocity;
@@ -126,30 +128,30 @@ void Player::update()
 
 		if (playerType == PlayerType::LEFT)
 		{
-			if (DirectInput::leftStickUp(30000) || 
+			if (XInputManager::leftStickUp(30000,1) || 
 				DirectInput::keyState(DIK_W) ||
-				DirectInput::directionalButtonState(UpButton)) 
+				XInputManager::buttonState(XInputManager::XINPUT_UP_BUTTON,1))
 			{
 				inputFlag = true;
 				velocity.z++;
 			}
-			if (DirectInput::leftStickDown(30000) ||
+			if (XInputManager::leftStickDown(30000,1) ||
 				DirectInput::keyState(DIK_S) ||
-				DirectInput::directionalButtonState(DownButton))
+				XInputManager::buttonState(XInputManager::XINPUT_DOWN_BUTTON,1))
 			{
 				inputFlag = true;
 				velocity.z--;
 			}
-			if (DirectInput::leftStickRight(30000) || 
+			if (XInputManager::leftStickRight(30000,1) ||
 				DirectInput::keyState(DIK_D) ||
-				DirectInput::directionalButtonState(RightButton))
+				XInputManager::buttonState(XInputManager::XINPUT_RIGHT_BUTTON,1))
 			{
 				inputFlag = true;
 				velocity.x++;
 			}
-			if (DirectInput::leftStickLeft(30000) ||
+			if (XInputManager::leftStickLeft(30000,1) ||
 				DirectInput::keyState(DIK_A)||
-				DirectInput::directionalButtonState(LeftButton))
+				XInputManager::buttonState(XInputManager::XINPUT_LEFT_BUTTON,1))
 			{
 				inputFlag = true;
 				velocity.x--;
@@ -159,31 +161,31 @@ void Player::update()
 
 		if (playerType == PlayerType::RIGHT)
 		{
-			if (DirectInput::rightStickUp(30000) ||
+			if (XInputManager::rightStickUp(30000,1) ||
 				DirectInput::keyState(DIK_UP) ||
-				DirectInput::buttonState(YButton))
+				XInputManager::buttonState(XInputManager::XINPUT_Y_BUTTON, 1))
 			{
 				inputFlag = true;
 				velocity.z++;
 			}
-			if (DirectInput::rightStickDown(30000) ||
+			if (XInputManager::rightStickDown(30000,1) ||
 				DirectInput::keyState(DIK_DOWN) ||
-				DirectInput::buttonState(AButton))
+				XInputManager::buttonState(XInputManager::XINPUT_A_BUTTON, 1))
 			{
 
 				inputFlag = true;
 				velocity.z--;
 			}
-			if (DirectInput::rightStickRight(30000) ||
+			if (XInputManager::rightStickRight(30000, 1) ||
 				DirectInput::keyState(DIK_RIGHT) ||
-				DirectInput::buttonState(BButton))
+				XInputManager::buttonState(XInputManager::XINPUT_B_BUTTON, 1))
 			{
 				inputFlag = true;
 				velocity.x++;
 			}
-			if (DirectInput::rightStickLeft(30000) ||
+			if (XInputManager::rightStickLeft(30000, 1) ||
 				DirectInput::keyState(DIK_LEFT) ||
-				DirectInput::buttonState(XButton))
+				XInputManager::buttonState(XInputManager::XINPUT_X_BUTTON, 1))
 			{
 				inputFlag = true;
 				velocity.x--;
@@ -200,30 +202,30 @@ void Player::update()
 
 		if (playerType == PlayerType::LEFT && !dashOperTimeFlag)
 		{
-			if (DirectInput::leftStickUp(30000) ||
+			if (XInputManager::leftStickUp(30000, 1) ||
 				DirectInput::keyState(DIK_W) ||
-				DirectInput::directionalButtonState(UpButton))
+				XInputManager::buttonState(XInputManager::XINPUT_UP_BUTTON, 1))
 			{
 				dashOperTimeFlag = true;
 				leftInputDirectionUpDown = InputDirection::INPUT_DIRECTION_UP;
 			}
-			if (DirectInput::leftStickDown(30000) ||
+			if (XInputManager::leftStickDown(30000, 1) ||
 				DirectInput::keyState(DIK_S) ||
-				DirectInput::directionalButtonState(DownButton))
+				XInputManager::buttonState(XInputManager::XINPUT_DOWN_BUTTON, 1))
 			{
 				dashOperTimeFlag = true;
 				leftInputDirectionUpDown = InputDirection::INPUT_DIRECTION_DOWN;
 			}
-			if (DirectInput::leftStickRight(30000) ||
+			if (XInputManager::leftStickRight(30000, 1) ||
 				DirectInput::keyState(DIK_D) ||
-				DirectInput::directionalButtonState(RightButton))
+				XInputManager::buttonState(XInputManager::XINPUT_RIGHT_BUTTON, 1))
 			{
 				dashOperTimeFlag = true;
 				leftInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_RIGHT;
 			}
-			if (DirectInput::leftStickLeft(30000) ||
+			if (XInputManager::leftStickLeft(30000, 1) ||
 				DirectInput::keyState(DIK_A) ||
-				DirectInput::directionalButtonState(LeftButton))
+				XInputManager::buttonState(XInputManager::XINPUT_LEFT_BUTTON, 1))
 			{
 				dashOperTimeFlag = true;
 				leftInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_LEFT;
@@ -231,30 +233,30 @@ void Player::update()
 		}
 		if (playerType == PlayerType::RIGHT && !dashOperTimeFlag)
 		{
-			if (DirectInput::rightStickUp(30000) ||
+			if (XInputManager::rightStickUp(30000, 1) ||
 				DirectInput::keyState(DIK_UP) ||
-				DirectInput::buttonState(YButton))
+				XInputManager::buttonState(XInputManager::XINPUT_Y_BUTTON, 1))
 			{
 				dashOperTimeFlag = true;
 				rightInputDirectionUpDown = InputDirection::INPUT_DIRECTION_UP;
 			}
-			if (DirectInput::rightStickDown(30000) ||
+			if (XInputManager::rightStickDown(30000, 1) ||
 				DirectInput::keyState(DIK_DOWN) ||
-				DirectInput::buttonState(AButton))
+				XInputManager::buttonState(XInputManager::XINPUT_A_BUTTON, 1))
 			{
 				dashOperTimeFlag = true;
 				rightInputDirectionUpDown = InputDirection::INPUT_DIRECTION_DOWN;
 			}
-			if (DirectInput::rightStickRight(30000) ||
+			if (XInputManager::rightStickRight(30000, 1) ||
 				DirectInput::keyState(DIK_RIGHT) ||
-				DirectInput::buttonState(BButton))
+				XInputManager::buttonState(XInputManager::XINPUT_B_BUTTON, 1))
 			{
 				dashOperTimeFlag = true;
 				rightInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_RIGHT;
 			}
-			if (DirectInput::rightStickLeft(30000) ||
+			if (XInputManager::rightStickLeft(30000, 1) ||
 				DirectInput::keyState(DIK_LEFT) ||
-				DirectInput::buttonState(XButton))
+				XInputManager::buttonState(XInputManager::XINPUT_X_BUTTON, 1))
 			{
 				dashOperTimeFlag = true;
 				rightInputDirectionLeftRight = InputDirection::INPUT_DIRECTION_LEFT;
@@ -286,30 +288,30 @@ void Player::update()
 			//çƒì¸óÕÇ≥ÇÍÇΩÇÁÉ_ÉbÉVÉÖ
 			if (playerType == PlayerType::LEFT)
 			{
-				if (DirectInput::leftStickUp(30000) ||
+				if (XInputManager::leftStickUp(30000, 1) ||
 					DirectInput::keyState(DIK_W) ||
-					DirectInput::directionalButtonState(UpButton))
+					XInputManager::buttonState(XInputManager::XINPUT_UP_BUTTON, 1))
 				{
 					if(leftInputDirectionUpDown == InputDirection::INPUT_DIRECTION_UP)
 					isDash = true;
 				}
-				if (DirectInput::leftStickDown(30000) ||
+				if (XInputManager::leftStickDown(30000, 1) ||
 					DirectInput::keyState(DIK_S) ||
-					DirectInput::directionalButtonState(DownButton))
+					XInputManager::buttonState(XInputManager::XINPUT_DOWN_BUTTON, 1))
 				{
 					if (leftInputDirectionUpDown == InputDirection::INPUT_DIRECTION_DOWN)
 					isDash = true;
 				}
-				if (DirectInput::leftStickRight(30000) ||
+				if (XInputManager::leftStickRight(30000, 1) ||
 					DirectInput::keyState(DIK_D) ||
-					DirectInput::directionalButtonState(RightButton))
+					XInputManager::buttonState(XInputManager::XINPUT_RIGHT_BUTTON, 1))
 				{
 					if (leftInputDirectionLeftRight == InputDirection::INPUT_DIRECTION_RIGHT)
 					isDash = true;
 				}
-				if (DirectInput::leftStickLeft(30000) ||
+				if (XInputManager::leftStickLeft(30000, 1) ||
 					DirectInput::keyState(DIK_A) ||
-					DirectInput::directionalButtonState(LeftButton))
+					XInputManager::buttonState(XInputManager::XINPUT_LEFT_BUTTON, 1))
 				{
 					if (leftInputDirectionLeftRight == InputDirection::INPUT_DIRECTION_LEFT)
 					isDash = true;
@@ -318,30 +320,30 @@ void Player::update()
 
 			if (playerType == PlayerType::RIGHT)
 			{
-				if (DirectInput::rightStickUp(30000) ||
+				if (XInputManager::rightStickUp(30000, 1) ||
 					DirectInput::keyState(DIK_UP) ||
-					DirectInput::buttonState(YButton))
+					XInputManager::buttonState(XInputManager::XINPUT_Y_BUTTON, 1))
 				{
 					if (rightInputDirectionUpDown == InputDirection::INPUT_DIRECTION_UP)
 					isDash = true;
 				}
-				if (DirectInput::rightStickDown(30000) ||
+				if (XInputManager::rightStickDown(30000, 1) ||
 					DirectInput::keyState(DIK_DOWN) ||
-					DirectInput::buttonState(AButton))
+					XInputManager::buttonState(XInputManager::XINPUT_A_BUTTON, 1))
 				{
 					if (rightInputDirectionUpDown == InputDirection::INPUT_DIRECTION_DOWN)
 					isDash = true;
 				}
-				if (DirectInput::rightStickRight(30000) ||
+				if (XInputManager::rightStickRight(30000, 1) ||
 					DirectInput::keyState(DIK_RIGHT) ||
-					DirectInput::buttonState(BButton))
+					XInputManager::buttonState(XInputManager::XINPUT_B_BUTTON, 1))
 				{
 					if (rightInputDirectionLeftRight == InputDirection::INPUT_DIRECTION_RIGHT)
 					isDash = true;
 				}
-				if (DirectInput::rightStickLeft(30000) ||
+				if (XInputManager::rightStickLeft(30000, 1) ||
 					DirectInput::keyState(DIK_LEFT) ||
-					DirectInput::buttonState(XButton))
+					XInputManager::buttonState(XInputManager::XINPUT_X_BUTTON, 1))
 				{
 					if (rightInputDirectionLeftRight == InputDirection::INPUT_DIRECTION_LEFT)
 					isDash = true;
@@ -367,8 +369,8 @@ void Player::update()
 			velocity.z != 0) 
 		{
 			if (DirectInput::keyTrigger(DIK_SPACE) ||
-				DirectInput::buttonTrigger(LBButton) ||
-				DirectInput::buttonTrigger(RBButton)) 
+				XInputManager::buttonTrigger(XInputManager::XINPUT_RB_BUTTON,1) ||
+				XInputManager::buttonTrigger(XInputManager::XINPUT_LB_BUTTON,1))
 			{
 				isDash = true;
 

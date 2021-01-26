@@ -11,16 +11,19 @@ private:
 
 	//ステージ番号
 	int stage;
+	sprite stageNumSpr;
 
 	//チュートリアルメッセージ
 	sprite tMesSpr;
-	texture tMesTex[4];
+	texture tMesTex[6];
 	int tMesNum;
 	bool tutorialFlag;
 	int skipTimer;
 	static const int SkipTime;
 	bool leftInput;
 	bool rightInput;
+	int stageStartTimer;
+	static const int StageStartTime;
 
 	Player* player[2];
 

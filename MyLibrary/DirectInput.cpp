@@ -93,7 +93,11 @@ void DirectInput::initialize(HWND hwnd, int windowWidth, int windowHeight)
 
 #pragma endregion
 
+	if (getEnum.size() == 0)
+	{
+		dInputDevice->EnumDevices(DI8DEVCLASS_GAMECTRL, &diEnumDevicesCallBack, NULL, DIEDFL_ATTACHEDONLY);
 
+	}
 }
 
 //‚±‚ê‚ðEnumDevice‚É“n‚·‚Æ‚±‚ê‚ÉÚ‘±‚µ‚½‚à‚Ì‚ð“n‚µ‚Ä‚­‚ê‚é
@@ -129,10 +133,7 @@ void DirectInput::update()
 	padPrevious = padState;
 
 	
-	if (getEnum.size() == 0) 
-	{
-		dInputDevice->EnumDevices(DI8DEVCLASS_GAMECTRL, &diEnumDevicesCallBack, NULL, DIEDFL_ATTACHEDONLY);
-	}
+	
 	
 	if (getEnum.size() != 0 && !setPad)
 	{

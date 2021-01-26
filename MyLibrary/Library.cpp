@@ -1,4 +1,5 @@
 #include "Library.h"
+#include"XInputManager.h"
 #pragma comment(lib,"winmm.lib")//timeGetTime‚Æ
 
 std::unique_ptr<Audio> Library::audio;
@@ -124,6 +125,8 @@ void Library::roopStartProcess()
 #pragma endregion
 
 	directx12->preparationToDraw();
+
+	XInputManager::update();
 }
 
 void Library::roopEndProcess()

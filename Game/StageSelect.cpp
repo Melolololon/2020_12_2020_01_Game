@@ -1,10 +1,13 @@
 #include "StageSelect.h"
 #include"SceneChange.h"
 #include"SceneManager.h"
+#include"PolygonManager.h"
 
 #include"Play.h"
 
 #include"Stage.h"
+
+#include"XInputManager.h"
 
 StageSelect::StageSelect()
 {
@@ -18,6 +21,8 @@ StageSelect::StageSelect()
 	stageNumBoardTex[2] = Library::loadTexture(L"Resources/Texture/numBoard3.png");
 	stageNumBoardTex[3] = Library::loadTexture(L"Resources/Texture/numBoard4.png");
 	stageNumBoardTex[4] = Library::loadTexture(L"Resources/Texture/numBoard5.png");
+	for (int i = 0; i < _countof(stageNumBoardTex); i++)
+		PolygonManager::getInstance()->addTexture("stageNum" + i, stageNumBoardTex[i]);
 
 	stageNumRubberTex = Library::loadTexture(L"Resources/Texture/rubberSpr.png");
 
@@ -48,8 +53,8 @@ void StageSelect::update()
 	if (stageNumUpDown == STAGE_NUM_NOT_CHANGE)
 	{
 		if (DirectInput::keyState(DIK_LEFT) ||
-			DirectInput::directionalButtonState(LeftButton) ||
-			DirectInput::leftStickLeft(30000))
+			XInputManager::buttonState(XInputManager::XINPUT_LEFT_BUTTON,1) ||
+			XInputManager::leftStickLeft(30000,1))
 		{
 			if (stage > 0) 
 			{
@@ -59,8 +64,8 @@ void StageSelect::update()
 		}
 
 		if (DirectInput::keyState(DIK_RIGHT) ||
-			DirectInput::directionalButtonState(RightButton) ||
-			DirectInput::leftStickRight(30000))
+			XInputManager::buttonState(XInputManager::XINPUT_RIGHT_BUTTON, 1) ||
+			XInputManager::leftStickRight(30000, 1))
 		{
 			if (stage < 4) 
 			{
@@ -119,8 +124,8 @@ void StageSelect::update()
 	{
 		if (DirectInput::keyTrigger(DIK_SPACE) ||
 			DirectInput::keyTrigger(DIK_RETURN) ||
-			DirectInput::buttonTrigger(AButton) ||
-			DirectInput::buttonTrigger(StartButton))
+			XInputManager::buttonTrigger(XInputManager::XINPUT_A_BUTTON,1) ||
+			XInputManager::buttonTrigger(XInputManager::XINPUT_START_BUTTON, 1))
 			SceneChange::getInstance()->trueFeadFlag();
 	}
 	SceneChange::getInstance()->update();

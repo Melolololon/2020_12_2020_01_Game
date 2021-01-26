@@ -96,10 +96,12 @@ void ParentEnemy::hit(Object * object, CollosionType collisionType)
 			int damage = e->GetDamage();
 
 			life -= damage;
-			isMuteki = true;
 
-			if (damage != 0)
-				ObjectManager::getInstance()->addObject(new DamageNumber({ position .x,position .y + 3.0f,position .z}, damage));
+			if (damage != 0) 
+			{
+				isMuteki = true;
+				ObjectManager::getInstance()->addObject(new DamageNumber({ position.x,position.y + 3.0f,position.z }, damage));
+			}
 		}
 
 	}

@@ -211,21 +211,24 @@ void Enemy::hit(Object* object, CollosionType collisionType)
 		if (e->GetMyShot() || myShot)
 		{
 			int damage;
-			
+
 			//‘½‚¢‚Ù‚¤(”ò‚Î‚³‚ê‚Ä‚é‚Ù‚¤‚Ì)ƒ_ƒ[ƒW‚ð‘ã“ü
-			int myDamage,otherDamage;
+			int myDamage, otherDamage;
 			myDamage = GetDamage();
 			otherDamage = e->GetDamage();
 			if (myDamage >= otherDamage)
 				damage = myDamage;
 			else
 				damage = otherDamage;
-		
-			life -= damage;
-			isMuteki = true;
 
-			if(damage != 0)
-			ObjectManager::getInstance()->addObject(new DamageNumber(position,damage));
+			life -= damage;
+			
+
+			if (damage <= 0) 
+			{
+				isMuteki = true;
+				ObjectManager::getInstance()->addObject(new DamageNumber(position, damage));
+			}
 		}
 		
 		

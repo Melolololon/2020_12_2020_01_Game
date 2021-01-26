@@ -44,7 +44,7 @@ void Game::initialize()
 
 #pragma region マネージャー初期化
 	SceneManager::getInstace()->initialize();
-	SceneManager::getInstace()->addScene("Caution", new Caution());
+	//SceneManager::getInstace()->addScene("Caution", new Caution());
 	SceneManager::getInstace()->addScene("Title", new Title());
 	SceneManager::getInstace()->addScene("StageSelect", new StageSelect());
 	SceneManager::getInstace()->addScene("Play", new Play());

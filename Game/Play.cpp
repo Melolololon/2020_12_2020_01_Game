@@ -10,14 +10,17 @@
 
 #include"Stage.h"
 
+#include"XInputManager.h"
+
 
 const int Play::SceneChangeTime = 60 * 3;
-
+const Vector3 Play::PlayCameraPos = { 0,35,-22 };
+const Vector3 Play::StartCameraPos = { 0,35 + 15,-22 + -15 };
 Play::Play()
 {
-	Library::setCamera({ 0,35,-22 }, { 0,0,-3 }, { 0,-1,0 });
+	
 	Library::setLightVector({ -0.25,-0.75,0 });
-	Library::setCameraNearAndFar(1.0f, 1000.0f);
+	Library::setCameraNearAndFar(1.0f, 100.0f);
 
 #pragma region モデル
 	std::string material;
@@ -43,6 +46,13 @@ Play::~Play()
 
 void Play::initialize()
 {
+	Library::setCamera(StartCameraPos, { 0,0,-3 }, { 0,1,0 });
+	Library::setCameraMatrixPoint(StartCameraPos, { 0,0,-3 }, { 0,1,0 });
+	cameraPos = StartCameraPos;
+	cameraAngle = {0,110,0}; 
+	rotateAngle = 0;
+
+
 #pragma region プレイヤー関係
 
 
@@ -81,14 +91,44 @@ void Play::initialize()
 
 void Play::update()
 {
+
 #pragma region ポーズ処理
-	if (DirectInput::keyTrigger(DIK_ESCAPE) || DirectInput::buttonTrigger(StartButton))
+	if (DirectInput::keyTrigger(DIK_ESCAPE) || XInputManager::buttonTrigger(XInputManager::XINPUT_START_BUTTON,1))
 	{
 		if(!Stage::getInstance()->gettutorialFlag())
 		pauseFlag = pauseFlag == false ? true : false;
 	}
 	if (pauseFlag)return;
 #pragma endregion
+
+
+#pragma region カメラ処理
+	if (cameraPos.y > PlayCameraPos.y &&
+		cameraPos.z < PlayCameraPos.z) 
+	{
+		cameraPos.y-=0.055f;
+		cameraPos.z+= 0.055f;
+	}
+	else 
+	{
+		cameraPos = PlayCameraPos;
+	}
+
+	if (rotateAngle < 250)
+	{
+		cameraAngle.y += 1;
+		rotateAngle += 1;
+	}
+	else 
+	{
+		cameraAngle = { 0,0,0 };
+	}
+
+	Library::setCamera(cameraPos, { 0,0,-3 }, { 0,1,0 });
+	Library::setCameraMatrixPoint(cameraPos, { 0,0,-3 }, { 0,1,0 });
+	Library::setCameraAngle(cameraAngle, { 0,0,0 }, { 0,0,0 });
+#pragma endregion
+
 
 	Stage::getInstance()->update();
 

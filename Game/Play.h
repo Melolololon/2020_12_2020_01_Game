@@ -45,8 +45,16 @@ private:
 	//HPの文字
 	sprite hpSpr[2];
 	texture hpTex;
+
+	//クリアゲームオーバー
+
 #pragma endregion
 
+	static const Vector3 StartCameraPos;
+	Vector3 cameraPos;
+	Vector3 cameraAngle;
+	float rotateAngle;
+	static const Vector3 PlayCameraPos;
 
 	int sceneChangeTimer;
 	static const int SceneChangeTime;
