@@ -15,7 +15,8 @@ private:
 
 	//チュートリアルメッセージ
 	sprite tMesSpr;
-	texture tMesTex[6];
+	texture tMesTexKey[3];
+	texture tMesTexPad[3];
 	int tMesNum;
 	bool tutorialFlag;
 	int skipTimer;

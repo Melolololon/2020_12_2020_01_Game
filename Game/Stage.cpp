@@ -23,12 +23,12 @@ void Stage::createSpriteLoadTexture()
 	Library::setSpriteScale({ 0.7,0.7 }, stageNumSpr);
 
 	Library::createSprite(&tMesSpr);
-	tMesTex[0] = Library::loadTexture(L"Resources/Texture/tMes1_Key.png");
-	tMesTex[1] = Library::loadTexture(L"Resources/Texture/tMes2_Key.png");
-	tMesTex[2] = Library::loadTexture(L"Resources/Texture/tMes3_Key.png");
-	tMesTex[3] = Library::loadTexture(L"Resources/Texture/tMes1_Pad.png");
-	tMesTex[4] = Library::loadTexture(L"Resources/Texture/tMes2_Pad.png");
-	tMesTex[5] = Library::loadTexture(L"Resources/Texture/tMes3_Pad.png");
+	tMesTexKey[0] = Library::loadTexture(L"Resources/Texture/tMes1_Key.png");
+	tMesTexKey[1] = Library::loadTexture(L"Resources/Texture/tMes2_Key.png");
+	tMesTexKey[2] = Library::loadTexture(L"Resources/Texture/tMes3_Key.png");
+	tMesTexPad[0] = Library::loadTexture(L"Resources/Texture/tMes1_Pad.png");
+	tMesTexPad[1] = Library::loadTexture(L"Resources/Texture/tMes2_Pad.png");
+	tMesTexPad[2] = Library::loadTexture(L"Resources/Texture/tMes3_Pad.png");
 
 	Library::setSpriteScale({ 0.5,0.5 }, tMesSpr);
 }
@@ -37,10 +37,8 @@ void Stage::initialize(const int& stageNum)
 {
 	stage = stageNum;
 	
-	if(!XInputManager::getPadConnectFlag(1))
 	tMesNum = 0;
-	else
-	tMesNum = 3;
+	
 
 
 	if (stageNum == 0)
@@ -101,16 +99,8 @@ void Stage::update()
 		XInputManager::buttonState(XInputManager::XINPUT_START_BUTTON,1))
 		skipTimer++;
 
-	if (XInputManager::getPadConnectFlag(1))
-	{
-		if (tMesNum >= 6)
-			tutorialFlag = false;
-	}
-	else
-	{
-		if (tMesNum >= 3)
-			tutorialFlag = false;
-	}
+	if (tMesNum >= 3)
+		tutorialFlag = false;
 
 	if (skipTimer >= SkipTime) 
 	{
@@ -121,9 +111,13 @@ void Stage::update()
 
 void Stage::draw()
 {
-	if (tutorialFlag && stageStartTimer >= StageStartTime)
-		Library::drawSprite({ 340,40 }, tMesSpr, &tMesTex[tMesNum]);
-	
+	if (tutorialFlag && stageStartTimer >= StageStartTime) 
+	{
+		if(!XInputManager::getPadConnectFlag(1))
+		Library::drawSprite({ 340,40 }, tMesSpr, &tMesTexKey[tMesNum]);
+		else
+			Library::drawSprite({ 340,40 }, tMesSpr, &tMesTexPad[tMesNum]);
+	}
 	//STAGE››•\¦
 	texture t = PolygonManager::getInstance()->getTexture("stageNum" + stage);
 	if (stageStartTimer <= StageStartTime)
