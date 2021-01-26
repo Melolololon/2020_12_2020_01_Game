@@ -87,6 +87,10 @@ Player::~Player()
 {
 	Library::deleteVertexData(vertexHandle);
 	Library::deleteHeapData(heapHandle);
+
+	deadPlayer = true;
+	firstAddPlayer = nullptr;
+	firstAddType = PlayerType::NONE;
 }
 
 
@@ -580,9 +584,6 @@ void Player::update()
 	if (life <= 0) 
 	{
 		isDead = true;
-		deadPlayer = true;
-		firstAddPlayer = nullptr;
-		firstAddType = PlayerType::NONE;
 	}
 #pragma endregion
 
