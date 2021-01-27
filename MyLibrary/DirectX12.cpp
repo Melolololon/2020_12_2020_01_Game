@@ -3936,36 +3936,75 @@ void DirectX12::setPostEffectCameraFlag(const bool& flag, const int& rtNum)
 #pragma endregion
 
 #pragma region 頂点座標取得
-std::vector<DirectX::XMFLOAT3> DirectX12::getObjectVertexPosition(int vertData)
+std::vector<std::vector<DirectX::XMFLOAT3>>  DirectX12::getObjectVertexPosition(int vertData)
 {
 
-	std::vector<DirectX::XMFLOAT3>kari(vertices[vertData].size());
-
-	for (int i = 0; i < (int)kari.size(); i++)
+	std::vector<std::vector<DirectX::XMFLOAT3>>kari(vertices[vertData].size());
+	
+	int count = 0;
+	for (auto& v:kari) 
 	{
-		kari[i] = vertices[vertData][0][i].pos;
+		v.resize(vertices[vertData][count].size());
+		count++;
 	}
+
+	for (int i = 0; i < kari.size(); i++) 
+	{
+		for(int j = 0; j < kari[i].size();j++)
+		{
+			kari[i][j] = vertices[vertData][i][j].pos;
+		}
+	}
+
 	return kari;
 }
 
 //値が狂ってないけどちゃんと表示できてない
 //Unmapしてたせい?
-bool DirectX12::overrideWriteVertexPosition(std::vector<DirectX::XMFLOAT3> vertPos, int vertNum)
+bool DirectX12::overrideWriteVertexPosition(std::vector<std::vector<DirectX::XMFLOAT3>> vertPos, int vertNum)
 {
+	//書き換えミス?
+	
 	//サイズが変わってたらfalse(indexとか書き換えてないから困る)
 	if (vertices[vertNum].size() != vertPos.size())return false;
-	//vertex書き換え
-	for (int i = 0; i < (int)vertPos.size(); i++)
+	for (int i = 0; i < vertices[vertNum].size();i++)
 	{
-		vertices[vertNum][0][i].pos = vertPos[i];
+		if (vertices[vertNum][i].size() != vertPos[i].size()) 
+		{
+			return false;
+		}
+	}
+
+	//vertex書き換え
+	int num,num2;
+	num = vertPos.size();
+	for (int i = 0; i < num; i++)
+	{
+		num2 = vertPos[i].size();
+		for (int j = 0; j < num2; j++) 
+		{
+			vertices[vertNum][i][j].pos.x = vertPos[i][j].x;
+			vertices[vertNum][i][j].pos.y = vertPos[i][j].y;
+			vertices[vertNum][i][j].pos.z = vertPos[i][j].z;
+		}
 	}
 
 	//map処理
-	vertexBuffSet[vertNum][0].vertexBuffer.Get()->Map(0, nullptr, (void**)vertexBuffSet[vertNum][0].vertexMap);
 
-	for (int i = 0; i < (int)vertices.size(); i++)
+	num = vertPos.size();
+	for (int i = 0; i < num; i++) 
 	{
-		vertexBuffSet[vertNum][0].vertexMap[i].pos = vertices[vertNum][0][i].pos;
+		vertexBuffSet[vertNum][i].vertexBuffer.Get()->Map(0, nullptr, (void**)vertexBuffSet[vertNum][i].vertexMap);
+	}
+	
+	num = vertPos.size();
+	for (int i = 0; i < num; i++)
+	{
+		num2 = vertPos[i].size();
+		for (int j = 0; j < num2; j++)
+		{
+			vertexBuffSet[vertNum][i].vertexMap[j] = vertices[vertNum][i][j];
+		}
 	}
 
 	vertexBuffSet[vertNum][0].vertexBuffer.Get()->Unmap(0, nullptr);

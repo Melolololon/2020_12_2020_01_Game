@@ -36,6 +36,7 @@ private:
 
 	vertex fierdVertexH;
 	heap fierdHeapH;
+
 #pragma endregion
 
 #pragma region スプライト
@@ -59,6 +60,7 @@ private:
 	int sceneChangeTimer;
 	static const int SceneChangeTime;
 
+	Rubber* rP[9];
 public:
 	Play();
 	~Play();

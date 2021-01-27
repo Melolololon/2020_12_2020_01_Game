@@ -892,41 +892,64 @@ void Library::changeAnimation2(vertex vertexNum, heap dataNum, int startAreaX, i
 #pragma endregion
 
 #pragma region í∏ì_ç¿ïWéÊìæÇ»Ç«
-std::vector<Vector3> Library::getVertexPosition(int* vertData)
+std::vector<std::vector<Vector3>> Library::getVertexPosition(int* vertData)
 {
-
 	if (!vertData)
 	{
-		std::vector<Vector3> ret;
-		ret.push_back({ 0,0,0 });
+		std::vector<std::vector<Vector3>> ret;
 		return ret;
 	}
 
-	std::vector<Vector3 >kariV;
-	std::vector<DirectX::XMFLOAT3> kariXM;
+	std::vector<std::vector<Vector3>>kariV;
+	std::vector<std::vector<DirectX::XMFLOAT3>> kariXM;
 	kariXM = directx12->getObjectVertexPosition(*vertData);
 	kariV.resize(kariXM.size());
 
-	for (int i = 0; i < (int)kariXM.size(); i++)
+	int num = kariV.size();
+	for (int i = 0; i < num;i++)
 	{
-		kariV[i].x = kariXM[i].x;
-		kariV[i].y = kariXM[i].y;
-		kariV[i].z = kariXM[i].z;
+		kariV[i].resize(kariXM[i].size());
+		
+	}
+
+	num = kariXM.size();
+	int num2 = 0;
+	for (int i = 0; i < num; i++)
+	{
+		num2 = kariXM[i].size();
+		for (int j = 0; j < num2; j++)
+		{
+			kariV[i][j].x = kariXM[i][j].x;
+			kariV[i][j].y = kariXM[i][j].y;
+			kariV[i][j].z = kariXM[i][j].z;
+		}
 	}
 	return kariV;
 }
 
-bool Library::overrideWriteVertexPosition(std::vector<Vector3>vertPos, int* vertNum)
+bool Library::overrideWriteVertexPosition(std::vector<std::vector<Vector3>>vertPos, int* vertNum)
 {
 	if (!vertNum)return false;
 
-	std::vector<DirectX::XMFLOAT3> kariXM;
+	std::vector<std::vector<DirectX::XMFLOAT3>> kariXM;
 	kariXM.resize(vertPos.size());
-	for (int i = 0; i < (int)kariXM.size(); i++)
+	int num = vertPos.size();
+	for (int i = 0; i < num; i++)
 	{
-		kariXM[i].x = vertPos[i].x;
-		kariXM[i].y = vertPos[i].y;
-		kariXM[i].z = vertPos[i].z;
+		kariXM[i].resize(vertPos[i].size());
+	}
+
+	num = kariXM.size();
+	int num2 = 0;
+	for (int i = 0; i < num; i++)
+	{
+		num2 = kariXM[i].size();
+		for (int j = 0; j < num2; j++) 
+		{
+			kariXM[i][j].x = vertPos[i][j].x;
+			kariXM[i][j].y = vertPos[i][j].y;
+			kariXM[i][j].z = vertPos[i][j].z;
+		}
 	}
 	return directx12->overrideWriteVertexPosition(kariXM, *vertNum);
 }

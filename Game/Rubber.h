@@ -54,6 +54,11 @@ private:
 
 	//ダッシュが終ったかどうか
 	static bool playerDashEnd;
+
+	//敵の進行方向(velocity)
+	static Vector3 enemyVelocity;
+
+	static std::vector<Object*>hitEnemys;
 public:
 	/// <summary>
 	/// 
@@ -62,9 +67,10 @@ public:
 	Rubber(const int& pNum);
 	~Rubber();
 
+	static void loadModel();
 	void update();
 	void draw();
-	void hit(Object* object, CollosionType collisionType)override;
+	void hit(Object* object, CollisionType collisionType)override;
 
 	static void setPlayerPosition(const Vector3& pos, const int& pNum);
 	static void setPlayerToPlayerVector(const Vector3& vector, const int& pNum);
@@ -85,6 +91,8 @@ public:
 	static void setLeavePlayerFlag(const bool& flag);
 	static void setPlayerRevDidtanceNumber(const float& num);
 	static void setPlayerMaxDistanceNumber(const float& num);
+
+	static Vector3 getEnemyVector();
 
 };
 

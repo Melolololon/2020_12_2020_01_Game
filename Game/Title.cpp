@@ -60,10 +60,7 @@ void Title::update()
 
 #pragma endregion
 
-	if (XInputManager::buttonRelease(XInputManager::XINPUT_B_BUTTON, 1)) 
-	{
-		int s = 0;
-	}
+	
 }
 
 void Title::draw()

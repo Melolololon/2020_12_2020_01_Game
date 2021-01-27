@@ -14,6 +14,10 @@ Player* Player::firstAddPlayer;
 bool Player::leavePlayer;
 bool Player::deadPlayer;
 
+//vertex Player::arrowVertexH;
+//heap Player::arrowHeapH;
+//Vector3 Player::hitEnemyVector;
+
 Player::Player(const Vector3& pos, const PlayerType& playerType)
 {
 	if (firstAddType == PlayerType::NONE)
@@ -80,13 +84,14 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 	hitOtherPlayer = false;
 
 	deadPlayer = false;
+
 }
 
 
 Player::~Player()
 {
-	Library::deleteVertexData(vertexHandle);
-	Library::deleteHeapData(heapHandle);
+	/*Library::deleteVertexData(vertexHandle);
+	Library::deleteHeapData(heapHandle);*/
 
 	deadPlayer = true;
 	firstAddPlayer = nullptr;
@@ -94,8 +99,12 @@ Player::~Player()
 }
 
 
-void Player::initializeModel()
+void Player::loadModel()
 {
+
+
+	//Library::createBoard({ 5,2 }, dimention3D, &arrowVertexH);
+	//Library::createHeapData(L"Resources/Texture/arrow.png", 3, &arrowHeapH);
 }
 
 void Player::update()
@@ -587,10 +596,41 @@ void Player::update()
 	}
 #pragma endregion
 
+#pragma region 矢印処理
+	////アングルセット
+	//float eVecAngle = LibMath::vecto2rToAngle({ hitEnemyVector.x,hitEnemyVector.z });
+	//Library::setAngle({ 90,eVecAngle - 90,0 }, arrowHeapH, 0);
+	//Library::setAngle({ 90,eVecAngle + 90,0 }, arrowHeapH, 1);
+
+	////座標ゼット
+	//Vector2 vec2ArrowPos = LibMath::angleToVector2(eVecAngle - 90);
+	//Vector3 arrowVec = { vec2ArrowPos.x,0,vec2ArrowPos.y };
+	//Library::setPosition(leftPlayerPosition + arrowVec * 3.4, arrowHeapH, 0);
+
+	//Library::setPosition(rightPlayerPosition + arrowVec * 3.4 * -1, arrowHeapH, 1);
+
+
+	//敵が飛ぶ方の矢印
+	//Library::setAngle({ 90,eVecAngle + 180,0 }, arrowHeapH, 2);
+
+	//Vector3 pToPVec = leftPlayerPosition - rightPlayerPosition;
+	//pToPVec.x /= 2;
+	//pToPVec.z /= 2;
+	//Library::setPosition(pToPVec + hitEnemyVector * -1 * 4, arrowHeapH,2);
+#pragma endregion
+
 }
 
 void Player::draw()
 {
+	//if(hitEnemyVector.x != 0 && 
+	//	hitEnemyVector.z != 0  )
+	//{
+	///*	Library::drawGraphic(arrowVertexH, arrowHeapH, 0);
+	//	Library::drawGraphic(arrowVertexH, arrowHeapH, 1);*/
+	//	//Library::drawGraphic(arrowVertexH, arrowHeapH, 2);
+	//}
+
 	if(!isMuteki)
 	Library::drawGraphic(vertexHandle, heapHandle, 0);
 	else 
@@ -603,7 +643,7 @@ void Player::draw()
 
 }
 
-void Player::hit(Object* object, CollosionType collisionType)
+void Player::hit(Object* object, CollisionType collisionType)
 {
 	if (typeid(*object) == typeid(Player))
 	{
@@ -705,4 +745,9 @@ bool Player::getDeadPlayer()
 Player::PlayerType Player::getPlayerType()
 {
 	return playerType;
+}
+
+void Player::setEnemyVector(const Vector3& vec) 
+{
+	//hitEnemyVector = vec;
 }

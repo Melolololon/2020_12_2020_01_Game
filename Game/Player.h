@@ -121,7 +121,10 @@ private:
 	//どっちか片方死んだかどうか
 	static bool deadPlayer;
 
-
+	//矢印関係
+	/*static vertex arrowVertexH;
+	static heap arrowHeapH;
+	static Vector3 hitEnemyVector;*/
 public:
 
 
@@ -129,9 +132,10 @@ public:
 	~Player();
 	void update();
 	void draw();
-	void hit(Object* object, CollosionType collisionType)override;
+	void hit(Object* object, CollisionType collisionType)override;
 
 	void setPosition(Vector3 pos);
+	static void setEnemyVector(const Vector3& vec);
 
 	void addPosition(const Vector3& vec);
 
@@ -143,11 +147,12 @@ public:
 	/// <summary>
 	/// モデル、スプライト準備
 	/// </summary>
-	static void initializeModel();
+	static void loadModel();
 
 	static bool getDeadPlayer();
 
 	PlayerType getPlayerType();
 	
+
 };
 

@@ -13,12 +13,13 @@
 #include"XInputManager.h"
 
 
+
 const int Play::SceneChangeTime = 60 * 3;
 const Vector3 Play::PlayCameraPos = { 0,35,-22 };
 const Vector3 Play::StartCameraPos = { 0,35 + 15,-22 + -15 };
 Play::Play()
 {
-	
+
 	Library::setLightVector({ -0.25,-0.75,0 });
 	Library::setCameraNearAndFar(1.0f, 100.0f);
 
@@ -26,6 +27,10 @@ Play::Play()
 	std::string material;
 	Library::loadOBJVertex("Resources/Obj/fierd.obj", true, true, &material, &fierdVertexH);
 	Library::loadOBJMaterial("Resources/Obj/", material, 1, &fierdHeapH);
+
+
+
+
 #pragma endregion
 
 #pragma region スプライト
@@ -61,7 +66,7 @@ void Play::initialize()
 	ObjectManager::getInstance()->addObject(player[0]);
 	ObjectManager::getInstance()->addObject(player[1]);
 	
-	Rubber* rP[9];
+	
 	for (int i = 1; i < 10; i++)
 	{
 		rP[i - 1] = new Rubber(i);
@@ -130,7 +135,6 @@ void Play::update()
 #pragma endregion
 
 
-	Stage::getInstance()->update();
 
 	//敵追加処理
 	//addEnemyTimer++;
@@ -142,6 +146,7 @@ void Play::update()
 	//	addEnemyTimer = -300;
 	//}
 
+	Stage::getInstance()->update();
 	ObjectManager::getInstance()->update();
 
 	//for (int i = 0; i < enemies.size(); i++)
@@ -160,6 +165,7 @@ void Play::update()
 		player[0]->addPosition(Rubber::getPlayerMoveVector());
 		player[1]->addPosition(Rubber::getPlayerMoveVector());
 	}
+	//Player::setEnemyVector(Rubber::getEnemyVector());
 
 #pragma endregion
 
@@ -232,7 +238,7 @@ void Play::draw()
 void Play::end()
 {
 	ParentEnemy::ResetDeadCount();
-
+	Stage::getInstance()->end();
 	ObjectManager::getInstance()->allDeleteObject();
 }
 

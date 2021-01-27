@@ -36,7 +36,12 @@ private:
 	static const int StageClearEnemyNum[5];
 
 	bool clearFlag;
+
+	int enemyDeadCount;
+	int pureEnemyDeadCount;
+	std::vector<Object*> enemys;
 	int addEnemyCount;
+	void addEnemy();
 public:
 	Stage(Stage& s) = delete;
 	Stage& operator=(Stage& s) = delete;
@@ -47,7 +52,8 @@ public:
 	void setPlayer(Player* p[]);
 	void update();
 	void draw();
-	
+	void end();
+
 	bool gettutorialFlag();
 
 	bool getClearFlag();

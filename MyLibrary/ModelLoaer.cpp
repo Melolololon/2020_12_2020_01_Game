@@ -115,7 +115,7 @@ bool  ModelLoader::loadOBJModel
 		}
 
 		//別のやつが来たらカウント増やす&resize
-		if (vertexData[0] == 'o')
+		if (vertexData[0] == 'o' || vertexData[0] == 'g')
 		{
 			loadCount++;
 			loadFCount = 0;
@@ -350,7 +350,6 @@ bool  ModelLoader::loadOBJModel
 	obj.close();
 #pragma endregion
 
-	*loadNum = loadCount;
 
 #pragma region スムースシェーディング用データ格納
 	//サイズをオブジェクトを読み込んだ回数分にしておく
@@ -384,7 +383,33 @@ bool  ModelLoader::loadOBJModel
 	
 #pragma endregion
 
+	//size0は消す
+	int num = vertices.size();
+	for (int i = 0; i < num ; i++) 
+	{
+		if (vertices[i].size() == 0) 
+		{
+			vertices.erase(vertices.begin() + i);
+			num--;
+			i--;
+		}
+	}
+	vertices.shrink_to_fit();
 
+	num = indices.size();
+	for (int i = 0; i < num; i++)
+	{
+		if (indices[i].size() == 0)
+		{
+			indices.erase(indices.begin() + i); 
+			num--;
+			i--;
+		}
+	}
+	indices.shrink_to_fit();
+
+	if (loadNum)
+		*loadNum = vertices.size();
 	return true;
 }
 

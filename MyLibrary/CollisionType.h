@@ -1,8 +1,17 @@
 #pragma once
 #include"Vector.h"
 
+//”»’è
+struct CollisionFlag
+{
+	bool sphere;
+	bool ray;
+	bool lineSegment;
+	bool plane;
+	bool board;
+};
 
-enum CollosionType 
+enum CollisionType 
 {
 	COLLISION_RECT,
 	COLLISION_CIRCLE,

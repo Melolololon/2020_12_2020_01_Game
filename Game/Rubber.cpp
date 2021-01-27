@@ -1,5 +1,6 @@
 #include "Rubber.h"
 #include"Enemy.h"
+#include"PolygonManager.h"
 
 Rubber* Rubber::rubberPtr[9];
 bool Rubber::dashFlag;
@@ -20,8 +21,14 @@ bool Rubber::allRimitFlag;
 bool Rubber::leavePlayerFlag; 
 bool Rubber::playerDashEnd;
 
+Vector3 Rubber::enemyVelocity;
+
+std::vector<Object*>Rubber::hitEnemys;
+
 Rubber::Rubber(const int& pNum)
 {
+	enemyVelocity = 0;
+
 	pointNum = pNum;
 
 	velocity = 0;
@@ -38,9 +45,9 @@ Rubber::Rubber(const int& pNum)
 	sphereData[0].position = position;
 	sphereData[0].r = 0.4f;
 
-	Library::createManyVertex3DBox({ 1,1,1 }, &vertexHandle);
-	Library::createHeapData2({ 255,255,255,255 }, 1, &heapHandle);
-	
+	vertexHandle = PolygonManager::getInstance()->getPolygonVertex("rubber");
+	heapHandle = PolygonManager::getInstance()->getPolygonHeap("rubber");
+	Library::setScale({ 0.5,0.5,0.5 }, heapHandle, pointNum - 1);
 	enemyMoveVector = 0;
 	hitEnemy = false;
 
@@ -52,8 +59,22 @@ Rubber::Rubber(const int& pNum)
 
 Rubber::~Rubber()
 {
-	Library::deleteVertexData(vertexHandle);
-	Library::deleteHeapData(heapHandle);
+	//Library::deleteVertexData(vertexHandle);
+	//Library::deleteHeapData(heapHandle);
+}
+
+void Rubber::loadModel()
+{
+	vertex v;
+	heap h;
+	std::string material;
+
+	Library::createManyVertex3DBox({ 2,2,2 }, &v);
+	Library::createHeapData2({ 255,255,255,255 }, 9, &h);
+	/*Library::loadOBJVertex("Resources/Obj/rubber.obj", true, true, &material, &v);
+	Library::loadOBJMaterial("Resources/Obj/", material, 9, &h);*/
+	PolygonManager::getInstance()->addPolygonVertex("rubber", v);
+	PolygonManager::getInstance()->addPolygonHeap("rubber", h);
 }
 
 void Rubber::update()
@@ -61,6 +82,9 @@ void Rubber::update()
 	//リセット
 	//staticなのになぜか初期化されん。spTestで試す
 	playerMoveVector = 0;
+	enemyVelocity = 0;
+
+	
 
 	//規定位置を取得
 	normalPos = playerPos[0] + vecPToP[0] * (pointNum * 0.1);
@@ -72,13 +96,17 @@ void Rubber::update()
 	{
 		float dis = LibMath::calcDistance3D(position, normalPos);
 		//一定以上離れてたら元の位置に向かって移動
+		//敵の数に応じて倍率変える(これないと複数引っかかった時プレイヤーからゴムがめっちゃ離れる)
+		int mulNum = hitEnemys.size();
+		if (mulNum <= 0)mulNum = 1;
 		if (dis >= 0.45f)
 		{
-			position += myPosToNorPos * speed;
+			position += myPosToNorPos * speed * mulNum;
 		}
 		else
 			position = normalPos;
 	}
+	hitEnemys.clear();
 
 	//入力してないかつ、プレイヤーが一定以上離れていたら。プレイヤーと同じように移動
 	//(離れてるときに敵にぶつかって、引っ張るのやめてもついてくるように)
@@ -95,7 +123,7 @@ void Rubber::update()
 	}
 
 	sphereData[0].position = position;
-	Library::setPosition(position, heapHandle, 0);
+	Library::setPosition(position, heapHandle, pointNum - 1);
 	
 	hitEnemy = false;
 
@@ -163,7 +191,7 @@ void Rubber::update()
 			pointNum == 5 ||
 			pointNum == 6) 
 		{
-			sphereData[0].r = 0.01f;
+			sphereData[0].r = 0.2f;
 		}
 	}
 	else 
@@ -177,10 +205,14 @@ void Rubber::update()
 
 void Rubber::draw()
 {
-	Library::drawGraphic(vertexHandle, heapHandle, 0);
+	Library::setPipeline(PIPELINE_MATERIAL);
+	Library::setSmoothingFlag(true);
+	Library::drawGraphic(vertexHandle, heapHandle, pointNum - 1);
+	Library::setPipeline(PIPELINE_NORMAL);
+	Library::setSmoothingFlag(false);
 }
 
-void Rubber::hit(Object* object, CollosionType collisionType)
+void Rubber::hit(Object* object, CollisionType collisionType)
 {
 	//やること
 	//1.敵が紐の中心によるように調整
@@ -197,16 +229,27 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 	//4.続き 逆(内側にダッシュ)した場合の対策もしっかり(お互いが大体反対か調べる?)
 	//4.続き 内側ダッシュ対策も!!
 	//4.続き 内側ダッシュ対策はした。少しでも敵の方に向いてると吹っ飛ばないから少し緩めたが、まだシビア?
+	//4.続き 内側ダッシュしたときどうするか考える
 
 	//5.敵が引っかかってるときにゴムがエリア外に行くとプレイヤーエリア外に出る
 	//5.続き プレイヤー動かしたあとに戻す処理呼んでないから
+
+	//6.複数引っ掛けたらめちゃくちゃゴム伸びる
+
+	//7.内側ダッシュしたら敵isDead = Trueにする
+
 
 
 	if (typeid(*object) == typeid(Enemy)) 
 	{
 
+
 		//どれか一個当たったら、無視
-		if (hitEnemy)return;
+		for (auto& e : hitEnemys) 
+		{
+			if (e == object)return;
+		}
+		hitEnemys.push_back(object);
 
 		Enemy* e = static_cast<Enemy*>(object->getPtr());
 		Vector3 eV, eS;
@@ -226,6 +269,7 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		Vector3 eVel;
 		Vector3 eSpe;
 		e->GetVelocityAndSpeed(eVel, eSpe);
+		enemyVelocity = eVel;
 
 		//敵を中心に寄せる
 		if (pointNum != 5) 
@@ -248,12 +292,12 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 			//e->AddPosition(eVel*eSpe * -1);
 
 			//プレイヤーを動かすベクトルセット
-			playerMoveVector = eVel * eSpe;
+			playerMoveVector += eVel * eSpe;
 
 			//プレイヤーとともにゴムが動く
-			Vector3 moveVec = playerMoveVector;
+			Vector3 moveVec = eVel * eSpe;
 			position += moveVec;
-			Library::setPosition(position, heapHandle, 0);
+			Library::setPosition(position, heapHandle, pointNum - 1);
 			sphereData[0].position = position;
 
 			int arrNum = 0;
@@ -285,9 +329,9 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 			}
 			//敵も引っ張る
 			pMoveSpeed = playerVelocity[0] * playerSpeed[0];
-			e->AddPosition(pMoveSpeed);
+			e->AddPosition({ pMoveSpeed.x / 2,pMoveSpeed.y / 2,pMoveSpeed.z / 2 });
 			pMoveSpeed = playerVelocity[1] * playerSpeed[1];
-			e->AddPosition(pMoveSpeed);
+			e->AddPosition({ pMoveSpeed.x / 2,pMoveSpeed.y / 2,pMoveSpeed.z / 2 });
 		}
 
 		//移動
@@ -295,7 +339,7 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 		{
 			Vector3 moveVec = eVel * eSpe;
 			position += moveVec;
-			Library::setPosition(position, heapHandle, 0);
+			Library::setPosition(position, heapHandle, pointNum - 1);
 			sphereData[0].position = position;
 
 			//他の点も動かす
@@ -314,7 +358,7 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 				arrNum++;
 			}
 
-			playerMoveVector = 0;
+		
 		}
 
 		allRimitFlag = false;
@@ -468,7 +512,7 @@ void Rubber::hit(Object* object, CollosionType collisionType)
 void Rubber::setPosition(const Vector3& pos) 
 {
 	position = pos;
-	Library::setPosition(position, heapHandle, 0);
+	Library::setPosition(position, heapHandle, pointNum - 1);
 	sphereData[0].position = position;
 }
 
@@ -500,7 +544,7 @@ void Rubber::addPosition(const Vector3& vec)
 {
 	position += vec;
 	sphereData[0].position = position;
-	Library::setPosition(position, heapHandle, 0);
+	Library::setPosition(position, heapHandle, pointNum - 1);
 }
 
 void Rubber::setHitEnemy(const bool& flag)
@@ -549,4 +593,9 @@ void Rubber::setPlayerRevDidtanceNumber(const float& num)
 void Rubber::setPlayerMaxDistanceNumber(const float& num)
 {
 	playerMaxDistanceNumber = num;
+}
+
+Vector3 Rubber::getEnemyVector() 
+{
+	return enemyVelocity;
 }

@@ -1,9 +1,11 @@
 #include "Game.h"
 #include<Library.h>
 #include"SceneManager.h"
+#include"ObjectManager.h"
 #include"PipelineManager.h"
 
 #include"Player.h"
+#include"Rubber.h"
 
 #include"Stage.h"
 #include"Caution.h"
@@ -43,6 +45,16 @@ void Game::initialize()
 	Library::initialize(1280, 720, { 155,155,255,255 });
 
 #pragma region マネージャー初期化
+	ObjectManager::getInstance()->initialize();
+
+	CollisionFlag cFlag;
+	cFlag.board = false;
+	cFlag.lineSegment = false;
+	cFlag.plane = false;
+	cFlag.ray = false;
+	cFlag.sphere = true;
+	ObjectManager::getInstance()->setCollisionFlag3D(cFlag);
+
 	SceneManager::getInstace()->initialize();
 	//SceneManager::getInstace()->addScene("Caution", new Caution());
 	SceneManager::getInstace()->addScene("Title", new Title());
@@ -71,6 +83,8 @@ void Game::initialize()
 
 #pragma region 生成読み込み
 	Stage::getInstance()->createSpriteLoadTexture();
+	Player::loadModel();
+	Rubber::loadModel();
 #pragma endregion
 
 }

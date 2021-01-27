@@ -763,7 +763,7 @@ public:
 	/// </summary>
 	/// <param name="vertNum"></param>
 	/// <returns></returns>
-	static std::vector<Vector3> getVertexPosition(int* vertNum);
+	static std::vector<std::vector<Vector3>> getVertexPosition(int* vertNum);
 
 	/// <summary>
 	/// オブジェクトの頂点座標を上書きします
@@ -771,7 +771,7 @@ public:
 	/// <param name="vertPos"></param>
 	/// <param name="vertNum"></param>
 	/// <returns></returns>
-	static bool overrideWriteVertexPosition(std::vector<Vector3>vertPos, int* vertNum);
+	static bool overrideWriteVertexPosition(std::vector<std::vector<Vector3>>vertPos, int* vertNum);
 
 
 

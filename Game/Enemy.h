@@ -59,7 +59,7 @@ public:
 	//•`‰æ
 	void draw() override;
 
-	void hit(Object* object, CollosionType collisionType)override;
+	void hit(Object* object, CollisionType collisionType)override;
 
 	/// <summary>
 	/// ƒ‚ƒfƒ‹‚Ì“Ç‚İ‚İ

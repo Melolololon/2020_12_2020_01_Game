@@ -20,6 +20,11 @@ ObjectManager* ObjectManager::getInstance()
 
 void ObjectManager::initialize() 
 {
+	checkCollision.board = false;
+	checkCollision.lineSegment = false;
+	checkCollision.plane = false;
+	checkCollision.ray = false;
+	checkCollision.sphere = false;
 }
 
 void ObjectManager::update() 
@@ -37,94 +42,98 @@ void ObjectManager::update()
 
 #pragma region collision
 
-	Object::CollisionFlag f1;
-	Object::CollisionFlag f2;
+	CollisionFlag f1;
+	CollisionFlag f2;
 	int forCnt[2] = { 0,0 };
 
 	//if文毎に関数呼ばずにあらかじめ取得したほうがいい
 #pragma region 球と球
 
-	for (auto& o1 : o)
+	if (checkCollision.sphere) 
 	{
-		for (auto& o2 : o)
+		for (auto& o1 : o)
 		{
-			f1 = o1->getCollisionFlag();
-			f2 = o2->getCollisionFlag();
-
-			//自分と比較、またはどちらかが判定確認しなくていい場合、無視
-			if (o1 == o2 || !f1.sphere || !f2.sphere)continue;
-
-			for (auto& c1 : o1->getSphereData())
+			for (auto& o2 : o)
 			{
-				for (auto& c2 : o2->getSphereData())
+				f1 = o1->getCollisionFlag();
+				f2 = o2->getCollisionFlag();
+
+				//自分と比較、またはどちらかが判定確認しなくていい場合、無視
+				if (o1 == o2 || !f1.sphere || !f2.sphere)continue;
+
+				for (auto& c1 : o1->getSphereData())
 				{
-					if (LibMath::sphereCollision
-					(
-						c1.position,
-						c1.r,
-						c2.position,
-						c2.r
-					))
+					for (auto& c2 : o2->getSphereData())
 					{
-						o1->hit(o2, CollosionType::COLLISION_SPHERE);
+						if (LibMath::sphereCollision
+						(
+							c1.position,
+							c1.r,
+							c2.position,
+							c2.r
+						))
+						{
+							o1->hit(o2, CollisionType::COLLISION_SPHERE);
+						}
 					}
 				}
-			}
 
+			}
 		}
 	}
-
 #pragma endregion
 
-#pragma region 線分と平面
-	for (auto& o1 : o)
+#pragma region 線分と板
+	if (checkCollision.lineSegment && checkCollision.board) 
 	{
-		for (auto& o2 : o)
+		for (auto& o1 : o)
 		{
-			f1 = o1->getCollisionFlag();
-			f2 = o2->getCollisionFlag();
-
-			if (o1 == o2 || !f1.lineSegment || !f2.board)continue;
-
-			for (auto& c1 : o1->getLineSegmentData())
+			for (auto& o2 : o)
 			{
-				for (auto& c2 : o2->getBoardData())
+				f1 = o1->getCollisionFlag();
+				f2 = o2->getCollisionFlag();
+
+				if (o1 == o2 || !f1.lineSegment || !f2.board)continue;
+
+				for (auto& c1 : o1->getLineSegmentData())
 				{
-					std::vector<Vector3>p(4);
-					p[0] = c2.leftDownPos;
-					p[1] = c2.leftUpPos;
-					p[3] = c2.rightUpPos;
-					p[2] = c2.rightDownPos;
-
-					Vector3 hitPos = {0,0,0};
-					if (LibMath::lineSegmentAndBoardCollision
-					(
-						c1.position[0],
-						c1.position[1],
-						c2.normal,
-						c2.position,
-						p,
-						&hitPos
-						
-					))
+					for (auto& c2 : o2->getBoardData())
 					{
-						o1->setLineSegmentDataHitPos(hitPos, forCnt[1]);
-						o2->setBoardDataHitPos(hitPos, forCnt[0]);
+						std::vector<Vector3>p(4);
+						p[0] = c2.leftDownPos;
+						p[1] = c2.leftUpPos;
+						p[3] = c2.rightUpPos;
+						p[2] = c2.rightDownPos;
 
-						o1->hit(o2, CollosionType::COLLISION_LINESEGMENT);
-						o2->hit(o1, CollosionType::COLLISION_BOARD);
+						Vector3 hitPos = { 0,0,0 };
+						if (LibMath::lineSegmentAndBoardCollision
+						(
+							c1.position[0],
+							c1.position[1],
+							c2.normal,
+							c2.position,
+							p,
+							&hitPos
+
+						))
+						{
+							o1->setLineSegmentDataHitPos(hitPos, forCnt[1]);
+							o2->setBoardDataHitPos(hitPos, forCnt[0]);
+
+							o1->hit(o2, CollisionType::COLLISION_LINESEGMENT);
+							o2->hit(o1, CollisionType::COLLISION_BOARD);
+						}
+						forCnt[0]++;
 					}
-					forCnt[0]++;
+					forCnt[1]++;
+					forCnt[0] = 0;
 				}
-				forCnt[1]++;
-				forCnt[0] = 0;
-			}
 
-			forCnt[0] = 0;
-			forCnt[1] = 0;
+				forCnt[0] = 0;
+				forCnt[1] = 0;
+			}
 		}
 	}
-
 #pragma endregion
 
 
@@ -172,6 +181,10 @@ void ObjectManager::addObject(Object* object)
 
 #pragma endregion
 
+void ObjectManager::setCollisionFlag3D(const CollisionFlag& type)
+{
+	checkCollision = type;
+}
 
 void ObjectManager::allDeleteObject()
 {

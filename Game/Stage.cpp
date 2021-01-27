@@ -6,7 +6,7 @@
 
 const int Stage::SkipTime = 60 * 0.7f;
 const int Stage::NextPossibleTime = 60 * 2.0f;
-const int Stage::StageStartTime = 60 * 3;
+const int Stage::StageStartTime = 60 * 5;
 const  const int Stage::StageClearEnemyNum[5] = { 1,3,4,4,4 };
 
 Stage::Stage(){}
@@ -53,34 +53,69 @@ void Stage::initialize(const int& stageNum)
 
 	clearFlag = false;
 	addEnemyCount = 0;
+	enemyDeadCount = -1;
+	pureEnemyDeadCount = 0;
+
+
+	enemys.resize(StageClearEnemyNum[stage]);
+	switch (stage)
+	{
+	case 0:
+		enemys[0] = new ParentEnemy({ 0,0,20 });
+		break;
+
+	case 1:
+		enemys[0] = new ParentEnemy({ -25,0,0 });
+		enemys[1] = new ParentEnemy({25,0,0 });
+		enemys[2] = new ParentEnemy({ 0,0,0 });
+		break;
+	}
 }
 
 void Stage::update()
 {
-	if(stage >= 1)clearFlag = true;
+
+
+	stageStartTimer++;
+
+	if (stageStartTimer <= StageStartTime)return;
+
+	if (ParentEnemy::GetDeadCount() >= StageClearEnemyNum[stage])
+		clearFlag = true;
+	
+	if (!tutorialFlag) 
+	{
+		pureEnemyDeadCount = enemyDeadCount;
+		enemyDeadCount = ParentEnemy::GetDeadCount();	
+	}
+	if (pureEnemyDeadCount == enemyDeadCount)return;
 
 	switch (stage)
 	{
 	case 0:
 
-
-		if (addEnemyCount == 0 && !tutorialFlag) 
+		if (!tutorialFlag && enemyDeadCount == 0)
 		{
-			ObjectManager::getInstance()->addObject(new ParentEnemy({ 0,0,20 }));
-			addEnemyCount++;
+			addEnemy();
 		}
 
 		break;
-	}
 
-	if (ParentEnemy::GetDeadCount() >= StageClearEnemyNum[stage])
-	{
-		clearFlag = true;
+	case 1:
+
+		if (enemyDeadCount == 0) 
+		{
+			addEnemy();
+			addEnemy();
+		}
+		if (enemyDeadCount == 2)
+			addEnemy();
+		
+		break;
 	}
 
 
 #pragma region チュートリアル
-	stageStartTimer++;
 	if (!tutorialFlag && stageStartTimer <= StageStartTime)return;
 	nextPossibleTimer++;
 	nextPossibleTimer = nextPossibleTimer >= 60 * 5 ? 60 * 5 : nextPossibleTimer;
@@ -126,6 +161,12 @@ void Stage::draw()
 	
 }
 
+void Stage::end() 
+{
+	enemys.clear();
+	enemys.shrink_to_fit();
+}
+
 void Stage::setPlayer(Player* p[]) 
 {
 	player[0] = p[0];
@@ -141,4 +182,11 @@ bool Stage::gettutorialFlag()
 bool Stage::getClearFlag()
 {
 	return clearFlag;
+}
+
+
+void Stage::addEnemy()
+{
+	ObjectManager::getInstance()->addObject(enemys[addEnemyCount]);
+	addEnemyCount++;
 }

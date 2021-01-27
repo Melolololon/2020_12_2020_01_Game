@@ -10,15 +10,7 @@
 class Object
 {
 public:
-	//”»’è
-	struct CollisionFlag
-	{
-		bool sphere;
-		bool ray;
-		bool lineSegment;
-		bool plane;
-		bool board;
-	};
+
 
 protected:
 	//À•W
@@ -58,7 +50,7 @@ public:
 	//•`‰æˆ—
 	virtual void draw() = 0;
 	//”»’èˆ—
-	virtual void hit(Object* object, CollosionType collisionType);
+	virtual void hit(Object* object, CollisionType collisionType);
 
 	bool getIsDead();
 	CollisionFlag getCollisionFlag();

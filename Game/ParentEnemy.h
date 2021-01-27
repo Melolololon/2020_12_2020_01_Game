@@ -14,7 +14,7 @@ private:
 	//–³“Gˆ—
 	bool isMuteki;
 	int mutekiTimer;
-	const int MutekiTime = 60 * 1.0f;
+	const int MutekiTime = 60 * 1.5f;
 
 	//“G‘Å‚¿o‚µ‚Ég‚¤ŠÔ
 	int generateEnemyTimer = 0;
@@ -34,7 +34,7 @@ public:
 	//•`‰æ
 	void draw() override;
 
-	void hit(Object* object, CollosionType collisionType)override;
+	void hit(Object* object, CollisionType collisionType)override;
 
 	void* getPtr()override;
 

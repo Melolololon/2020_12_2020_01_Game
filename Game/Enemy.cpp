@@ -194,7 +194,7 @@ bool Enemy::GetMyShot()
 	return myShot;
 }
 
-void Enemy::hit(Object* object, CollosionType collisionType)
+void Enemy::hit(Object* object, CollisionType collisionType)
 {
 	if (typeid(*object) == typeid(Player))isDead = true;
 
@@ -224,7 +224,7 @@ void Enemy::hit(Object* object, CollosionType collisionType)
 			life -= damage;
 			
 
-			if (damage <= 0) 
+			if (damage > 0)
 			{
 				isMuteki = true;
 				ObjectManager::getInstance()->addObject(new DamageNumber(position, damage));
@@ -242,6 +242,7 @@ int Enemy::GetDamage()
 	//damage‘ã“ü‚µ‚Ä‚È‚©‚Á‚½
 	float damageNum = speed.x * 10;
 	damageNum /= 3;
+	if (damageNum >= 9)damageNum = 9;
 	return (int)damageNum;
 
 }

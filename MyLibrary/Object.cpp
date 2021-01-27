@@ -36,14 +36,14 @@ void Object::draw()
 
 }
 
-void Object::hit(Object* object, CollosionType collisionType)
+void Object::hit(Object* object, CollisionType collisionType)
 {
 }
 
 bool Object::getIsDead() { return isDead; }
 
 
-Object::CollisionFlag Object::getCollisionFlag() 
+CollisionFlag Object::getCollisionFlag() 
 {
 	return collisionFlag;
 }
