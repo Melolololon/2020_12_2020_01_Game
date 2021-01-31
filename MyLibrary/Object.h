@@ -33,7 +33,7 @@ protected:
 #pragma region ”»’èƒf[ƒ^
 	std::vector<SphereData> sphereData;
 	std::vector<LineSegmentData> lineSegmentData;
-	std::vector<LayData> layData;
+	std::vector<RayData> layData;
 	std::vector<PlaneData>planeData;
 	std::vector<BoardData>boardData;
 #pragma endregion

@@ -44,6 +44,10 @@ void Game::initialize()
 {
 	Library::initialize(1280, 720, { 155,155,255,255 });
 
+
+	Library::setLightVector({ -0.5,-1,0.5});
+	Library::setCameraNearAndFar(1.0f, 300.0f);
+	Library::setRenderTargetScale({ 1.04,1.04,1 }, 0);
 #pragma region マネージャー初期化
 	ObjectManager::getInstance()->initialize();
 
@@ -82,7 +86,7 @@ void Game::initialize()
 #pragma endregion
 
 #pragma region 生成読み込み
-	Stage::getInstance()->createSpriteLoadTexture();
+	Stage::getInstance()->loadModelAndTexture();
 	Player::loadModel();
 	Rubber::loadModel();
 #pragma endregion

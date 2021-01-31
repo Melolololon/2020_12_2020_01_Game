@@ -8,6 +8,8 @@
 
 Vector3 Enemy::playerPosition[2];
 
+const int Enemy::TuibiEndTime = 60 * 10;
+
 Enemy::Enemy(const Vector3& pos, const EnemyType& enemyType)
 {
 	Library::createManyVertex3DBox({ 2,2,2 }, &vertexHandle);
@@ -20,6 +22,19 @@ Enemy::Enemy(const Vector3& pos, const EnemyType& enemyType)
 	Initialize();
 
 	
+}
+
+Enemy::Enemy(const Vector3& pos, const Vector3& vel)
+{
+	Library::createManyVertex3DBox({ 2,2,2 }, &vertexHandle);
+	Library::createHeapData2({ 64,255,64,255 }, 1, &heapHandle);
+
+	Initialize();
+	position = pos;
+	velocity = vel;
+	Library::setPosition(position, heapHandle, 0);
+	enemyType = SET_VELOCITY;
+	tuibiEndTimer = 0;
 }
 
 Enemy::~Enemy()
@@ -124,6 +139,9 @@ void Enemy::UpdateVelocity()
 
 	if (enemyType != EnemyType::PLAYER_TUIBI || 
 		updateVelocityTimer < UPDATE_VELOCITY_TIME )return;
+
+	tuibiEndTimer++;
+	if (tuibiEndTimer >= TuibiEndTime)return;
 
 	//updateVelocityTimer = 0;
 	float pAndEDistance = LibMath::calcDistance3D(playerPosition[GetTargetTypeAsInt()], position);

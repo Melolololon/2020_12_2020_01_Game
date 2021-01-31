@@ -32,12 +32,6 @@ private:
 	
 	bool pauseFlag;
 
-#pragma region モデル
-
-	vertex fierdVertexH;
-	heap fierdHeapH;
-
-#pragma endregion
 
 #pragma region スプライト
 	sprite pLifeSpr[2];
@@ -51,11 +45,7 @@ private:
 
 #pragma endregion
 
-	static const Vector3 StartCameraPos;
-	Vector3 cameraPos;
-	Vector3 cameraAngle;
-	float rotateAngle;
-	static const Vector3 PlayCameraPos;
+	
 
 	int sceneChangeTimer;
 	static const int SceneChangeTime;

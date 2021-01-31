@@ -9,7 +9,7 @@ ParentEnemy::ParentEnemy(const Vector3& pos)
 {
 	position = pos;
 	Library::createManyVertex3DBox({ 6,6,6 }, &vertexHandle);
-	Library::createHeapData2({ 255,64,255,255 }, 3, &heapHandle);
+	Library::createHeapData2({ 255,64,255,255 }, 1, &heapHandle);
 	Initialize();
 }
 

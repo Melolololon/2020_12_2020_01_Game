@@ -1,5 +1,6 @@
 #include "Stage.h"
 #include"ParentEnemy.h"
+#include"Boss.h"
 #include"ObjectManager.h"
 #include"PolygonManager.h"
 #include"XInputManager.h"
@@ -7,7 +8,13 @@
 const int Stage::SkipTime = 60 * 0.7f;
 const int Stage::NextPossibleTime = 60 * 2.0f;
 const int Stage::StageStartTime = 60 * 5;
-const  const int Stage::StageClearEnemyNum[5] = { 1,3,4,4,4 };
+
+
+const Vector3 Stage::PlayCameraPos = { 0,35,-22 };
+const Vector3 Stage::StartCameraPos = { 0,35 + 15,-22 + -15 };
+
+//1ボス
+const Vector3 Stage::Boss1StartCameraPos = { 0,2,2 };
 
 Stage::Stage(){}
 Stage::~Stage(){}
@@ -17,8 +24,23 @@ Stage* Stage::getInstance()
 	return &s;
 }
 
-void Stage::createSpriteLoadTexture()
+void Stage::loadModelAndTexture()
 {
+
+#pragma region モデル
+	std::string material;
+	Library::loadOBJVertex("Resources/Obj/fierd.obj", true, true, &material, &fierdVertexH[0]);
+	Library::loadOBJMaterial("Resources/Obj/", material, 1, &fierdHeapH[0]);
+	Library::setPosition({ 0,-21,0 }, fierdHeapH[0], 0);
+	Library::setScale({ 22,20,16 }, fierdHeapH[0], 0);
+
+
+	Library::loadOBJVertex("Resources/Obj/fierd2.obj", true, true, &material, &fierdVertexH[1]);
+	Library::loadOBJMaterial("Resources/Obj/", material, 1, &fierdHeapH[1]);
+	Library::setPosition({ 0,-2,0 }, fierdHeapH[1], 0);
+	Library::setScale({ 5,1,5.7 }, fierdHeapH[1], 0);
+#pragma endregion
+
 	Library::createSprite(&stageNumSpr);
 	Library::setSpriteScale({ 0.7,0.7 }, stageNumSpr);
 
@@ -57,18 +79,48 @@ void Stage::initialize(const int& stageNum)
 	pureEnemyDeadCount = 0;
 
 
-	enemys.resize(StageClearEnemyNum[stage]);
+
 	switch (stage)
 	{
 	case 0:
+		enemys.resize(1);
 		enemys[0] = new ParentEnemy({ 0,0,20 });
 		break;
 
 	case 1:
+		enemys.resize(3);
 		enemys[0] = new ParentEnemy({ -25,0,0 });
 		enemys[1] = new ParentEnemy({25,0,0 });
 		enemys[2] = new ParentEnemy({ 0,0,0 });
 		break;
+
+	case 2:
+		enemys.resize(4);
+		enemys[0] = new ParentEnemy({ -25,0,20 });
+		enemys[1] = new ParentEnemy({ 25,0,-20 });
+		enemys[2] = new ParentEnemy({ 25,0,0 });
+		enemys[3] = new ParentEnemy({ -25,0,0 });
+		break;
+
+	case 3:
+		enemys.resize(1);
+		enemys[0] = new Boss();
+		addEnemy();
+		break;
+	}
+	stageClearEnemyNum = enemys.size();
+
+	Library::setCamera(StartCameraPos, { 0,0,-3 }, { 0,1,0 });
+	Library::setCameraMatrixPoint(StartCameraPos, { 0,0,-3 }, { 0,1,0 });
+	cameraPos = StartCameraPos;
+	cameraAngle = { 0,110,0 };
+	rotateAngle = 0;
+
+	if (stage == 3)
+	{
+		cameraPos = Boss1StartCameraPos;
+		cameraAngle = 0;
+		Library::setCamera(cameraPos,enemys[0]->getSphereData()[0].position, { 0,1,0 });
 	}
 }
 
@@ -78,11 +130,74 @@ void Stage::update()
 
 	stageStartTimer++;
 
-	if (stageStartTimer <= StageStartTime)return;
+#pragma region カメラ処理
+	if (stage != 3) 
+	{
+		if (cameraPos.y > PlayCameraPos.y &&
+			cameraPos.z < PlayCameraPos.z)
+		{
+			cameraPos.y -= 0.055f;
+			cameraPos.z += 0.055f;
+		}
+		else
+		{
+			cameraPos = PlayCameraPos;
+		}
 
-	if (ParentEnemy::GetDeadCount() >= StageClearEnemyNum[stage])
-		clearFlag = true;
+		if (rotateAngle < 250)
+		{
+			cameraAngle.y += 1;
+			rotateAngle += 1;
+		}
+		else
+		{
+			cameraAngle = { 0,0,0 };
+		}
+
+		Library::setCamera(cameraPos, { 0,0,-3 }, { 0,1,0 });
+		Library::setCameraMatrixPoint(cameraPos, { 0,0,-3 }, { 0,1,0 });
+		Library::setCameraAngle(cameraAngle, { 0,0,0 }, { 0,0,0 });
+	}
 	
+	if(stage == 3)
+	{
+		if (stageStartTimer == StageStartTime)
+			cameraPos = PlayCameraPos;
+
+		if (stageStartTimer > StageStartTime)
+			Library::setCamera(cameraPos, { 0,0,-3 }, { 0,1,0 });
+		else
+			Library::setCamera(cameraPos, enemys[0]->getSphereData()[0].position, { 0,1,0 });
+	}
+#pragma endregion
+
+
+	if (stageStartTimer < StageStartTime)return;
+	else stageStartTimer = StageStartTime + 1;
+
+#pragma region クリア処理
+
+	if (ParentEnemy::GetDeadCount() >= stageClearEnemyNum && 
+		stage != 3)
+		clearFlag = true;
+
+	if(stage == 3)
+	{
+		Boss* b = static_cast<Boss*>(enemys[0]->getPtr());
+
+		if (b->getLifeZero()) 
+		{
+			cameraPos = Boss1StartCameraPos;
+
+			Vector3 cameraTar = enemys[0]->getSphereData()[0].position;
+			if (cameraTar.y <= 0)cameraTar.y = 0;
+			Library::setCamera(cameraPos, cameraTar, { 0,1,0 });
+		}
+		if (b->getDropFlag())clearFlag = true;
+	}
+
+#pragma endregion
+
 	if (!tutorialFlag) 
 	{
 		pureEnemyDeadCount = enemyDeadCount;
@@ -104,13 +219,30 @@ void Stage::update()
 	case 1:
 
 		if (enemyDeadCount == 0) 
+		addEnemy();
+		
+		if (enemyDeadCount == 1)
+			addEnemy();
+
+		if (enemyDeadCount == 2)
+			addEnemy();
+		break;
+
+	case 2:
+		if (enemyDeadCount == 0)
+		addEnemy();
+
+		if (enemyDeadCount == 1)
+			addEnemy();
+
+		if (enemyDeadCount == 2) 
 		{
 			addEnemy();
 			addEnemy();
 		}
-		if (enemyDeadCount == 2)
-			addEnemy();
-		
+		break;
+
+	case 3:
 		break;
 	}
 
@@ -153,12 +285,16 @@ void Stage::draw()
 		else
 			Library::drawSprite({ 340,40 }, tMesSpr, &tMesTexPad[tMesNum]);
 	}
+
+	if(stage <= 3)
+	Library::drawGraphic(fierdVertexH[0], fierdHeapH[0], 0);
+	else
+		Library::drawGraphic(fierdVertexH[1], fierdHeapH[1], 0);
+
 	//STAGE○○表示
 	texture t = PolygonManager::getInstance()->getTexture("stageNum" + stage);
 	if (stageStartTimer <= StageStartTime)
 		Library::drawSprite({ 100,300 }, stageNumSpr, &t);
-
-	
 }
 
 void Stage::end() 
@@ -190,3 +326,4 @@ void Stage::addEnemy()
 	ObjectManager::getInstance()->addObject(enemys[addEnemyCount]);
 	addEnemyCount++;
 }
+

@@ -111,11 +111,11 @@ struct PMDHeader
 
 struct Material
 {
-	std::string materialName;
 	DirectX::XMFLOAT3 ambient;
 	DirectX::XMFLOAT3 diffuse;
 	DirectX::XMFLOAT3 specular;
 	float alpha;
+	std::string materialName;
 	std::string textureName;
 
 	Material()

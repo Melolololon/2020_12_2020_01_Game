@@ -19,7 +19,7 @@ enum CollisionType
 	COLLISION_PLANE,
 	COLLISION_BOARD,
 	COLLISION_LINESEGMENT,
-	COLLISION_LAY,
+	COLLISION_RAY,
 
 };
 
@@ -76,7 +76,7 @@ struct LineSegmentData
 	Vector3 hitPos;
 };
 
-struct LayData 
+struct RayData 
 {
 	Vector3 pos;
 	Vector3 direction;

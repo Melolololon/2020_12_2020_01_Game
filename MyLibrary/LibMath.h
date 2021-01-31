@@ -10,6 +10,8 @@
 //lib(スタティックライブラリのプロジェクト)に作らなければエラー出ない?
 class LibMath
 {
+private:
+
 public:
 
 	/// <summary>
@@ -28,6 +30,7 @@ public:
 		/// <param name="pattern">0 度数法の角度をラジアンに   1 ラジアンを度数法の角度に</param>
 		/// <param name="angle">角度</param>
 	static float angleConversion(int pattern, float angle);
+
 
 	/// <summary>
 	/// 円周率を取得します
@@ -90,8 +93,6 @@ public:
 	/// <returns></returns>
 	static Vector2 rotateVector2(Vector2 v, float angle);
 #pragma endregion
-
-
 
 #pragma region 当たり判定
 
@@ -237,6 +238,7 @@ public:
 #pragma endregion
 
 #pragma endregion
+
 
 };
 

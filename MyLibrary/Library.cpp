@@ -1,4 +1,5 @@
 #include "Library.h"
+#include"LibMath.h"
 #include"XInputManager.h"
 #pragma comment(lib,"winmm.lib")//timeGetTimeと
 
@@ -102,6 +103,7 @@ void Library::initialize(int windowWidth, int windowHeight, const Color& screenC
 
 	//べた塗用テクスチャを0にするため(DrawBoxなどに使う)
 	loadTextureCounter = 1;
+
 }
 
 void Library::roopStartProcess()

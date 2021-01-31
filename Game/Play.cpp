@@ -13,25 +13,12 @@
 #include"XInputManager.h"
 
 
-
 const int Play::SceneChangeTime = 60 * 3;
-const Vector3 Play::PlayCameraPos = { 0,35,-22 };
-const Vector3 Play::StartCameraPos = { 0,35 + 15,-22 + -15 };
+
 Play::Play()
 {
 
-	Library::setLightVector({ -0.25,-0.75,0 });
-	Library::setCameraNearAndFar(1.0f, 100.0f);
 
-#pragma region モデル
-	std::string material;
-	Library::loadOBJVertex("Resources/Obj/fierd.obj", true, true, &material, &fierdVertexH);
-	Library::loadOBJMaterial("Resources/Obj/", material, 1, &fierdHeapH);
-
-
-
-
-#pragma endregion
 
 #pragma region スプライト
 	Library::createSprite(&pLifeSpr[0]);
@@ -51,11 +38,7 @@ Play::~Play()
 
 void Play::initialize()
 {
-	Library::setCamera(StartCameraPos, { 0,0,-3 }, { 0,1,0 });
-	Library::setCameraMatrixPoint(StartCameraPos, { 0,0,-3 }, { 0,1,0 });
-	cameraPos = StartCameraPos;
-	cameraAngle = {0,110,0}; 
-	rotateAngle = 0;
+	
 
 
 #pragma region プレイヤー関係
@@ -85,10 +68,6 @@ void Play::initialize()
 	pauseFlag = false;
 
 
-#pragma region 地形関係
-	Library::setPosition({ 0,-21,0 }, fierdHeapH, 0);
-	Library::setScale({ 22,20,16 }, fierdHeapH, 0);
-#pragma endregion
 
 	gameState = GAME_STATE_NORMAL;
 	sceneChangeTimer = 0;
@@ -104,34 +83,6 @@ void Play::update()
 		pauseFlag = pauseFlag == false ? true : false;
 	}
 	if (pauseFlag)return;
-#pragma endregion
-
-
-#pragma region カメラ処理
-	if (cameraPos.y > PlayCameraPos.y &&
-		cameraPos.z < PlayCameraPos.z) 
-	{
-		cameraPos.y-=0.055f;
-		cameraPos.z+= 0.055f;
-	}
-	else 
-	{
-		cameraPos = PlayCameraPos;
-	}
-
-	if (rotateAngle < 250)
-	{
-		cameraAngle.y += 1;
-		rotateAngle += 1;
-	}
-	else 
-	{
-		cameraAngle = { 0,0,0 };
-	}
-
-	Library::setCamera(cameraPos, { 0,0,-3 }, { 0,1,0 });
-	Library::setCameraMatrixPoint(cameraPos, { 0,0,-3 }, { 0,1,0 });
-	Library::setCameraAngle(cameraAngle, { 0,0,0 }, { 0,0,0 });
 #pragma endregion
 
 
@@ -212,20 +163,19 @@ void Play::draw()
 
 	ObjectManager::getInstance()->draw();
 
-#pragma region 地形関係
-	Library::drawGraphic(fierdVertexH, fierdHeapH, 0);
-#pragma endregion
-
 #pragma region ライフ	
+	//揺れの乱数分ずらせばライフ揺れない
+	//2Dと3Dで座標系が違うから変換しないと無理
+	
 	if (player[0] && player[1]) 
 	{
 		Library::setSpriteAddColor({ 0,0,255,0 }, hpSpr[0]);
 		Library::setSpriteAddColor({ 255,0,0,0 }, hpSpr[1]);
-		Library::drawSprite({ 10,10 }, hpSpr[0], &hpTex);
-		Library::drawSprite({ 10,70 }, hpSpr[1], &hpTex);
+		Library::drawSprite({ 30,30 }, hpSpr[0], &hpTex);
+		Library::drawSprite({ 30,100 }, hpSpr[1], &hpTex);
 
-		Library::drawSpriteAnimation2({ 90,10 }, { 0,0 }, { (float)player[0]->getLife() * 50,50 }, pLifeSpr[0], &pLifeTex);
-		Library::drawSpriteAnimation2({ 90,70 }, { 0,0 }, { (float)player[1]->getLife() * 50,50 }, pLifeSpr[1], &pLifeTex);
+		Library::drawSpriteAnimation2({ 120,40 }, { 0,0 }, { (float)player[0]->getLife() * 50,50 }, pLifeSpr[0], &pLifeTex);
+		Library::drawSpriteAnimation2({ 120,100 }, { 0,0 }, { (float)player[1]->getLife() * 50,50 }, pLifeSpr[1], &pLifeTex);
 	}
 #pragma endregion
 

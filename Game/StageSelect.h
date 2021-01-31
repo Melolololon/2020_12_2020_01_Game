@@ -15,14 +15,14 @@ private:
 	
 	//ステージ関係
 	int stage;
-	sprite stageNumBoardSpr[5];
-	texture stageNumBoardTex[5];
-	Vector2 stageNumPos[5];
+	sprite stageNumBoardSpr[7];
+	texture stageNumBoardTex[7];
+	Vector2 stageNumPos[7];
 	int stageNumChangeTimer;
 	const int StageNumChangeTime = 60 * 0.8f;
 	StageNumUpDown stageNumUpDown;
 	float moveStageNumPos;
-	sprite stageNumRubberSpr[4];
+	sprite stageNumRubberSpr[6];
 	texture stageNumRubberTex;
 
 public:

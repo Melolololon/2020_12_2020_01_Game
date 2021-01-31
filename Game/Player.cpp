@@ -1,10 +1,10 @@
 #include "Player.h"
 #include"Enemy.h"
-
+#include"DamageObject.h"
 #include"PolygonManager.h"
 
 #include"XInputManager.h"
- 
+
 Vector3 Player::leftPlayerPosition;
 Vector3 Player::rightPlayerPosition;
 Vector3 Player::leftPlayerVelocity;
@@ -34,10 +34,18 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 	sphereData[0].position = position;
 	sphereData[0].r = 1.0f;
 
-	Library::createManyVertex3DBox({ 2,2,2 }, &vertexHandle);
+	angle = 0;
 
-	if (playerType == PlayerType::LEFT)Library::createHeapData2({ 0,0,255,255 }, 1, &heapHandle);
-	if (playerType == PlayerType::RIGHT)Library::createHeapData2({ 255,0,0,255 }, 1, &heapHandle);
+	if (playerType == PlayerType::LEFT)
+	{
+		vertexHandle = PolygonManager::getInstance()->getPolygonVertex("lPlayer");
+		heapHandle = PolygonManager::getInstance()->getPolygonHeap("lPlayer");
+	}
+	if (playerType == PlayerType::RIGHT)
+	{
+		vertexHandle = PolygonManager::getInstance()->getPolygonVertex("rPlayer");
+		heapHandle = PolygonManager::getInstance()->getPolygonHeap("rPlayer");
+	}
 
 	collisionFlag.board = false;
 	collisionFlag.ray = false;
@@ -101,7 +109,18 @@ Player::~Player()
 
 void Player::loadModel()
 {
+	vertex v;
+	heap h;
+	std::string s;
+	Library::loadOBJVertex("Resources/Obj/leftPlayer.obj", true, true, &s, &v);
+	Library::loadOBJMaterial("Resources/Obj/", s, 1, &h);
+	PolygonManager::getInstance()->addPolygonVertex("lPlayer", v);
+	PolygonManager::getInstance()->addPolygonHeap("lPlayer", h);
 
+	Library::loadOBJVertex("Resources/Obj/rightPlayer.obj", true, true, &s, &v);
+	Library::loadOBJMaterial("Resources/Obj/", s, 1, &h);
+	PolygonManager::getInstance()->addPolygonVertex("rPlayer", v);
+	PolygonManager::getInstance()->addPolygonHeap("rPlayer", h);
 
 	//Library::createBoard({ 5,2 }, dimention3D, &arrowVertexH);
 	//Library::createHeapData(L"Resources/Texture/arrow.png", 3, &arrowHeapH);
@@ -109,6 +128,8 @@ void Player::loadModel()
 
 void Player::update()
 {
+	
+
 	//片方死んだら早期リターン
 	if (deadPlayer)return;
 
@@ -549,6 +570,7 @@ void Player::update()
 				break;
 			}
 		}
+
 	}
 #pragma endregion
 
@@ -619,6 +641,32 @@ void Player::update()
 	//Library::setPosition(pToPVec + hitEnemyVector * -1 * 4, arrowHeapH,2);
 #pragma endregion
 
+#pragma region 回転処理
+	if (velocity.x == 1) 
+		angle.y = -90;
+	if (velocity.x == -1)
+		angle.y = 90;
+	if (velocity.z == 1)
+		angle.y = 180;
+	if (velocity.z == -1)
+		angle.y = 0;
+	if (velocity.x == 1 &&
+		velocity.z == -1)
+		angle.y = -45;
+	if (velocity.x == -1 &&
+		velocity.z == -1)
+		angle.y = 45;
+	if (velocity.x == 1 &&
+		velocity.z == 1)
+		angle.y = -135;
+	if (velocity.x == -1 &&
+		velocity.z == 1)
+		angle.y = 135;
+
+	Library::setAngle(angle, heapHandle, 0);
+#pragma endregion
+
+
 }
 
 void Player::draw()
@@ -631,6 +679,7 @@ void Player::draw()
 	//	//Library::drawGraphic(arrowVertexH, arrowHeapH, 2);
 	//}
 
+	Library::setPipeline(PIPELINE_MATERIAL);
 	if(!isMuteki)
 	Library::drawGraphic(vertexHandle, heapHandle, 0);
 	else 
@@ -640,6 +689,7 @@ void Player::draw()
 			Library::drawGraphic(vertexHandle, heapHandle, 0);
 		}
 	}
+	Library::setPipeline(PIPELINE_NORMAL);
 
 }
 
@@ -674,6 +724,11 @@ void Player::hit(Object* object, CollisionType collisionType)
 		isMuteki = true;
 	}
 
+	if (typeid(*object) == typeid(DamageObject))
+	{
+		life--;
+		isMuteki = true;
+	}
 }
 
 void Player::setPosition(Vector3 pos)
@@ -707,9 +762,11 @@ void Player::addPosition(const Vector3& vec)
 void Player::areaPush() 
 {	
 	//動いてないときに出る(押されたりして)可能性があるから、velocity使わない
-
-	if (position.x > 20 || position.x < -20)velocity.x = 0;
-	if (position.z > 15 || position.z < -15)velocity.z = 0;
+	if (!isDash) 
+	{
+		if (position.x > 20 || position.x < -20)velocity.x = 0;
+		if (position.z > 15 || position.z < -15)velocity.z = 0;
+	}
 	if (position.x > 20) position.x = 20;
 	if (position.x < -20) position.x = -20;
 	if (position.z > 15) position.z = 15;

@@ -223,6 +223,7 @@ void Rubber::hit(Object* object, CollisionType collisionType)
 	//3.紐の後ろ(引っ張られてるほうにいる敵)にいる敵は吹っ飛ばないように対策する (飛んでも問題ないのでは? 引っ張ってるわけだし物理的に問題ないと思われる)
 	//3.続き　しかし、規定位置からどのくらい移動したかで判断するため、めっちゃ吹っ飛ぶ
 	//3.続き ゴムと敵の位置が、ゴムと規定位置へのベクトルと大体逆だったら飛ばさなければいい?
+	//3.続き 外積の左右判定使えば行ける?
 
 	//4.ちゃんとした向きにダッシュしなかったときは、吹っ飛ばないようにする
 	//4.続き エネミーのベクトルの角度と、プレイヤーのダッシュ方向が、一定の角度以上かつ未満だったらでOK?
@@ -367,10 +368,10 @@ void Rubber::hit(Object* object, CollisionType collisionType)
 #pragma region 場外防止
 
 		//敵エリア外に出さない
-		if (position.x > 23 ||
-			position.x < -23 ||
-			position.z > 19 ||
-			position.z < -19)
+		if (position.x > 26 ||
+			position.x < -26 ||
+			position.z > 22 ||
+			position.z < -22)
 		{
 			e->AddPosition(eV * eS * -1 * 2);
 		}
@@ -566,8 +567,6 @@ void Rubber::setPlayerVectorAndSpeed(const Vector3& vel, const Vector3& spe, con
 {
 	playerVelocity[pNum - 1] = vel;
 	playerSpeed[pNum - 1] = spe;
-	
-	
 }
 
 void Rubber::resetRimitCount()

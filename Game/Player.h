@@ -34,6 +34,7 @@ private:
 	//自分のプレイヤータイプ(LかRか)
 	PlayerType playerType;
 
+	Vector3 angle;
 
 #pragma region ダッシュ
 	//同じ方向に2回入力するとダッシュ

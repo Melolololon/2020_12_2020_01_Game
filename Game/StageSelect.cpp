@@ -19,8 +19,10 @@ StageSelect::StageSelect()
 	stageNumBoardTex[0] = Library::loadTexture(L"Resources/Texture/numBoard1.png");
 	stageNumBoardTex[1] = Library::loadTexture(L"Resources/Texture/numBoard2.png");
 	stageNumBoardTex[2] = Library::loadTexture(L"Resources/Texture/numBoard3.png");
-	stageNumBoardTex[3] = Library::loadTexture(L"Resources/Texture/numBoard4.png");
+	stageNumBoardTex[3] = Library::loadTexture(L"Resources/Texture/numBoard4Boss.png");
 	stageNumBoardTex[4] = Library::loadTexture(L"Resources/Texture/numBoard5.png");
+	stageNumBoardTex[5] = Library::loadTexture(L"Resources/Texture/numBoard6.png");
+	stageNumBoardTex[6] = Library::loadTexture(L"Resources/Texture/numBoard7Boss.png");
 	for (int i = 0; i < _countof(stageNumBoardTex); i++)
 		PolygonManager::getInstance()->addTexture("stageNum" + i, stageNumBoardTex[i]);
 
@@ -67,7 +69,7 @@ void StageSelect::update()
 			XInputManager::buttonState(XInputManager::XINPUT_RIGHT_BUTTON, 1) ||
 			XInputManager::leftStickRight(30000, 1))
 		{
-			if (stage < 4) 
+			if (stage < 6) 
 			{
 				stage++;
 				stageNumUpDown = STAGE_NUM_UP;

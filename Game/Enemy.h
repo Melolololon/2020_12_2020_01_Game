@@ -17,6 +17,7 @@ public:
 	{
 		PLAYER_TARGET,
 		PLAYER_TUIBI,
+		SET_VELOCITY,
 	};
 
 private:
@@ -47,9 +48,14 @@ private:
 	const int UPDATE_VELOCITY_TIME = 30;
 	const int ADD_ENEMY_TIME = 180;
 
+	int tuibiEndTimer;
+	static const int TuibiEndTime;
+
 public:
 	//コンストラクタ
 	Enemy(const Vector3& pos,const EnemyType& enemyType);
+	//コンストラクタ
+	Enemy(const Vector3& pos,const Vector3& vel);
 	//デストラクタ
 	~Enemy();
 	//初期化
