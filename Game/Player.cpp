@@ -4,7 +4,7 @@
 #include"PolygonManager.h"
 
 #include"XInputManager.h"
-
+ 
 Vector3 Player::leftPlayerPosition;
 Vector3 Player::rightPlayerPosition;
 Vector3 Player::leftPlayerVelocity;
