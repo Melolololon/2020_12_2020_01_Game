@@ -5,10 +5,19 @@
 #include"Player.h"
 
 #include"ObjectManager.h"
+#include"PolygonManager.h"
+#include"Boss.h"
+#include"Boss2.h"
 
 Vector3 Enemy::playerPosition[2];
 
-const int Enemy::TuibiEndTime = 60 * 10;
+const int Enemy::TuibiEndTime = 60 * 7;
+
+const int Enemy::CreateNum = 20;
+int Enemy::createCount;
+
+const int Enemy::PunchCreateNum = 10;
+int Enemy::punchCreateCount;
 
 Enemy::Enemy(const Vector3& pos, const EnemyType& enemyType)
 {
@@ -16,10 +25,10 @@ Enemy::Enemy(const Vector3& pos, const EnemyType& enemyType)
 	Library::createHeapData2({ 64,255,64,255 }, 1, &heapHandle);
 
 	position = pos;
-	Library::setPosition(position, heapHandle, 0);
 	this->enemyType = enemyType;
 
 	Initialize();
+
 
 	
 }
@@ -32,24 +41,55 @@ Enemy::Enemy(const Vector3& pos, const Vector3& vel)
 	Initialize();
 	position = pos;
 	velocity = vel;
-	Library::setPosition(position, heapHandle, 0);
 	enemyType = SET_VELOCITY;
-	tuibiEndTimer = 0;
 }
 
 Enemy::~Enemy()
 {
-	Library::deleteVertexData(vertexHandle);
-	Library::deleteHeapData(heapHandle);
+	//Library::deleteVertexData(vertexHandle);
+	//Library::deleteHeapData(heapHandle);
 }
 
-void Enemy::loadModelData()
+void Enemy::loadModel()
 {
+	vertex v;
+	heap h;
+	std::string s;
+	Library::loadOBJVertex("Resources/Obj/enemy.obj", true, true, &s, &v);
+	Library::loadOBJMaterial("Resources/Obj/", s, CreateNum, &h);
+	PolygonManager::getInstance()->addPolygonVertex("enemy", v);
+	PolygonManager::getInstance()->addPolygonHeap("enemy", h);
+
+
+	Library::loadOBJVertex("Resources/Obj/punch.obj", true, true, &s, &v);
+	Library::loadOBJMaterial("Resources/Obj/", s, PunchCreateNum, &h);
+	PolygonManager::getInstance()->addPolygonVertex("shotPunch", v);
+	PolygonManager::getInstance()->addPolygonHeap("shotPunch", h);
 
 }
 
 void Enemy::Initialize()
-{
+{	//モデル変更
+	if (enemyType == EnemyType::BOSS2_PUNCH)
+	{
+		vertexHandle = PolygonManager::getInstance()->getPolygonVertex("shotPunch");
+		heapHandle = PolygonManager::getInstance()->getPolygonVertex("shotPunch");
+		heapNum = punchCreateCount;
+		punchCreateCount++;
+		punchCreateCount = punchCreateCount >= PunchCreateNum ? 0 : punchCreateCount;
+		//enemyType = EnemyType::PLAYER_TUIBI;
+		speed = 0.2f;
+		Library::setScale({ 3,3,3 }, heapHandle, heapNum);
+	}
+	else 
+	{
+		vertexHandle = PolygonManager::getInstance()->getPolygonVertex("enemy");
+		heapHandle = PolygonManager::getInstance()->getPolygonVertex("enemy");
+		heapNum = createCount;
+		createCount++;
+		createCount = createCount >= CreateNum ? 0 : createCount;
+	}
+	
 	//座標はとりあえず奥からランダムで。
 	//position = { 0, 0, 10 };
 	//移動量はとりあえず手前方向へ。
@@ -85,18 +125,25 @@ void Enemy::Initialize()
 	else
 		targetType = TargetType::RIGHT;
 
-	if (enemyType == EnemyType::PLAYER_TARGET) 
+	if (enemyType == EnemyType::PLAYER_TARGET ||
+		enemyType == EnemyType::BOSS2_PUNCH) 
 	{
 		velocity = LibMath::otherVector(position, playerPosition[targetType]);
 	}
 
+
+
+
+	tuibiEndTimer = 0;
+
+	Library::setPosition(position, heapHandle, heapNum);
 }
 
 void Enemy::update()
 {
 	UpdateVelocity();
 	position = position + velocity * speed;
-	Library::setPosition(position, heapHandle, 0);
+	Library::setPosition(position, heapHandle, heapNum);
 	sphereData[0].position = position;
 	updateVelocityTimer++;
 
@@ -118,7 +165,17 @@ void Enemy::update()
 
 void Enemy::draw()
 {
-	Library::drawGraphic(vertexHandle, heapHandle, 0);
+
+	Library::setPipeline(PIPELINE_MATERIAL);
+	if (enemyType == EnemyType::BOSS2_PUNCH)
+	{
+		Library::setSmoothingFlag(true);
+	}
+
+	Library::drawGraphic(vertexHandle, heapHandle, heapNum);
+
+	Library::setPipeline(PIPELINE_NORMAL);
+	Library::setSmoothingFlag(false);
 }
 
 void Enemy::UpdateVelocity()
@@ -137,11 +194,14 @@ void Enemy::UpdateVelocity()
 		return;
 	}
 
-	if (enemyType != EnemyType::PLAYER_TUIBI || 
-		updateVelocityTimer < UPDATE_VELOCITY_TIME )return;
 
 	tuibiEndTimer++;
-	if (tuibiEndTimer >= TuibiEndTime)return;
+	if (tuibiEndTimer >= TuibiEndTime)
+		return;
+
+	if (enemyType != EnemyType::PLAYER_TUIBI && enemyType != EnemyType::BOSS2_PUNCH ||
+		updateVelocityTimer < UPDATE_VELOCITY_TIME )return;
+
 
 	//updateVelocityTimer = 0;
 	float pAndEDistance = LibMath::calcDistance3D(playerPosition[GetTargetTypeAsInt()], position);
@@ -188,14 +248,14 @@ void Enemy::GetVelocityAndSpeed(Vector3& vel, Vector3& spe)
 void Enemy::SetPosition(const Vector3& pos)
 {
 	position = pos;
-	Library::setPosition(position, heapHandle, 0);
+	Library::setPosition(position, heapHandle, heapNum);
 	sphereData[0].position = position;
 }
 
 void Enemy::AddPosition(const Vector3& vec)
 {
 	position += vec;
-	Library::setPosition(position, heapHandle, 0);
+	Library::setPosition(position, heapHandle, heapNum);
 	sphereData[0].position = position;
 }
 
@@ -251,6 +311,8 @@ void Enemy::hit(Object* object, CollisionType collisionType)
 		
 		
 	}
+
+	
 }
 
 int Enemy::GetDamage()
@@ -270,3 +332,5 @@ void Enemy::SetPlayerPos(const Vector3& pos, const int& playerType)
 {
 	playerPosition[playerType - 1] = pos;
 }
+
+

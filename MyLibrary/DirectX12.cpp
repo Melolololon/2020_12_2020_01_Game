@@ -3487,7 +3487,6 @@ void DirectX12::map(int polyNum, int despNumber, int number)
 				position[despNumber][number].y,
 				position[despNumber][number].z
 			);
-			constData3D->worldMat = matWorld;
 
 			int parentHeap = parentHeaps[despNumber][number];
 			int parentNum = parentNums[despNumber][number];
@@ -3511,9 +3510,9 @@ void DirectX12::map(int polyNum, int despNumber, int number)
 				//			1.0f)));
 
 				matWorld *= DirectX::XMMatrixScaling(scale[parentHeap][parentNum].x, scale[parentHeap][parentNum].y, scale[parentHeap][parentNum].z);
-				matWorld *= DirectX::XMMatrixRotationZ(angle[parentHeap][parentNum].z);
-				matWorld *= DirectX::XMMatrixRotationX(angle[parentHeap][parentNum].x);
-				matWorld *= DirectX::XMMatrixRotationY(angle[parentHeap][parentNum].y);
+				matWorld *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(angle[parentHeap][parentNum].z));
+				matWorld *= DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(angle[parentHeap][parentNum].x));
+				matWorld *= DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(angle[parentHeap][parentNum].y));
 
 				matWorld *= DirectX::XMMatrixTranslation
 				(
@@ -3548,6 +3547,8 @@ void DirectX12::map(int polyNum, int despNumber, int number)
 			{
 				constData3D->mat = matWorld * mainCamera->get3DCameraMatrix(mainCameraData);
 			}
+
+			constData3D->worldMat = matWorld;
 
 			//オブジェクト分ループ
 			for (int i = 0; i < vertices[polyNum].size(); i++)

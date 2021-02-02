@@ -18,6 +18,7 @@ public:
 		PLAYER_TARGET,
 		PLAYER_TUIBI,
 		SET_VELOCITY,
+		BOSS2_PUNCH
 	};
 
 private:
@@ -51,6 +52,13 @@ private:
 	int tuibiEndTimer;
 	static const int TuibiEndTime;
 
+	int heapNum;
+	static const int CreateNum;
+	static int createCount;
+
+
+	static const int PunchCreateNum;
+	static int punchCreateCount;
 public:
 	//コンストラクタ
 	Enemy(const Vector3& pos,const EnemyType& enemyType);
@@ -58,6 +66,9 @@ public:
 	Enemy(const Vector3& pos,const Vector3& vel);
 	//デストラクタ
 	~Enemy();
+	
+	static void loadModel();
+	
 	//初期化
 	void Initialize();
 	//更新
@@ -67,10 +78,6 @@ public:
 
 	void hit(Object* object, CollisionType collisionType)override;
 
-	/// <summary>
-	/// モデルの読み込み
-	/// </summary>
-	static void loadModelData();
 
 	
 	void UpdateVelocity();
@@ -95,6 +102,7 @@ public:
 	bool GetMyShot();
 
 	int GetDamage();
+
 
 };
 

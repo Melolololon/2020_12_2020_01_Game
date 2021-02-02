@@ -29,12 +29,17 @@ private:
 
 	Vector3 angle;
 
+	int heapNum;
+	static const int CreateNum;
+	static int createCount;
 public:
 
 	//コンストラクタ
 	Boss();
 	//デストラクタ
 	~Boss();
+
+	static void loadModel();
 	//更新
 	void update() override;
 	void bossPattern();

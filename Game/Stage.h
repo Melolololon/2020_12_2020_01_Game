@@ -51,6 +51,8 @@ private:
 
 #pragma endregion
 
+	sprite greenSpr;
+
 	//カメラ
 	static const Vector3 StartCameraPos;
 	Vector3 cameraPos;
@@ -63,7 +65,8 @@ private:
 	//ボス戦の最初の視点
 	//1ボス
 	static const Vector3 Boss1StartCameraPos;
-
+	//ボス2
+	static const Vector3 Boss2StartCameraPos;
 public:
 	Stage(Stage& s) = delete;
 	Stage& operator=(Stage& s) = delete;
@@ -76,7 +79,7 @@ public:
 	void draw();
 	void end();
 
-	bool gettutorialFlag();
+	bool getTutorialFlag();
 
 	bool getClearFlag();
 

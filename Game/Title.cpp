@@ -1,7 +1,10 @@
 #include "Title.h"
 #include"SceneChange.h"
 #include"XInputManager.h"
-
+#include"PolygonManager.h"
+#include"ObjectManager.h"
+#include"Player.h"
+#include"Rubber.h"
 Title::Title()
 {
 	SceneChange::getInstance()->load();
@@ -10,8 +13,9 @@ Title::Title()
 	Library::createSprite(&titleSpr);
 	Library::createSprite(&pushSpr);
 
-	titleTex = Library::loadTexture(L"Resources/Texture/titleKari.png");
+	titleTex = Library::loadTexture(L"Resources/Texture/title.png");
 	pushTex = Library::loadTexture(L"Resources/Texture/titleRubberSpr.png");
+
 }
 
 Title::~Title()
@@ -24,6 +28,23 @@ void Title::initialize()
 	pushPos = { 270,500 };
 	pushScale = { 1,1};
 	pushScaleChangeTimer = 0;
+
+
+	Library::setCamera({ 0,35,-22 }, { 0,-3,0 }, { 0,1,0 });
+	Library::setCameraMatrixPoint({ 0,35,-22 }, { 0,-3,0 }, { 0,1,0 });
+	cameraAngle = 0;
+
+	
+	ObjectManager::getInstance()->addObject(new Player({ -4,0,0 }, Player::PlayerType::LEFT));
+	ObjectManager::getInstance()->addObject(new Player({ 4,0,0 }, Player::PlayerType::RIGHT));
+	Player::setStopFlag(true);
+	Rubber* rP[9];
+	for (int i = 1; i < 10; i++)
+	{
+		rP[i - 1] = new Rubber(i);
+		ObjectManager::getInstance()->addObject(rP[i - 1]);
+	}
+	Rubber::setRubberPtr(rP);
 }
 
 void Title::update()
@@ -45,6 +66,7 @@ void Title::update()
 		pushScale = { 1,1 };
 		pushScaleChangeTimer = 0;
 	}
+	ObjectManager::getInstance()->update();
 
 #pragma region ƒV[ƒ“‘JˆÚ
 
@@ -60,21 +82,32 @@ void Title::update()
 
 #pragma endregion
 
-	
+
+	Library::setCameraAngle(cameraAngle, { 0,0,0 }, { 0,0,0 });
+	cameraAngle.y += 0.5f;
+	cameraAngle.y = cameraAngle.y >= 360 ? 0 : cameraAngle.y;
 }
 
 void Title::draw()
 {
-	Library::drawSprite({ 130,50 }, titleSpr,&titleTex);
+	vertex v = PolygonManager::getInstance()->getPolygonVertex("fierd");
+	heap h = PolygonManager::getInstance()->getPolygonVertex("fierd");
+	Library::drawGraphic(v, h, 0);
+	ObjectManager::getInstance()->draw();
+
+	Library::drawSprite({ 380,140 }, titleSpr,&titleTex);
 	Library::setSpriteScale(pushScale, pushSpr);
 	Library::drawSprite(pushPos, pushSpr,&pushTex);
 
 	//ƒV[ƒ“‘JˆÚ
 	SceneChange::getInstance()->draw();
+
 }
 
 void Title::end()
 {
+	Player::setStopFlag(false);
+	ObjectManager::getInstance()->allDeleteObject();
 }
 
 std::string Title::nextScene()

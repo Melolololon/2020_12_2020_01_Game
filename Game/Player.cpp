@@ -2,7 +2,8 @@
 #include"Enemy.h"
 #include"DamageObject.h"
 #include"PolygonManager.h"
-
+#include"ParentEnemy.h"
+#include"Boss2.h"
 #include"XInputManager.h"
 
 Vector3 Player::leftPlayerPosition;
@@ -13,6 +14,8 @@ Player::PlayerType Player::firstAddType;
 Player* Player::firstAddPlayer;
 bool Player::leavePlayer;
 bool Player::deadPlayer;
+bool Player::stopFlag;
+bool Player::gameClearFlag;
 
 //vertex Player::arrowVertexH;
 //heap Player::arrowHeapH;
@@ -46,6 +49,7 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 		vertexHandle = PolygonManager::getInstance()->getPolygonVertex("rPlayer");
 		heapHandle = PolygonManager::getInstance()->getPolygonHeap("rPlayer");
 	}
+	Library::setPosition(position, heapHandle, 0);
 
 	collisionFlag.board = false;
 	collisionFlag.ray = false;
@@ -93,6 +97,7 @@ Player::Player(const Vector3& pos, const PlayerType& playerType)
 
 	deadPlayer = false;
 
+	gameClearFlag = false;
 }
 
 
@@ -124,14 +129,48 @@ void Player::loadModel()
 
 	//Library::createBoard({ 5,2 }, dimention3D, &arrowVertexH);
 	//Library::createHeapData(L"Resources/Texture/arrow.png", 3, &arrowHeapH);
+
+
 }
 
 void Player::update()
 {
-	
+	if(stopFlag)
+	{
+
+#pragma region î•ñ‘—‚é
+
+#pragma region ƒSƒ€‚Éî•ñ‚ğ‘—‚é
+		if (playerType == PlayerType::LEFT) 
+		{
+			leftPlayerPosition = position;
+			Rubber::setPlayerToPlayerVector(rightPlayerPosition - leftPlayerPosition, playerType);
+		}
+		if (playerType == PlayerType::RIGHT) 
+		{
+			rightPlayerPosition = position;
+			Rubber::setPlayerToPlayerVector(leftPlayerPosition - rightPlayerPosition, playerType);
+		}
+
+		Rubber::setPlayerPosition(position, playerType);
+		Rubber::setDashFlag(isDash);
+		Rubber::setPlayerVectorAndSpeed(velocity, speed, playerType);
+		Rubber::resetRimitCount();
+		Rubber::setPlayerInputFlag(inputFlag, playerType);
+		Rubber::setLeavePlayerFlag(leavePlayer);
+		Rubber::setPlayerRevDidtanceNumber(PlayerRevDidtanceNumber);
+		Rubber::setPlayerMaxDistanceNumber(PlayerMaxDistance);
+#pragma endregion
+
+		Enemy::SetPlayerPos(position, playerType);
+		ParentEnemy::SetPlayerPosition(position, playerType);
+		Boss2::setPlayerPos(position, playerType);
+#pragma endregion
+
+	}
 
 	//•Ğ•û€‚ñ‚¾‚ç‘ŠúƒŠƒ^[ƒ“
-	if (deadPlayer)return;
+	if (deadPlayer || stopFlag)return;
 
 	if (!hitOtherPlayer)kasanariTimer = 0;
 	hitOtherPlayer = false;
@@ -581,6 +620,8 @@ void Player::update()
 
 #pragma endregion
 
+#pragma region î•ñ‘—‚é
+
 #pragma region ƒSƒ€‚Éî•ñ‚ğ‘—‚é
 	if(playerType == PlayerType::LEFT)
 	Rubber::setPlayerToPlayerVector(rightPlayerPosition - leftPlayerPosition, playerType);
@@ -600,6 +641,10 @@ void Player::update()
 #pragma endregion
 
 	Enemy::SetPlayerPos(position, playerType);
+	ParentEnemy::SetPlayerPosition(position,playerType);
+	Boss2::setPlayerPos(position, playerType);
+
+#pragma endregion
 
 
 #pragma region –³“Gˆ—
@@ -612,7 +657,7 @@ void Player::update()
 #pragma endregion
 
 #pragma region ƒ‰ƒCƒtˆ—
-	if (life <= 0) 
+	if (life <= 0 ) 
 	{
 		isDead = true;
 	}
@@ -715,7 +760,7 @@ void Player::hit(Object* object, CollisionType collisionType)
 
 	}
 
-	if (isMuteki)return;
+	if (isMuteki || gameClearFlag)return;
 	if (typeid(*object) == typeid(Enemy)) 
 	{
 		//Enemy* e = static_cast<Enemy*>(object->getPtr());
@@ -807,4 +852,14 @@ Player::PlayerType Player::getPlayerType()
 void Player::setEnemyVector(const Vector3& vec) 
 {
 	//hitEnemyVector = vec;
+}
+
+void Player::setStopFlag(const bool& flag)
+{
+	stopFlag = flag;
+}
+
+void Player::setGameClearFlag(const bool& flag)
+{
+	gameClearFlag = flag;
 }

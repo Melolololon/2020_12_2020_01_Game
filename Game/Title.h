@@ -15,6 +15,9 @@ private:
 	int pushScaleChangeTimer;
 	const int PushScaleChangeTime = 60 * 4;
 
+	Vector3 cameraAngle;
+
+
 public:
 	Title();
 	~Title();

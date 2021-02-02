@@ -1,10 +1,17 @@
 #pragma once
 #include "Object.h"
 #include "Enemy.h"
+#include "Vector.h"
 #include <vector>
 
 class ParentEnemy : public Object
 {
+public:
+	enum PEnemyType
+	{
+		PENEMY_TARGET,
+		PENEMT_BARAMAKI,
+	};
 
 private:
 
@@ -17,16 +24,29 @@ private:
 	const int MutekiTime = 60 * 1.5f;
 
 	//敵打ち出しに使う時間
-	int generateEnemyTimer = 0;
-	const int GENERATETIME = 60 * 3;                                                           
+	int generateEnemyTimer;
+	int generateTime;
 
 	static int deadCount;
+
+	PEnemyType pEnemyType;
+	float angle;
+
+	static Vector3 playerPos[2];
+
+	static const int CreateNum;
+	static  int createCount;
+	int heapNum;
 public:
 
 	//コンストラクタ
-	ParentEnemy(const Vector3& pos);
+	ParentEnemy(const Vector3& pos, const PEnemyType& type);
+	ParentEnemy(const Vector3& pos, const float& defAngle);
 	//デストラクタ
 	~ParentEnemy();
+
+	static void loadModel();
+
 	//初期化
 	void Initialize();
 	//更新
@@ -43,5 +63,7 @@ public:
 
 	static int GetDeadCount();
 	static void ResetDeadCount();
+
+	static void SetPlayerPosition(const Vector3& pos,const int& type);
 };
 

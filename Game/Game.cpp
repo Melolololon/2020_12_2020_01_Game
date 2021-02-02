@@ -6,12 +6,17 @@
 
 #include"Player.h"
 #include"Rubber.h"
+#include"Enemy.h"
+#include"ParentEnemy.h"
+#include"Boss.h"
+#include"Boss2.h"
 
 #include"Stage.h"
 #include"Caution.h"
 #include"Title.h"
 #include"StageSelect.h"
 #include"Play.h"
+#include"DamageObject.h"
 //テストコメント
 
 Game::Game() {}
@@ -42,12 +47,45 @@ void Game::run()
 
 void Game::initialize()
 {
-	Library::initialize(1280, 720, { 155,155,255,255 });
+	Library::initialize(1280, 720, { 155,155,255,255 },L"CHAIN DOUBLE PLAYER");
 
 
 	Library::setLightVector({ -0.5,-1,0.5});
 	Library::setCameraNearAndFar(1.0f, 300.0f);
 	Library::setRenderTargetScale({ 1.04,1.04,1 }, 0);
+
+
+#pragma region パイプライン生成
+	PipelineData pData;
+	pData.alphaWrite = ALPHA_WIGHT_NONE;
+	pData.blendMode = BLEND_NONE;
+	pData.cullMode = CULL_BACK;
+	pData.depthMode = DEPTH_TRUE;
+	pData.drawMode = DRAW_SOLID;
+
+	billboardPL = Library::createUserPipelineState
+	(
+		pData,
+		{ L"LIB" ,"","" },
+		{ L"LIB","","" },
+		{ L"../MyLibrary/NotShadowPixelShader.hlsl","PSmain" ,"ps_5_0" },
+		false
+	);
+	PipelineManager::getInstance()->addPipeline("billboardPL", billboardPL);
+#pragma endregion
+
+#pragma region 生成読み込み
+	Stage::getInstance()->loadModelAndTexture();
+	Player::loadModel();
+	Rubber::loadModel();
+
+	Boss::loadModel();
+	ParentEnemy::loadModel();
+	Enemy::loadModel();
+	Boss2::loadModel();
+	DamageObject::loadModel();
+#pragma endregion
+
 #pragma region マネージャー初期化
 	ObjectManager::getInstance()->initialize();
 
@@ -66,30 +104,6 @@ void Game::initialize()
 	SceneManager::getInstace()->addScene("Play", new Play());
 #pragma endregion
 
-#pragma region パイプライン生成
-	PipelineData pData;
-	pData.alphaWrite = ALPHA_WIGHT_NONE;
-	pData.blendMode = BLEND_NONE;
-	pData.cullMode = CULL_BACK;
-	pData.depthMode = DEPTH_TRUE;
-	pData.drawMode = DRAW_SOLID;
-
-	billboardPL = Library::createUserPipelineState
-	(
-		pData,
-		{ L"LIB" ,"","" },
-		{ L"LIB","","" },
-		{ L"../MyLibrary/NotShadowPixelShader.hlsl","PSmain" ,"ps_5_0"},
-		false
-	);
-	PipelineManager::getInstance()->addPipeline("billboardPL", billboardPL);
-#pragma endregion
-
-#pragma region 生成読み込み
-	Stage::getInstance()->loadModelAndTexture();
-	Player::loadModel();
-	Rubber::loadModel();
-#pragma endregion
 
 }
 

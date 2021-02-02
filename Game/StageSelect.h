@@ -25,6 +25,16 @@ private:
 	sprite stageNumRubberSpr[6];
 	texture stageNumRubberTex;
 
+
+	Vector3 cameraAngle;
+	sprite greenSpr;
+
+	bool titleBack;
+	int titleBackTimer;
+	static const int TitleBackTime;
+
+	sprite selectStrSpr;
+	texture selectStrTex;
 public:
 	StageSelect();
 	~StageSelect();

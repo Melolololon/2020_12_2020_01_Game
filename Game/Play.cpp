@@ -27,6 +27,17 @@ Play::Play()
 	Library::createSprite(&hpSpr[1]);
 	pLifeTex = Library::loadTexture(L"Resources/Texture/playerLife.png");
 	hpTex = Library::loadTexture(L"Resources/Texture/HP.png");
+
+
+	Library::createSprite(&whiteSpr);
+	Library::createSprite(&gameStateSpr);
+	clearTex = Library::loadTexture(L"Resources/Texture/clear.png");
+
+
+	Library::createSprite(&pauseSpr);
+	Library::createSprite(&pauseStrSpr);
+	pauseStrPadTex = Library::loadTexture(L"Resources/Texture/pauseStr_Pad.png");
+	pauseStrKeyTex = Library::loadTexture(L"Resources/Texture/pauseStr_Key.png");
 #pragma endregion
 
 }
@@ -71,18 +82,39 @@ void Play::initialize()
 
 	gameState = GAME_STATE_NORMAL;
 	sceneChangeTimer = 0;
+	whiteAlpha = 0.0f;
 }
 
 void Play::update()
 {
 
+
+#pragma region シーン遷移
+
+	SceneChange::getInstance()->update();
+
+	if (sceneChangeTimer >= SceneChangeTime)
+		SceneChange::getInstance()->trueFeadFlag();
+
+	if (SceneChange::getInstance()->getSceneChangeFlag())isEnd = true;
+
+#pragma endregion
+
+
 #pragma region ポーズ処理
 	if (DirectInput::keyTrigger(DIK_ESCAPE) || XInputManager::buttonTrigger(XInputManager::XINPUT_START_BUTTON,1))
 	{
-		if(!Stage::getInstance()->gettutorialFlag())
+		//if(!Stage::getInstance()->getTutorialFlag())
 		pauseFlag = pauseFlag == false ? true : false;
 	}
-	if (pauseFlag)return;
+	if (pauseFlag)
+	{
+		if(DirectInput::keyTrigger(DIK_RETURN) ||
+			XInputManager::buttonTrigger(XInputManager::XINPUT_BACK_BUTTON,1))
+			SceneChange::getInstance()->trueFeadFlag();
+
+		return;
+	}
 #pragma endregion
 
 
@@ -130,30 +162,31 @@ void Play::update()
 
 #pragma region ゲーム状態処理
 
-	if (!player[0] || !player[1]) 
-		gameState = GAME_STATE_GAMEOVER;
-	
+	if (gameState == GAME_STATE_NORMAL)
+	{
+		if (!player[0] || !player[1])
+		{
+			gameState = GAME_STATE_GAMEOVER;
+		}
+		else
+		if (Stage::getInstance()->getClearFlag())
+		{
+			whiteAlpha = 100.0f;
+			gameState = GAME_STATE_CLEAR;
+		}
+	}
+	if (gameState != GAME_STATE_NORMAL) 
+	{
+		whiteAlpha -= 3.0f;
+		whiteAlpha = whiteAlpha <= 0 ? 0 : whiteAlpha;
 
-	if (gameState != GAME_STATE_GAMEOVER && Stage::getInstance()->getClearFlag())
-		gameState = GAME_STATE_CLEAR;
-
-	if (gameState != GAME_STATE_NORMAL)
 		sceneChangeTimer++;
+	}
 
 
-#pragma endregion
-
-
-#pragma region シーン遷移
-
-	SceneChange::getInstance()->update();
-
-	if (sceneChangeTimer >= SceneChangeTime)
-		SceneChange::getInstance()->trueFeadFlag();
-	
-	if (SceneChange::getInstance()->getSceneChangeFlag())isEnd = true;
 
 #pragma endregion
+
 
 
 }
@@ -174,12 +207,35 @@ void Play::draw()
 		Library::drawSprite({ 30,30 }, hpSpr[0], &hpTex);
 		Library::drawSprite({ 30,100 }, hpSpr[1], &hpTex);
 
-		Library::drawSpriteAnimation2({ 120,40 }, { 0,0 }, { (float)player[0]->getLife() * 50,50 }, pLifeSpr[0], &pLifeTex);
-		Library::drawSpriteAnimation2({ 120,100 }, { 0,0 }, { (float)player[1]->getLife() * 50,50 }, pLifeSpr[1], &pLifeTex);
+		Library::drawSpriteAnimation2({ 120,30 }, { 0,0 }, { (float)player[0]->getLife() * 50,50 }, pLifeSpr[0], &pLifeTex);
+		Library::drawSpriteAnimation2({ 120,90 }, { 0,0 }, { (float)player[1]->getLife() * 50,50 }, pLifeSpr[1], &pLifeTex);
 	}
 #pragma endregion
 
 	Stage::getInstance()->draw();
+
+#pragma region クリアゲームオーバー表示
+	
+	if (gameState == GAME_STATE_CLEAR)
+		Library::drawSprite({ 160,200 }, gameStateSpr, &clearTex);
+	/*if (gameState == GAME_STATE_GAMEOVER)
+		Library::drawSprite({ 200,200 }, gameStateSpr, &clearTex);*/
+	Library::drawBox({ 0,0 }, { 1280,720 }, { 155, 155, 155, Color::alphaChangePar(whiteAlpha) }, whiteSpr);
+
+#pragma endregion
+
+#pragma region ポーズ
+	if(pauseFlag)
+	{
+		Library::drawBox({ 0,0 }, { 1280,720 }, { 0,0,0,155 }, pauseSpr);
+
+		if (XInputManager::getPadConnectFlag(1))
+		Library::drawSprite({ 0,0 }, pauseStrSpr, &pauseStrPadTex);
+		else
+			Library::drawSprite({ 0,0 }, pauseStrSpr, &pauseStrKeyTex);
+	}
+#pragma endregion
+
 
 	//シーン遷移
 	SceneChange::getInstance()->draw();

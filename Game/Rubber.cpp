@@ -47,6 +47,7 @@ Rubber::Rubber(const int& pNum)
 
 	vertexHandle = PolygonManager::getInstance()->getPolygonVertex("rubber");
 	heapHandle = PolygonManager::getInstance()->getPolygonHeap("rubber");
+	Library::setPosition(position, heapHandle, pointNum - 1);
 	Library::setScale({ 0.5,0.5,0.5 }, heapHandle, pointNum - 1);
 	enemyMoveVector = 0;
 	hitEnemy = false;
@@ -69,10 +70,10 @@ void Rubber::loadModel()
 	heap h;
 	std::string material;
 
-	Library::createManyVertex3DBox({ 2,2,2 }, &v);
-	Library::createHeapData2({ 255,255,255,255 }, 9, &h);
-	/*Library::loadOBJVertex("Resources/Obj/rubber.obj", true, true, &material, &v);
-	Library::loadOBJMaterial("Resources/Obj/", material, 9, &h);*/
+	/*Library::createManyVertex3DBox({ 2,2,2 }, &v);
+	Library::createHeapData2({ 255,255,255,255 }, 9, &h);*/
+	Library::loadOBJVertex("Resources/Obj/rubber.obj", true, true, &material, &v);
+	Library::loadOBJMaterial("Resources/Obj/", material, 9, &h);
 	PolygonManager::getInstance()->addPolygonVertex("rubber", v);
 	PolygonManager::getInstance()->addPolygonHeap("rubber", h);
 }
@@ -321,18 +322,49 @@ void Rubber::hit(Object* object, CollisionType collisionType)
 
 			//ŒÀŠE‚Ì‚ÉƒvƒŒƒCƒ„[‚ª“®‚¢‚½‚çˆø‚Á’£‚ç‚ê‚é
 			Vector3 pMoveSpeed = { 0,0,0 };
-			for (int i = 0; i < _countof(rubberPtr); i++) 
+			for (int i = 0; i < _countof(rubberPtr); i++)
 			{
-				pMoveSpeed = playerVelocity[0] * playerSpeed[0];
-				rubberPtr[i]->addPosition({ pMoveSpeed .x/2,pMoveSpeed .y/2,pMoveSpeed .z/2});
-				pMoveSpeed = playerVelocity[1] * playerSpeed[1];
-				rubberPtr[i]->addPosition({ pMoveSpeed .x/2,pMoveSpeed .y/2,pMoveSpeed .z/2});
+				if (playerVelocity[0].x == 0 && playerVelocity[0].z == 0)
+				{
+					pMoveSpeed = playerVelocity[1] * playerSpeed[1];
+					rubberPtr[i]->addPosition({ pMoveSpeed.x ,pMoveSpeed.y ,pMoveSpeed.z });
+				}
+				else if (playerVelocity[1].x == 0 && playerVelocity[1].z == 0)
+				{
+					pMoveSpeed = playerVelocity[0] * playerSpeed[0];
+					rubberPtr[i]->addPosition({ pMoveSpeed.x ,pMoveSpeed.y ,pMoveSpeed.z });
+				}
+				else 
+				{
+
+					pMoveSpeed = playerVelocity[0] * playerSpeed[0];
+					rubberPtr[i]->addPosition({ pMoveSpeed.x / 2,pMoveSpeed.y / 2,pMoveSpeed.z / 2 });
+					pMoveSpeed = playerVelocity[1] * playerSpeed[1];
+					rubberPtr[i]->addPosition({ pMoveSpeed.x / 2,pMoveSpeed.y / 2,pMoveSpeed.z / 2 });
+				}
 			}
 			//“G‚àˆø‚Á’£‚é
-			pMoveSpeed = playerVelocity[0] * playerSpeed[0];
-			e->AddPosition({ pMoveSpeed.x / 2,pMoveSpeed.y / 2,pMoveSpeed.z / 2 });
-			pMoveSpeed = playerVelocity[1] * playerSpeed[1];
-			e->AddPosition({ pMoveSpeed.x / 2,pMoveSpeed.y / 2,pMoveSpeed.z / 2 });
+
+
+			if (playerVelocity[0].x == 0 && playerVelocity[0].z == 0)
+			{
+				pMoveSpeed = playerVelocity[1] * playerSpeed[1];
+				e->AddPosition({ pMoveSpeed.x ,pMoveSpeed.y ,pMoveSpeed.z });
+			}
+			else if (playerVelocity[1].x == 0 && playerVelocity[1].z == 0)
+			{
+				pMoveSpeed = playerVelocity[0] * playerSpeed[0];
+				e->AddPosition({ pMoveSpeed.x ,pMoveSpeed.y ,pMoveSpeed.z });
+			}
+			else
+			{
+
+				pMoveSpeed = playerVelocity[0] * playerSpeed[0];
+				e->AddPosition({ pMoveSpeed.x / 2,pMoveSpeed.y / 2,pMoveSpeed.z / 2 });
+				pMoveSpeed = playerVelocity[1] * playerSpeed[1];
+				e->AddPosition({ pMoveSpeed.x / 2,pMoveSpeed.y / 2,pMoveSpeed.z / 2 });
+			}
+			
 		}
 
 		//ˆÚ“®

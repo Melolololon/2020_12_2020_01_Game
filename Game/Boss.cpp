@@ -3,8 +3,12 @@
 #include"DamageNumber.h"
 #include"ObjectManager.h"
 #include"DamageObject.h"
+#include"PolygonManager.h"
 
 const int Boss::MutekiTime = 60 * 1.5f;
+
+const int Boss::CreateNum = 1;
+int Boss::createCount;
 
 //揺れ
 const Vector3 Boss::DefaultRTPos = {0,0,0};
@@ -60,16 +64,19 @@ Boss::Boss()
 	isJump = true;
 	purePos = position;
 
-	Library::createManyVertex3DBox({ 6,6,6 }, &vertexHandle);
-	Library::createHeapData2({ 255,64,255,255 }, 1, &heapHandle);
-
-	Library::setPosition(position, heapHandle, 0);
-
 	yureFlag = false;
 	yureTimer = 0;
 	yureRandNum = 0;
 
 	angle = 0;
+
+	vertexHandle = PolygonManager::getInstance()->getPolygonVertex("aroundenemy");
+	heapHandle = PolygonManager::getInstance()->getPolygonVertex("aroundenemy");
+	heapNum = createCount;
+	createCount++;
+	createCount = createCount >= CreateNum ? 0 : createCount;
+	Library::setPosition(position, heapHandle, heapNum);
+	Library::setScale({3,3,3}, heapHandle, heapNum);
 }
 
 //デストラクタ
@@ -77,6 +84,16 @@ Boss::~Boss()
 {
 }
 
+void Boss::loadModel()
+{
+	vertex v;
+	heap h;
+	std::string s;
+	Library::loadOBJVertex("Resources/Obj/aroundenemy.obj", true, true, &s, &v);
+	Library::loadOBJMaterial("Resources/Obj/", s, CreateNum, &h);
+	PolygonManager::getInstance()->addPolygonVertex("aroundenemy", v);
+	PolygonManager::getInstance()->addPolygonHeap("aroundenemy", h);
+}
 
 //更新
 void Boss::update()
@@ -86,10 +103,9 @@ void Boss::update()
 	
 	purePos = position;
 	position += velocity * speed;
-	Library::setPosition(position, heapHandle, 0);
+	Library::setPosition(position, heapHandle, heapNum);
 	sphereData[0].position = position;
 
-	Library::setAngle(angle, heapHandle, 0);
 
 	//無敵処理
 	if (isMuteki)mutekiTimer++;
@@ -99,7 +115,13 @@ void Boss::update()
 		isMuteki = false;
 	}
 
+#pragma region 回転処理
 
+
+	Library::setAngle(angle, heapHandle, heapNum);
+#pragma endregion
+
+	 
 #pragma region 画面揺らし
 
 	Library::setRenderTargetPosition({0,0,0}, 0);
@@ -122,7 +144,8 @@ void Boss::update()
 		Library::setRenderTargetPosition(yureRandNum, 0);
 	}
 	
-	if (position.y <= -50 && position.y >= -51)yureFlag = true;
+	if (position.y <= -50 && position.y >= -55)
+		yureFlag = true;
 #pragma endregion
 
 	
@@ -131,7 +154,23 @@ void Boss::update()
 //描画
 void Boss::draw()
 {
-	Library::drawGraphic(vertexHandle, heapHandle, 0);
+	Library::setPipeline(PIPELINE_MATERIAL);
+	if (life > 0) 
+	{
+		if (!isMuteki)
+			Library::drawGraphic(vertexHandle, heapHandle, heapNum);
+		else
+		{
+			if (mutekiTimer % 2 == 0)
+			{
+				Library::drawGraphic(vertexHandle, heapHandle, heapNum);
+			}
+		}
+	}
+	else
+		Library::drawGraphic(vertexHandle, heapHandle, heapNum);
+
+	Library::setPipeline(PIPELINE_NORMAL);
 }
 
 void Boss::hit(Object* object, CollisionType collisionType)
@@ -148,7 +187,7 @@ void Boss::hit(Object* object, CollisionType collisionType)
 
 			life -= damage;
 
-			if (damage > 0)
+			if (damage > 0 )
 			{
 				isMuteki = true;
 				ObjectManager::getInstance()->addObject(new DamageNumber({ position.x,position.y + 3.0f,position.z }, damage));
@@ -180,12 +219,14 @@ void Boss::bossPattern()
 		return;
 	}
 
+	Vector3 addPos = { position.x,0,position.z - 3 };
+
 	//ジャンプして着地したら
 	//y = 0にしない(地上にいる時0にならないから)
 	if(purePos.y > position.y && 
-		position.y <= 0 )
+		position.y <= 3 )
 	{
-		position.y = 0;
+		position.y = 3;
 		velocity = 0;
 		isJump = false;
 		yureFlag = true;
@@ -199,7 +240,7 @@ void Boss::bossPattern()
 			(
 				new DamageObject
 				(
-					position,
+					addPos,
 					syogekihaVel[arrNum][i], 
 					{ 0.2f,0,0.2f },
 					DamageObject::DAMAGE_OBJECT_SYOGEKIHA
@@ -218,23 +259,23 @@ void Boss::bossPattern()
 
 	if (bossPatternTimer == 60 * 6) 
 	{
-		ObjectManager::getInstance()->addObject(new Enemy(position, Enemy::PLAYER_TARGET));
+		ObjectManager::getInstance()->addObject(new Enemy(addPos, Enemy::PLAYER_TARGET));
 	}
 
 	if (bossPatternTimer == 60 * 7)
 	{
-		ObjectManager::getInstance()->addObject(new Enemy(position, Enemy::PLAYER_TARGET));
+		ObjectManager::getInstance()->addObject(new Enemy(addPos, Enemy::PLAYER_TARGET));
 	}
 
 	if (bossPatternTimer == 60 * 8)
 	{
 		if (life >= 7) 
 		{
-			ObjectManager::getInstance()->addObject(new Enemy(position, Enemy::PLAYER_TARGET));
+			ObjectManager::getInstance()->addObject(new Enemy(addPos, Enemy::PLAYER_TARGET));
 		}
 		else
 		{
-			ObjectManager::getInstance()->addObject(new Enemy(position, Enemy::PLAYER_TUIBI));
+			ObjectManager::getInstance()->addObject(new Enemy(addPos, Enemy::PLAYER_TUIBI));
 		}
 		bossPatternTimer = 0;
 	}
@@ -249,7 +290,8 @@ bool Boss::getIsJump()
 
 bool Boss::getDropFlag()
 {
-	if (velocity.y <= -50) return true;
+	if (position.y <= -100)
+		return true;
 	return false;
 	
 }

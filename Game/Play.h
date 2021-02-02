@@ -42,7 +42,16 @@ private:
 	texture hpTex;
 
 	//クリアゲームオーバー
+	sprite gameStateSpr;
+	texture clearTex;
 
+	sprite whiteSpr;
+	float whiteAlpha;
+
+	sprite pauseSpr;
+	sprite pauseStrSpr;
+	texture pauseStrPadTex;
+	texture pauseStrKeyTex;
 #pragma endregion
 
 	
@@ -51,6 +60,7 @@ private:
 	static const int SceneChangeTime;
 
 	Rubber* rP[9];
+
 public:
 	Play();
 	~Play();

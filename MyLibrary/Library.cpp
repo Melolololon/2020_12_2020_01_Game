@@ -42,7 +42,7 @@ LRESULT Library::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 }
 
-void Library::initialize(int windowWidth, int windowHeight, const Color& screenColor)
+void Library::initialize(int windowWidth, int windowHeight, const Color& screenColor, const wchar_t* windowName)
 {
 	srand((unsigned int)time(NULL));
 	count = 0;
@@ -56,7 +56,7 @@ void Library::initialize(int windowWidth, int windowHeight, const Color& screenC
 
 	w.cbSize = sizeof(WNDCLASSEX);
 	w.lpfnWndProc = (WNDPROC)WindowProc;
-	w.lpszClassName = L"DirectXGame";
+	w.lpszClassName = windowName;
 	w.hInstance = GetModuleHandle(nullptr);
 	w.hCursor = LoadCursor(NULL, IDC_ARROW);
 
@@ -66,7 +66,7 @@ void Library::initialize(int windowWidth, int windowHeight, const Color& screenC
 
 	hwnd = CreateWindow(
 		w.lpszClassName,
-		L"DirectXGame",
+		windowName,
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,

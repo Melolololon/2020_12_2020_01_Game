@@ -126,6 +126,10 @@ private:
 	/*static vertex arrowVertexH;
 	static heap arrowHeapH;
 	static Vector3 hitEnemyVector;*/
+
+	static bool stopFlag;
+
+	static bool gameClearFlag;
 public:
 
 
@@ -154,6 +158,7 @@ public:
 
 	PlayerType getPlayerType();
 	
-
+	static void setStopFlag(const bool& flag);
+	static void setGameClearFlag(const bool& flag);
 };
 

@@ -87,7 +87,7 @@ public:
 	/// </summary>
 	/// <param name="windowWidth">ウィンドウ横幅</param>
 	/// <param name="windowHeight">ウィンドウ縦幅</param>
-	static void initialize(int windowWidth, int windowHeight,const Color& screenColor);
+	static void initialize(int windowWidth, int windowHeight,const Color& screenColor,const wchar_t* windowName);
 
 	/// <summary>
 	/// 描画準備をします。更新処理部分の一番上で呼び出してください
