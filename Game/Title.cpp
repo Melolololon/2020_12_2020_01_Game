@@ -46,10 +46,14 @@ void Title::initialize()
 		ObjectManager::getInstance()->addObject(rP[i - 1]);
 	}
 	Rubber::setRubberPtr(rP);
+	Library::playLoadSound("stage");
+
 }
 
 void Title::update()
 {
+
+
 	pushScaleChangeTimer++;
 	if(pushScaleChangeTimer < PushScaleChangeTime / 2)
 	{

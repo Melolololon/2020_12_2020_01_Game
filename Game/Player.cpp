@@ -770,6 +770,7 @@ void Player::hit(Object* object, CollisionType collisionType)
 		life--;
 		isMuteki = true;
 
+		Library::playSound("Resources/Sound/pHit.wav");
 		if(life <= 0)
 		{
 			for (int i = 0; i < 10; i++)
@@ -788,6 +789,7 @@ void Player::hit(Object* object, CollisionType collisionType)
 	{
 		life--;
 		isMuteki = true;
+		Library::playSound("Resources/Sound/pHit.wav");
 	}
 }
 

@@ -173,6 +173,14 @@ void Stage::initialize(const int& stageNum)
 		Library::setCamera(cameraPos, {0,0,40}, { 0,1,0 });
 		Library::setCameraMatrixPoint(cameraPos, { 0,0,-3 }, { 0,1,0 });
 	}
+
+	if(stage == 3 || stage == 6)
+	{
+		Library::stopLoadSound("stage",false);
+		Library::playLoadSound("boss");
+	}
+
+	playClearSound = false;
 }
 
 void Stage::update()
@@ -249,6 +257,15 @@ void Stage::update()
 	{
 		Player::setGameClearFlag(true);
 		clearFlag = true;
+
+		
+		if(!playClearSound)
+		{
+			playClearSound = true;
+			Library::stopLoadSound("stage", false);
+
+			Library::playSound("Resources/Sound/clear.wav");
+		}
 	}
 
 	if(stage == 3)
@@ -257,16 +274,25 @@ void Stage::update()
 
 		if (b->getLifeZero()) 
 		{
+			Player::setGameClearFlag(true);
 			cameraPos = Boss1StartCameraPos;
 
 			Vector3 cameraTar = enemys[0]->getSphereData()[0].position;
 			if (cameraTar.y <= 0)cameraTar.y = 0;
 			Library::setCamera(cameraPos, cameraTar, { 0,1,0 });
+
+			Library::stopLoadSound("boss", false);
+			
 		}
 		if (b->getDropFlag()) 
 		{
-			Player::setGameClearFlag(true);
-			clearFlag = true;
+			clearFlag = true; 
+			if (!playClearSound)
+			{
+				playClearSound = true;
+
+				Library::playSound("Resources/Sound/clear.wav");
+			}
 		}
 	}
 
@@ -275,15 +301,22 @@ void Stage::update()
 		Boss2* b = static_cast<Boss2*>(enemys[0]->getPtr());
 		if (b->getLifeZero())
 		{
+			Player::setGameClearFlag(true);
 			cameraPos = Boss2StartCameraPos;
 			Vector3 cameraTar = enemys[0]->getSphereData()[0].position;
 			Library::setCamera(cameraPos, cameraTar, { 0,1,0 });
 
+			Library::stopLoadSound("boss", false);
 		}
 		if (b->scaleZeroFlag())
 		{
-			Player::setGameClearFlag(true);
 			clearFlag = true;
+			if (!playClearSound)
+			{
+				playClearSound = true;
+
+				Library::playSound("Resources/Sound/clear.wav");
+			}
 		}
 	}
 

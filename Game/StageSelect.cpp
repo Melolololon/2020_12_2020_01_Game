@@ -58,6 +58,9 @@ void StageSelect::initialize()
 
 	titleBack = false;
 	titleBackTimer = 0;
+
+
+	Library::playLoadSound("stage");
 }
 
 void StageSelect::update()

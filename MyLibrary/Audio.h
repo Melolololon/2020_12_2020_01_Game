@@ -43,7 +43,7 @@ public:
 	void playWave(const char* path);
 
 
-	void loadSound(const char* path, std::string name);
+	void loadSound(const char* path, std::string name, bool loop);
 	void playLoadSound(std::string name);
 	void stopLoadSound(std::string name,bool resetFlag);
 };

@@ -863,7 +863,7 @@ public:
 	/// </summary>
 	/// <param name="path">ファイルのパス</param>
 	/// <param name="name">サウンド名(任意の名前)</param>
-	static void loadSound(const char* path, std::string name);
+	static void loadSound(const char* path, std::string name,bool loop);
 
 	/// <summary>
 	/// 読み込んだサウンド再生します

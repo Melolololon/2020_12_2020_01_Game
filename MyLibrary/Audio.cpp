@@ -109,7 +109,7 @@ void Audio::playWave(const char* path)
 
 }
 
-void Audio::loadSound(const char* path, std::string name)
+void Audio::loadSound(const char* path, std::string name, bool loop)
 {
 	HRESULT result;
 
@@ -158,12 +158,16 @@ void Audio::loadSound(const char* path, std::string name)
 	buf.pContext = pBuffer;
 	buf.Flags = XAUDIO2_END_OF_STREAM;
 	buf.AudioBytes = chunk.size;
+	if(loop)
 	buf.LoopCount = XAUDIO2_LOOP_INFINITE;
+	else
+		buf.LoopCount = 0;
 	
 
 	result = pSourceVoice->SubmitSourceBuffer(&buf);
 	pLoadSourceVoices.emplace(name, pSourceVoice);
 
+#pragma endregion
 }
 
 void Audio::playLoadSound(std::string name)

@@ -103,6 +103,8 @@ void ParentEnemy::update()
 	if (life <= 0)
 	{
 		deadCount++;
+
+		Library::playSound("Resources/Sound/Bakuhatu.wav");
 		isDead = true;
 	}
 
@@ -172,6 +174,8 @@ void ParentEnemy::hit(Object * object, CollisionType collisionType)
 			{
 				isMuteki = true;
 				ObjectManager::getInstance()->addObject(new DamageNumber({ position.x,position.y + 3.0f,position.z }, damage));
+
+				Library::playSound("Resources/Sound/hit.wav");
 			}
 			if (life <= 0)
 			{

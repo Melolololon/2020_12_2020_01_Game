@@ -83,6 +83,8 @@ void Play::initialize()
 	gameState = GAME_STATE_NORMAL;
 	sceneChangeTimer = 0;
 	whiteAlpha = 0.0f;
+
+
 }
 
 void Play::update()
@@ -246,6 +248,8 @@ void Play::end()
 	ParentEnemy::ResetDeadCount();
 	Stage::getInstance()->end();
 	ObjectManager::getInstance()->allDeleteObject();
+
+	Library::stopLoadSound("boss", false);
 }
 
 std::string Play::nextScene()

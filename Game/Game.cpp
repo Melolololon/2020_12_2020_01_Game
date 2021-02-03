@@ -75,6 +75,9 @@ void Game::initialize()
 	PipelineManager::getInstance()->addPipeline("billboardPL", billboardPL);
 #pragma endregion
 
+	Library::loadSound("Resources/Sound/ChainDP_STAGE_BGM.wav", "stage", true);
+	Library::loadSound("Resources/Sound/Chain_DP_Boss.wav", "boss", true);
+
 #pragma region 生成読み込み
 	Stage::getInstance()->loadModelAndTexture();
 	Player::loadModel();
@@ -87,6 +90,8 @@ void Game::initialize()
 	DamageObject::loadModel();
 	Particle::loadModel();
 #pragma endregion
+
+	
 
 #pragma region マネージャー初期化
 	ObjectManager::getInstance()->initialize();
@@ -128,6 +133,7 @@ void Game::end()
 void Game::update()
 {
 	SceneManager::getInstace()->update();
+
 }
 
 void Game::draw()

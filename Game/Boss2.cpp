@@ -226,6 +226,7 @@ void Boss2::update()
 	yureRandNum = 0;
 	if (yureFlag)
 	{
+		if (yureTimer == 0)Library::playSound("Resources/Sound/Syogeki.wav");
 		yureTimer++;
 		if (yureTimer >= YureTime)
 		{
@@ -352,6 +353,7 @@ void  Boss2::hit(Object* object, CollisionType collisionType)
 
 			if (damage > 0)
 			{
+				Library::playSound("Resources/Sound/hit.wav");
 				isMuteki = true;
 				ObjectManager::getInstance()->addObject(new DamageNumber({ position.x,position.y + 3.0f,position.z }, damage));
 			}

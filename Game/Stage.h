@@ -67,6 +67,8 @@ private:
 	static const Vector3 Boss1StartCameraPos;
 	//É{ÉX2
 	static const Vector3 Boss2StartCameraPos;
+
+	bool playClearSound;
 public:
 	Stage(Stage& s) = delete;
 	Stage& operator=(Stage& s) = delete;

@@ -176,7 +176,12 @@ void Enemy::update()
 		isMuteki = false;
 	}
 
-	if (life <= 0 && !myShot)isDead = true;
+	if (life <= 0 && !myShot)
+	{
+
+		Library::playSound("Resources/Sound/Bakuhatu.wav");
+		isDead = true;
+	}
 
 	if (position.x >= 60 ||
 		position.x <= -60 ||
@@ -327,6 +332,7 @@ void Enemy::hit(Object* object, CollisionType collisionType)
 			{
 				isMuteki = true;
 				ObjectManager::getInstance()->addObject(new DamageNumber(position, damage));
+				Library::playSound("Resources/Sound/hit.wav");
 			}
 			if (life <= 0)
 			{

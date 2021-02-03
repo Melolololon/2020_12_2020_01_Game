@@ -1048,9 +1048,9 @@ void Library::playSound(const char* path)
 	audio.get()->playWave(path);
 }
 
-void Library::loadSound(const char* path, std::string name)
+void Library::loadSound(const char* path, std::string name, bool loop)
 {
-	audio.get()->loadSound(path, name);
+	audio.get()->loadSound(path, name,loop);
 }
 void Library::playLoadSound(std::string name)
 {
