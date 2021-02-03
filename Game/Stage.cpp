@@ -177,7 +177,6 @@ void Stage::initialize(const int& stageNum)
 
 void Stage::update()
 {
-	if (clearFlag)Player::setGameClearFlag(true);
 
 	stageStartTimer++;
 
@@ -246,8 +245,11 @@ void Stage::update()
 	}
 #pragma region ƒNƒŠƒAˆ—
 
-	if (ParentEnemy::GetDeadCount() >= stageClearEnemyNum)
+	if (ParentEnemy::GetDeadCount() >= stageClearEnemyNum) 
+	{
+		Player::setGameClearFlag(true);
 		clearFlag = true;
+	}
 
 	if(stage == 3)
 	{
@@ -261,11 +263,14 @@ void Stage::update()
 			if (cameraTar.y <= 0)cameraTar.y = 0;
 			Library::setCamera(cameraPos, cameraTar, { 0,1,0 });
 		}
-		if (b->getDropFlag())
+		if (b->getDropFlag()) 
+		{
+			Player::setGameClearFlag(true);
 			clearFlag = true;
+		}
 	}
 
-	if(stage == 6)
+	if (stage == 6)
 	{
 		Boss2* b = static_cast<Boss2*>(enemys[0]->getPtr());
 		if (b->getLifeZero())
@@ -275,7 +280,11 @@ void Stage::update()
 			Library::setCamera(cameraPos, cameraTar, { 0,1,0 });
 
 		}
-		if (b->scaleZeroFlag())clearFlag = true;
+		if (b->scaleZeroFlag())
+		{
+			Player::setGameClearFlag(true);
+			clearFlag = true;
+		}
 	}
 
 #pragma endregion

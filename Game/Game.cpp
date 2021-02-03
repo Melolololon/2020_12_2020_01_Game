@@ -106,7 +106,11 @@ void Game::initialize()
 	SceneManager::getInstace()->addScene("Play", new Play());
 #pragma endregion
 
-
+	Library::createBoard({ 400,400 }, dimention3D, &waterV);
+	Library::createHeapData(L"Resources/Texture/water.png", 1, &waterH);
+	Library::setAngle({ 90,0,0 }, waterH, 0);
+	Library::setPosition({ 0,-10,0 }, waterH, 0);
+	
 }
 
 
@@ -128,5 +132,7 @@ void Game::update()
 
 void Game::draw()
 {
+	Library::drawGraphic(waterV, waterH, 0);
 	SceneManager::getInstace()->draw();
+	
 }

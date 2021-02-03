@@ -13,6 +13,9 @@ private:
 
 
 	pipeline billboardPL;
+
+	vertex waterV;
+	heap waterH;
 public:
 	Game(const Game&) = delete;
 	Game& operator=(const Game) = delete;

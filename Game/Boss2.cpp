@@ -139,6 +139,7 @@ void Boss2::loadModel()
 void Boss2::update()
 {
 
+	if (life <= 0)Enemy::allDead(true);
 
 	bossPatternTimer++;
 	bossPattern();
@@ -354,7 +355,6 @@ void  Boss2::hit(Object* object, CollisionType collisionType)
 				isMuteki = true;
 				ObjectManager::getInstance()->addObject(new DamageNumber({ position.x,position.y + 3.0f,position.z }, damage));
 			}
-			if (life <= 0)Enemy::allDead(true);
 
 		}
 

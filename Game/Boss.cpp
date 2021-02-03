@@ -4,6 +4,7 @@
 #include"ObjectManager.h"
 #include"DamageObject.h"
 #include"PolygonManager.h"
+#include"Particle.h"
 
 const int Boss::MutekiTime = 60 * 1.5f;
 
@@ -98,6 +99,7 @@ void Boss::loadModel()
 //çXêV
 void Boss::update()
 {
+	if (life <= 0)Enemy::allDead(true);
 	bossPatternTimer++;	
 	bossPattern();
 	
@@ -144,8 +146,14 @@ void Boss::update()
 		Library::setRenderTargetPosition(yureRandNum, 0);
 	}
 	
-	if (position.y <= -50 && position.y >= -55)
-		yureFlag = true;
+	if (position.y <= -10 && position.y >= -11)
+	{
+		for (int i = 0; i < 40; i++)
+		{
+			ObjectManager::getInstance()->addObject(new Particle(position, Particle::PARTICLE_WATER));
+		}
+	}
+	//	yureFlag = true;
 #pragma endregion
 
 	

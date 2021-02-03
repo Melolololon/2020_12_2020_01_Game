@@ -7,11 +7,18 @@ Particle::Particle(const Vector3& pos, const ParticleType& parType)
 {
 	this->particleType = parType;
 	position = pos;
-	velocity.x = Library::getRandomNumber(5) - 2;
+	velocity.x = Library::getRandomNumber(41) - 20;
+	velocity.x /= 15;
 	velocity.y = 3;
-	velocity.z = Library::getRandomNumber(5) - 2;
-	Vector3::normalize(velocity);
+	velocity.z = Library::getRandomNumber(41) - 20;
+	velocity.z /= 15;
 	speed = 0.1f;
+	if (particleType == PARTICLE_WATER) 
+	{
+		speed.x *= 3;
+		speed.y *= 3;
+		speed.z *= 3;
+	}
 	isDead = false;
 
 	collisionFlag.board = false;
@@ -70,6 +77,11 @@ void Particle::draw()
 	else if (particleType == PARTICLE_PLAYER_RIGHT)
 	{
 		Library::setAddColor({ 60,0,0,0 }, heapHandle, heapNum);
+		Library::setSubColor({ 0,0,0,0 }, heapHandle, heapNum);
+	}
+	else if (particleType == PARTICLE_WATER)
+	{
+		Library::setAddColor({ 80,230,230,0 }, heapHandle, heapNum);
 		Library::setSubColor({ 0,0,0,0 }, heapHandle, heapNum);
 	}
 	else
