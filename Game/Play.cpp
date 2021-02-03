@@ -106,7 +106,7 @@ void Play::update()
 #pragma region ƒ|[ƒYˆ—
 	if (DirectInput::keyTrigger(DIK_ESCAPE) || XInputManager::buttonTrigger(XInputManager::XINPUT_START_BUTTON,1))
 	{
-		//if(!Stage::getInstance()->getTutorialFlag())
+		if(!Stage::getInstance()->getTutorialFlag())
 		pauseFlag = pauseFlag == false ? true : false;
 	}
 	if (pauseFlag)
