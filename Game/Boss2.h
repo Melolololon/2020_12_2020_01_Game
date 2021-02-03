@@ -75,5 +75,6 @@ public:
 
 	bool getLifeZero();
 	bool scaleZeroFlag();
+
 };
 

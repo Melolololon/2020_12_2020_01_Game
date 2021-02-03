@@ -8,6 +8,7 @@
 #include"PolygonManager.h"
 #include"Boss.h"
 #include"Boss2.h"
+#include"Particle.h"
 
 Vector3 Enemy::playerPosition[2];
 
@@ -19,10 +20,10 @@ int Enemy::createCount;
 const int Enemy::PunchCreateNum = 10;
 int Enemy::punchCreateCount;
 
+bool Enemy::allDeadFlag;
+
 Enemy::Enemy(const Vector3& pos, const EnemyType& enemyType)
 {
-	Library::createManyVertex3DBox({ 2,2,2 }, &vertexHandle);
-	Library::createHeapData2({ 64,255,64,255 }, 1, &heapHandle);
 
 	position = pos;
 	this->enemyType = enemyType;
@@ -35,13 +36,12 @@ Enemy::Enemy(const Vector3& pos, const EnemyType& enemyType)
 
 Enemy::Enemy(const Vector3& pos, const Vector3& vel)
 {
-	Library::createManyVertex3DBox({ 2,2,2 }, &vertexHandle);
-	Library::createHeapData2({ 64,255,64,255 }, 1, &heapHandle);
 
-	Initialize();
 	position = pos;
+	Initialize();
 	velocity = vel;
 	enemyType = SET_VELOCITY;
+
 }
 
 Enemy::~Enemy()
@@ -141,6 +141,8 @@ void Enemy::Initialize()
 
 void Enemy::update()
 {
+	if (allDeadFlag)isDead = true;
+
 	UpdateVelocity();
 	position = position + velocity * speed;
 	Library::setPosition(position, heapHandle, heapNum);
@@ -307,6 +309,13 @@ void Enemy::hit(Object* object, CollisionType collisionType)
 				isMuteki = true;
 				ObjectManager::getInstance()->addObject(new DamageNumber(position, damage));
 			}
+			if (life <= 0)
+			{
+				for (int i = 0; i < 5; i++) 
+				{
+					ObjectManager::getInstance()->addObject(new Particle(position, Particle::PARTICLE_ENEMY_DEAD));
+				}
+			}
 		}
 		
 		
@@ -333,4 +342,7 @@ void Enemy::SetPlayerPos(const Vector3& pos, const int& playerType)
 	playerPosition[playerType - 1] = pos;
 }
 
-
+void Enemy::allDead(const bool& flag)
+{
+	allDeadFlag = flag;
+}

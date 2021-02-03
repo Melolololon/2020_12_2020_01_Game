@@ -49,7 +49,7 @@ Play::~Play()
 
 void Play::initialize()
 {
-	
+	Enemy::allDead(false);
 
 
 #pragma region ƒvƒŒƒCƒ„[ŠÖŒW

@@ -5,6 +5,8 @@
 #include"ParentEnemy.h"
 #include"Boss2.h"
 #include"XInputManager.h"
+#include"Particle.h"
+#include"ObjectManager.h"
 
 Vector3 Player::leftPlayerPosition;
 Vector3 Player::rightPlayerPosition;
@@ -767,6 +769,19 @@ void Player::hit(Object* object, CollisionType collisionType)
 		/*if (e->GetMyShot())return;*/
 		life--;
 		isMuteki = true;
+
+		if(life <= 0)
+		{
+			for (int i = 0; i < 10; i++)
+			{
+				if(playerType == LEFT)
+				ObjectManager::getInstance()->addObject(new Particle(position, Particle::PARTICLE_PLAYER_LEFT));
+				else 
+					ObjectManager::getInstance()->addObject(new Particle(position, Particle::PARTICLE_PLAYER_RIGHT));
+
+
+			}
+		}
 	}
 
 	if (typeid(*object) == typeid(DamageObject))

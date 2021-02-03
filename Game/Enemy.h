@@ -59,6 +59,9 @@ private:
 
 	static const int PunchCreateNum;
 	static int punchCreateCount;
+
+
+	static bool allDeadFlag;
 public:
 	//コンストラクタ
 	Enemy(const Vector3& pos,const EnemyType& enemyType);
@@ -103,6 +106,6 @@ public:
 
 	int GetDamage();
 
-
+	static void allDead(const bool& flag);
 };
 

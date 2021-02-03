@@ -5,6 +5,7 @@
 #include"ObjectManager.h"
 #include"Player.h"
 #include"Rubber.h"
+#include"Particle.h"
 Title::Title()
 {
 	SceneChange::getInstance()->load();
@@ -86,6 +87,11 @@ void Title::update()
 	Library::setCameraAngle(cameraAngle, { 0,0,0 }, { 0,0,0 });
 	cameraAngle.y += 0.5f;
 	cameraAngle.y = cameraAngle.y >= 360 ? 0 : cameraAngle.y;
+
+	/*if(DirectInput::keyState(DIK_A))
+	{
+		ObjectManager::getInstance()->addObject(new Particle({ 0,0,0 }, Particle::PARTICLE_ENEMY_DEAD));
+	}*/
 }
 
 void Title::draw()

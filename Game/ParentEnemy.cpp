@@ -3,7 +3,7 @@
 #include"ObjectManager.h"
 #include"DamageNumber.h"
 #include"PolygonManager.h"
-
+#include"Particle.h"
 int ParentEnemy::deadCount;
 Vector3 ParentEnemy::playerPos[2];
 
@@ -172,6 +172,13 @@ void ParentEnemy::hit(Object * object, CollisionType collisionType)
 			{
 				isMuteki = true;
 				ObjectManager::getInstance()->addObject(new DamageNumber({ position.x,position.y + 3.0f,position.z }, damage));
+			}
+			if (life <= 0)
+			{
+				for (int i = 0; i < 10; i++)
+				{
+					ObjectManager::getInstance()->addObject(new Particle(position, Particle::PARTICLE_ENEMY_DEAD));
+				}
 			}
 		}
 

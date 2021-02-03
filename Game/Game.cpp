@@ -17,6 +17,7 @@
 #include"StageSelect.h"
 #include"Play.h"
 #include"DamageObject.h"
+#include"Particle.h"
 //テストコメント
 
 Game::Game() {}
@@ -84,6 +85,7 @@ void Game::initialize()
 	Enemy::loadModel();
 	Boss2::loadModel();
 	DamageObject::loadModel();
+	Particle::loadModel();
 #pragma endregion
 
 #pragma region マネージャー初期化

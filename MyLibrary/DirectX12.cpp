@@ -5,7 +5,7 @@
 
 DirectX12::DirectX12(HWND hwnd, int windouWidth, int windowHeight)
 {
-
+	cameraMat = DirectX::XMMatrixIdentity();
 #pragma region Windows
 
 	this->hwnd = hwnd;
@@ -1034,10 +1034,24 @@ void DirectX12::preparationToDraw()
 
 #pragma endregion
 
+
 }
 
 void DirectX12::draw()
 {
+	//共通バッファのMap
+	for (auto& cBuf : commonBuffer) 
+	{
+		cBuf->Map(0, nullptr, (void**)&commonConstData3D);
+		commonConstData3D->lightColor = { lightColor.x,lightColor.y,lightColor.z,1 };
+		commonConstData3D->light = { lightVector.x,lightVector.y,lightVector.z,1 };
+		commonConstData3D->lightMat = cameraMat;
+		commonConstData3D->cameraPos = { mainCameraData.nowEye.x,mainCameraData.nowEye.y,mainCameraData.nowEye.z,1 };
+
+		cBuf->Unmap(0, nullptr);
+	}
+
+
 	//ポストエフェクトレンダーターゲットのMap
 	DirectX::XMMATRIX peWorldMat = DirectX::XMMatrixIdentity();
 	peWorldMat *= DirectX::XMMatrixScaling
@@ -1278,6 +1292,7 @@ bool DirectX12::createUserPipelineState
 void DirectX12::setPipelineNumber(int num)
 {
 	pipelineNum = num;
+
 }
 //
 //void DirectX12::setMapConstData(void** constData, int heapNum, int number)
@@ -1580,6 +1595,11 @@ void DirectX12::setCameraAngre(DirectX::XMFLOAT3 eyeAngle, DirectX::XMFLOAT3 tar
 		mainCameraData.nearNumber,
 		mainCameraData.farNumber
 	);
+
+	cameraMat = DirectX::XMMatrixIdentity();
+	cameraMat *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(-mainCameraData.eyeAngle.z));
+	cameraMat *= DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(-mainCameraData.eyeAngle.x));
+	cameraMat *= DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(-mainCameraData.eyeAngle.y));
 }
 
 void DirectX12::setNearAndFar(float nearNum, float farNum)
@@ -3223,7 +3243,9 @@ void DirectX12::setCmdList(int polyNum, int despNum, int number)
 {
 	if (polyNum >= 0 && despNum >= 0 && number >= 0)
 	{
+		cmdList->SetGraphicsRootSignature(rootSignature.Get());
 		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		cmdList->SetPipelineState(pipelineStates[pipelineNum].Get());
 
 		std::vector<ID3D12DescriptorHeap*> ppHeaps;
 
@@ -3263,8 +3285,6 @@ void DirectX12::setCmdList(int polyNum, int despNum, int number)
 		//3D
 		if (polyDatas[polyNum].dimention == Dimension::dimention3D)//3D
 		{
-			cmdList->SetGraphicsRootSignature(rootSignature.Get());
-			cmdList->SetPipelineState(pipelineStates[pipelineNum].Get());
 
 			ppHeaps.push_back(basicHeaps[despNum].Get());
 			cmdList->SetDescriptorHeaps(1, &ppHeaps[0]);
@@ -3410,18 +3430,13 @@ void DirectX12::map(int polyNum, int despNumber, int number)
 			constData3D->mulColor = mulColor[despNumber][number];
 			constData3D->ex = exs[despNumber][number];
 
-			DirectX::XMMATRIX cameraMat = DirectX::XMMatrixIdentity();
-			cameraMat *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(-mainCameraData.eyeAngle.z));
-			cameraMat *= DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(-mainCameraData.eyeAngle.x));
-			cameraMat *= DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(-mainCameraData.eyeAngle.y));
+			
 
 			DirectX::XMMATRIX normalMat;
 			normalMat = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(angle[despNumber][number].z));
 			normalMat *= DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(angle[despNumber][number].x));
 			normalMat *= DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(angle[despNumber][number].y));
 			constData3D->normalMat = normalMat * cameraMat;
-
-
 
 
 
@@ -3575,13 +3590,7 @@ void DirectX12::map(int polyNum, int despNumber, int number)
 			//constData3D->mat = constData3D->mat * DirectX::XMMatrixInverse(nullptr, mainCamera->get3DCameraMatrix(mainCameraData));
 
 
-			commonBuffer[despNumber]->Map(0, nullptr, (void**)&commonConstData3D);
-			commonConstData3D->lightColor = { lightColor.x,lightColor.y,lightColor.z,1 };
-			commonConstData3D->light = { lightVector.x,lightVector.y,lightVector.z,1 };
-			commonConstData3D->lightMat = cameraMat;
-			commonConstData3D->cameraPos = { mainCameraData.nowEye.x,mainCameraData.nowEye.y,mainCameraData.nowEye.z,1 };
-
-			commonBuffer[despNumber]->Unmap(0, nullptr);
+			
 		}
 
 		constBufferSet[despNumber][number].constBuffer[0].Get()->Unmap(0, nullptr);

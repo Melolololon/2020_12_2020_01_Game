@@ -55,6 +55,17 @@ class DirectX12
 private:
 	float clearColor[4];
 
+#pragma region 現在の描画コマンド状態
+	enum RSState
+	{
+		RS_MODEL,
+		RS_SPRITE,
+		RS_POINT,
+	};
+#pragma endregion
+
+	DirectX::XMMATRIX cameraMat;
+
 #pragma region Windows
 	HWND hwnd;
 	int winWidth;
@@ -108,6 +119,8 @@ private:
 
 	int pipelineNum;
 	int spritePipelineNum;
+
+
 #pragma endregion
 
 #pragma region バッファ

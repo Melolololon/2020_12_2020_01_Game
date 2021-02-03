@@ -4,6 +4,7 @@
 #include"DamageNumber.h"
 #include"DamageObject.h"
 #include"PolygonManager.h"
+#include"Particle.h"
 
 const int Boss2::MutekiTime = 60 * 1.5f;
 Vector3 Boss2::playerPos[2];
@@ -137,6 +138,8 @@ void Boss2::loadModel()
 //çXêV
 void Boss2::update()
 {
+
+
 	bossPatternTimer++;
 	bossPattern();
 
@@ -184,6 +187,14 @@ void Boss2::update()
 		scale.y -= 0.02f;
 		scale.z -= 0.02f;
 		Library::setScale(scale, heapHandle, heapNum);
+
+		if(scale.x <= 0.02)
+		{
+			for (int i = 0; i < 10; i++)
+			{
+				ObjectManager::getInstance()->addObject(new Particle(position, Particle::PARTICLE_ENEMY_DEAD));
+			}
+		}
 
 		return;
 	}
@@ -239,7 +250,11 @@ void  Boss2::bossPattern()
 {
 	bossPatternTimer++;
 
-	if (life <= 0)return;
+	if (life <= 0)
+	{
+		yureFlag = false;
+		return;
+	}
 
 	if (position.y < 2.5) 
 	{
@@ -263,6 +278,7 @@ void  Boss2::bossPattern()
 		if (LibMath::calcDistance3D(lPVec, position) < LibMath::calcDistance3D(rPVec, position))
 			vec = LibMath::otherVector(position, lPVec);
 		else
+			vec = LibMath::otherVector(position, rPVec);
 			vec = LibMath::otherVector(position, rPVec);
 		velocity.x = vec.x * 4;
 		speed = 0.15f;
@@ -338,11 +354,8 @@ void  Boss2::hit(Object* object, CollisionType collisionType)
 				isMuteki = true;
 				ObjectManager::getInstance()->addObject(new DamageNumber({ position.x,position.y + 3.0f,position.z }, damage));
 			}
+			if (life <= 0)Enemy::allDead(true);
 
-			if (life <= 0)
-			{
-			
-			}
 		}
 
 	}
@@ -427,7 +440,11 @@ bool Boss2::getLifeZero()
 
 bool Boss2::scaleZeroFlag() 
 {
-	if (scale.x <= 0)return true;
+	if (scale.x <= 0)
+	{
+	
+		return true;
+	}
 	return false;
 }
 
