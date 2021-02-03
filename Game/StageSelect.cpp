@@ -222,12 +222,14 @@ void StageSelect::draw()
 
 void StageSelect::end()
 {
-	Stage::getInstance()->initialize(stage);
 	Library::setCameraAngle({ 0,0,0 }, { 0,0,0 }, { 0,0,0 });
 }
 
 std::string StageSelect::nextScene()
 {
 	if (titleBack)return "Title";
+
+
+	Stage::getInstance()->initialize(stage);
 	return "Play";
 }

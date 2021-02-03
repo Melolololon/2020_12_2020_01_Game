@@ -176,6 +176,7 @@ void ObjectManager::end()
 
 void ObjectManager::addObject(Object* object)
 {
+	if(object)
 	objects.push_back(object);
 }
 

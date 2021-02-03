@@ -56,6 +56,8 @@ private:
 	static const int CreateNum;
 	static int createCount;
 
+	static const int TuibiCreateNum;
+	static int tuibiCreateCount;
 
 	static const int PunchCreateNum;
 	static int punchCreateCount;

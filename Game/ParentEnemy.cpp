@@ -87,7 +87,7 @@ void ParentEnemy::Initialize()
 void ParentEnemy::update()
 {
 	position = position + velocity * speed;
-	Library::setPosition(position, heapHandle, heapNum);
+	Library::setPosition({ position .x,position .y + 1,position .z}, heapHandle, heapNum);
 	sphereData[0].position = position;
 
 

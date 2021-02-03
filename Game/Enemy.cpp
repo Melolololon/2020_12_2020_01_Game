@@ -17,6 +17,9 @@ const int Enemy::TuibiEndTime = 60 * 7;
 const int Enemy::CreateNum = 20;
 int Enemy::createCount;
 
+const int Enemy::TuibiCreateNum = 20;
+int Enemy::tuibiCreateCount;
+
 const int Enemy::PunchCreateNum = 10;
 int Enemy::punchCreateCount;
 
@@ -61,6 +64,12 @@ void Enemy::loadModel()
 	PolygonManager::getInstance()->addPolygonHeap("enemy", h);
 
 
+	Library::loadOBJVertex("Resources/Obj/tuibiEnemy.obj", true, true, &s, &v);
+	Library::loadOBJMaterial("Resources/Obj/", s, PunchCreateNum, &h);
+	PolygonManager::getInstance()->addPolygonVertex("tuibiEnemy", v);
+	PolygonManager::getInstance()->addPolygonHeap("tuibiEnemy", h);
+
+
 	Library::loadOBJVertex("Resources/Obj/punch.obj", true, true, &s, &v);
 	Library::loadOBJMaterial("Resources/Obj/", s, PunchCreateNum, &h);
 	PolygonManager::getInstance()->addPolygonVertex("shotPunch", v);
@@ -80,6 +89,16 @@ void Enemy::Initialize()
 		//enemyType = EnemyType::PLAYER_TUIBI;
 		speed = 0.2f;
 		Library::setScale({ 3,3,3 }, heapHandle, heapNum);
+	}
+	else if(enemyType == EnemyType::PLAYER_TUIBI)
+	{
+		vertexHandle = PolygonManager::getInstance()->getPolygonVertex("tuibiEnemy");
+		heapHandle = PolygonManager::getInstance()->getPolygonVertex("tuibiEnemy");
+		heapNum = tuibiCreateCount;
+		tuibiCreateCount++;
+		tuibiCreateCount = tuibiCreateCount >= TuibiCreateNum ? 0 : tuibiCreateCount;
+		//enemyType = EnemyType::PLAYER_TUIBI;
+		//Library::setScale({ 3,3,3 }, heapHandle, heapNum);
 	}
 	else 
 	{

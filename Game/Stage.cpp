@@ -132,7 +132,7 @@ void Stage::initialize(const int& stageNum)
 		break;
 
 	case 5:
-		enemys.resize(7);
+		enemys.resize(6);
 		enemys[0] = new ParentEnemy({ 25,0,20 }, 135);
 		enemys[1] = new ParentEnemy({ 25,0,-20 }, 180 + 45);
 
@@ -140,8 +140,8 @@ void Stage::initialize(const int& stageNum)
 		enemys[3] = new ParentEnemy({ -25,0,-20 }, 270 + 45);
 
 
-		enemys[5] = new ParentEnemy({ 0,0,20 }, ParentEnemy::PENEMY_TARGET);
-		enemys[6] = new ParentEnemy({ 0,0,0 }, 90);
+		enemys[4] = new ParentEnemy({ 0,0,20 }, ParentEnemy::PENEMY_TARGET);
+		enemys[5] = new ParentEnemy({ 0,0,0 }, 90);
 		break;
 
 	case 6:
