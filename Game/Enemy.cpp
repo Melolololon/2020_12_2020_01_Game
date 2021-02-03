@@ -178,8 +178,6 @@ void Enemy::update()
 
 	if (life <= 0 && !myShot)
 	{
-
-		Library::playSound("Resources/Sound/Bakuhatu.wav");
 		isDead = true;
 	}
 
