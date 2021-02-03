@@ -191,6 +191,8 @@ void Boss2::update()
 
 		if(scale.x <= 0.02)
 		{
+
+			Library::playSound("Resources/Sound/Bakuhatu.wav");
 			for (int i = 0; i < 10; i++)
 			{
 				ObjectManager::getInstance()->addObject(new Particle(position, Particle::PARTICLE_ENEMY_DEAD));
